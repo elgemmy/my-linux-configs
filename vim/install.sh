@@ -22,6 +22,10 @@ elif command -v dnf &> /dev/null; then
     echo -e "${YELLOW}Installing vim with clipboard support (Fedora)...${NC}"
     sudo dnf install -y vim-enhanced xclip
     echo -e "${GREEN}✅ Vim installed successfully${NC}"
+elif command -v pacman &> /dev/null; then
+    echo -e "${YELLOW}Installing vim with clipboard support (Arch Linux)...${NC}"
+    sudo pacman -Sy --noconfirm gvim xclip
+    echo -e "${GREEN}✅ Vim installed successfully${NC}"
 else
     echo -e "${RED}Package manager not supported. Please install vim with clipboard support manually.${NC}"
     exit 1

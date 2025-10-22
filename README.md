@@ -1,7 +1,7 @@
 # Linux Config Repository
 
 ## Overview
-Clean, modular dotfiles for quick Linux development environment setup on Debian and Fedora distros.
+Clean, modular dotfiles for quick Linux development environment setup on Debian/Ubuntu, Fedora, and Arch Linux distributions.
 
 ## Repository Structure
 ```
@@ -105,6 +105,7 @@ chmod +x */install.sh
 # Install system build tools (required for development)
 # Ubuntu/Debian: sudo apt update && sudo apt install -y build-essential curl git wget
 # Fedora: sudo dnf install -y @development-tools curl git wget
+# Arch Linux: sudo pacman -Sy base-devel curl git wget
 ```
 
 ### Component Installation Order
@@ -171,12 +172,13 @@ cp zsh/zshrc ~/.zshrc
 - Automatic installation and fallback handling
 
 ## Supported Systems
-- Ubuntu/Debian-based distributions (Ubuntu, Linux Mint, Pop!_OS, Elementary OS, etc.)
-- Fedora and Red Hat-based distributions
-- Other derivatives with apt or dnf package managers
+- **Ubuntu/Debian-based** distributions (Ubuntu, Linux Mint, Pop!_OS, Elementary OS, etc.)
+- **Fedora and Red Hat-based** distributions (Fedora, RHEL, CentOS, Rocky Linux, etc.)
+- **Arch Linux-based** distributions (Arch, Manjaro, EndeavourOS, Garuda, etc.)
+- Other derivatives with apt, dnf, or pacman package managers
 
 ## Installation Scripts
-- Automatic package manager detection (apt/dnf)
+- Automatic package manager detection (apt/dnf/pacman)
 - Safe backup of existing configurations
 - Error handling and verification
 - Minimal dependencies and complexity

@@ -71,7 +71,9 @@ if [ -f /etc/fedora-release ]; then
     export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk
 fi
 
-# Load any local overrides (created by Java installer)
+# Load any local overrides (created by Java installer for Fedora/Arch)
+# Arch Linux paths: /usr/lib/jvm/java-17-openjdk and /usr/lib/jvm/java-21-openjdk
+# Fedora also uses these paths and creates custom switcher functions
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
 export JAVA_HOME=$JAVA_HOME_21
@@ -304,7 +306,7 @@ if command -v fzf >/dev/null 2>&1; then
         local dir
         dir=$(find ${1:-.} -type d 2>/dev/null | fzf --height 40% --border) && cd "$dir"
     }
-    
+
     # Quick file editing with fuzzy search and preview
     vff() {
         local file
@@ -316,38 +318,38 @@ fi
 mkproject() {
     local name="$1"
     local template="${2:-basic}"
-    
+
     [[ -z "$name" ]] && { echo "Usage: mkproject <name> [template]"; return 1; }
-    
+
     mkdir -p ~/Projects/"$name" && cd ~/Projects/"$name"
     git init
-    
+
     case "$template" in
-        "node") 
-            echo '{"name":"'$name'","version":"1.0.0","main":"index.js"}' > package.json 
+        "node")
+            echo '{"name":"'$name'","version":"1.0.0","main":"index.js"}' > package.json
             echo "console.log('Hello from $name');" > index.js
             ;;
-        "python") 
-            touch requirements.txt 
+        "python")
+            touch requirements.txt
             echo "# $name" > README.md
             echo "#!/usr/bin/env python3" > main.py
             ;;
-        "go") 
-            go mod init "$name" 
+        "go")
+            go mod init "$name"
             echo "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"Hello from $name\")\n}" > main.go
             ;;
-        *) 
-            echo "# $name\n\nA new project." > README.md 
+        *)
+            echo "# $name\n\nA new project." > README.md
             ;;
     esac
-    
+
     echo "Created $template project: $name"
 }
 
 # Git utility functions (gwip is provided by Oh My Zsh git plugin)
-gsync() { 
+gsync() {
     echo "Syncing with remote..."
-    git pull --rebase --autostash && git push 
+    git pull --rebase --autostash && git push
 }
 
 # Git branch management
@@ -380,21 +382,21 @@ if command -v psql >/dev/null 2>&1; then
     psql-list() {
         psql -U postgres -c "\l"
     }
-    
+
     # Create database
     psql-create() {
         [[ -z "$1" ]] && { echo "Usage: psql-create <dbname>"; return 1; }
         createdb -U postgres "$1"
         echo "Database '$1' created"
     }
-    
-    # Drop database  
+
+    # Drop database
     psql-drop() {
         [[ -z "$1" ]] && { echo "Usage: psql-drop <dbname>"; return 1; }
         read "response?Are you sure you want to drop database '$1'? (y/N): "
         [[ "$response" =~ ^[Yy]$ ]] && dropdb -U postgres "$1" && echo "Database '$1' dropped"
     }
-    
+
     # Connect to database
     psql-connect() {
         local db="${1:-postgres}"
@@ -402,20 +404,20 @@ if command -v psql >/dev/null 2>&1; then
     }
 fi
 
-# Docker Management Utilities  
+# Docker Management Utilities
 if command -v docker >/dev/null 2>&1; then
     # Execute shell in running container
     dexec() {
         [[ -z "$1" ]] && { echo "Usage: dexec <container-name-or-id>"; return 1; }
         docker exec -it "$1" /bin/bash 2>/dev/null || docker exec -it "$1" /bin/sh
     }
-    
+
     # Follow container logs
     dlogs() {
         [[ -z "$1" ]] && { echo "Usage: dlogs <container-name-or-id>"; return 1; }
         docker logs -f "$1"
     }
-    
+
     # Clean up Docker system
     dclean() {
         echo "Cleaning up Docker system..."
@@ -423,12 +425,12 @@ if command -v docker >/dev/null 2>&1; then
         docker image prune -f
         echo "Docker cleanup complete"
     }
-    
+
     # Show container resource usage
     dstats() {
         docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
     }
-    
+
     # Quick container management
     dstop() { docker stop "$1"; }
     dstart() { docker start "$1"; }
@@ -467,7 +469,7 @@ devinfo() {
 # Project Environment Setup
 setup-env() {
     local project_type="$1"
-    
+
     case "$project_type" in
         "node"|"js"|"javascript")
             echo "Setting up Node.js environment..."
@@ -488,7 +490,7 @@ setup-env() {
         *)
             echo "Usage: setup-env <node|python|go>"
             echo "  node    - Initialize package.json, install eslint & prettier"
-            echo "  python  - Create virtual environment"  
+            echo "  python  - Create virtual environment"
             echo "  go      - Initialize go module"
             ;;
     esac
@@ -573,7 +575,7 @@ print_welcome_msg() {
     printf "${BOLD}Branch:${RESET} %s\n" "$(git branch --show-current 2>/dev/null)"
   fi
   hr
-  
+
   # Coffee Quote
   _generate_coffee_quote
   hr

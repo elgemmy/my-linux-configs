@@ -22,8 +22,11 @@ if command -v apt &> /dev/null; then
 elif command -v dnf &> /dev/null; then
     PKG_MANAGER="dnf"
     INSTALL_CMD="sudo dnf install -y"
+elif command -v pacman &> /dev/null; then
+    PKG_MANAGER="pacman"
+    INSTALL_CMD="sudo pacman -S --noconfirm"
 else
-    echo "❌ Unsupported package manager. This script supports apt (Ubuntu/Debian) and dnf (Fedora)."
+    echo "❌ Unsupported package manager. This script supports apt (Ubuntu/Debian), dnf (Fedora), and pacman (Arch Linux)."
     exit 1
 fi
 
@@ -34,7 +37,7 @@ echo
 install_package() {
     local package=$1
     local description=$2
-    
+
     echo -e "${YELLOW}📦 Installing $description ($package)...${NC}"
     if $INSTALL_CMD $package; then
         echo -e "${GREEN}✅ $description installed successfully${NC}"
@@ -51,13 +54,16 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Installing database tools...${NC}"
     install_package "sqlite3" "SQLite database"
-    
+
     if [ "$PKG_MANAGER" = "apt" ]; then
         install_package "postgresql-client" "PostgreSQL client"
         install_package "mysql-client" "MySQL client"
     elif [ "$PKG_MANAGER" = "dnf" ]; then
         install_package "postgresql" "PostgreSQL client"
         install_package "mysql" "MySQL client"
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        install_package "postgresql-libs" "PostgreSQL client"
+        install_package "mariadb-clients" "MySQL/MariaDB client"
     fi
 else
     echo -e "${YELLOW}⏭️  Skipping database tools installation${NC}"
@@ -72,11 +78,14 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Installing network and API tools...${NC}"
     install_package "httpie" "HTTPie (modern HTTP client)"
     install_package "jq" "JSON processor"
-    
+
     if [ "$PKG_MANAGER" = "apt" ]; then
         install_package "net-tools" "Network utilities"
         install_package "nmap" "Network mapper"
     elif [ "$PKG_MANAGER" = "dnf" ]; then
+        install_package "net-tools" "Network utilities"
+        install_package "nmap" "Network mapper"
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
         install_package "net-tools" "Network utilities"
         install_package "nmap" "Network mapper"
     fi
@@ -121,6 +130,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     elif [ "$PKG_MANAGER" = "dnf" ]; then
         install_package "unzip" "Unzip utility"
         install_package "p7zip" "7-Zip archive tool"
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        install_package "unzip" "Unzip utility"
+        install_package "p7zip" "7-Zip archive tool"
     fi
 else
     echo -e "${YELLOW}⏭️  Skipping archive utilities installation${NC}"
@@ -141,6 +153,10 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         install_package "bat" "Modern cat alternative"
         install_package "fd-find" "Modern find alternative"
         install_package "ripgrep" "Modern grep alternative"
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        install_package "bat" "Modern cat alternative"
+        install_package "fd" "Modern find alternative"
+        install_package "ripgrep" "Modern grep alternative"
     fi
 else
     echo -e "${YELLOW}⏭️  Skipping modern CLI tools installation${NC}"
@@ -153,18 +169,24 @@ read -p "Do you want to install Docker? (y/N): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Installing Docker...${NC}"
-    
+
     if [ "$PKG_MANAGER" = "apt" ]; then
         # Docker official installation script
         curl -fsSL https://get.docker.com -o get-docker.sh
         sudo sh get-docker.sh
         rm get-docker.sh
-        
+
         # Add user to docker group
         sudo usermod -aG docker $USER
         echo -e "${GREEN}✅ Docker installed. Log out and back in to use docker without sudo.${NC}"
-        
+
     elif [ "$PKG_MANAGER" = "dnf" ]; then
+        $INSTALL_CMD docker docker-compose
+        sudo systemctl enable --now docker
+        sudo usermod -aG docker $USER
+        echo -e "${GREEN}✅ Docker installed and enabled. Log out and back in to use docker without sudo.${NC}"
+
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
         $INSTALL_CMD docker docker-compose
         sudo systemctl enable --now docker
         sudo usermod -aG docker $USER

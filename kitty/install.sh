@@ -22,6 +22,10 @@ elif command -v dnf &> /dev/null; then
     echo -e "${YELLOW}Installing Kitty terminal (Fedora)...${NC}"
     sudo dnf install -y kitty
     echo -e "${GREEN}✅ Kitty installed successfully${NC}"
+elif command -v pacman &> /dev/null; then
+    echo -e "${YELLOW}Installing Kitty terminal (Arch Linux)...${NC}"
+    sudo pacman -Sy --noconfirm kitty
+    echo -e "${GREEN}✅ Kitty installed successfully${NC}"
 else
     echo -e "${RED}Package manager not supported. Please install kitty manually.${NC}"
     exit 1

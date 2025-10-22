@@ -22,6 +22,10 @@ elif command -v dnf &> /dev/null; then
     PKG_MANAGER="dnf"
     echo -e "${YELLOW}Installing ZSH (Fedora)...${NC}"
     sudo dnf install -y zsh curl git
+elif command -v pacman &> /dev/null; then
+    PKG_MANAGER="pacman"
+    echo -e "${YELLOW}Installing ZSH (Arch Linux)...${NC}"
+    sudo pacman -Sy --noconfirm zsh curl git
 else
     echo -e "${RED}Package manager not supported. Please install zsh manually.${NC}"
     exit 1
@@ -65,6 +69,8 @@ if [ "$PKG_MANAGER" = "apt" ]; then
     sudo apt install -y tig fzf
 elif [ "$PKG_MANAGER" = "dnf" ]; then
     sudo dnf install -y tig fzf
+elif [ "$PKG_MANAGER" = "pacman" ]; then
+    sudo pacman -S --noconfirm tig fzf
 fi
 echo -e "${GREEN}✅ System packages installed${NC}"
 
@@ -83,10 +89,15 @@ fi
 
 # Install Rust-based modern CLI tools
 echo -e "\n${BLUE}⚡ Installing modern CLI tools (eza, bat, fd-find, ripgrep)...${NC}"
-if command -v cargo &> /dev/null; then
+if [ "$PKG_MANAGER" = "pacman" ]; then
+    # Arch has all modern tools in official repos - much faster than cargo
+    echo -e "${YELLOW}Installing modern CLI tools from Arch repos...${NC}"
+    sudo pacman -S --noconfirm eza bat fd ripgrep
+    echo -e "${GREEN}✅ Modern CLI tools installed successfully from official repos${NC}"
+elif command -v cargo &> /dev/null; then
     # Source cargo environment if not already available
     [[ -f ~/.cargo/env ]] && source ~/.cargo/env
-    
+
     echo -e "${YELLOW}Installing Rust-based CLI tools...${NC}"
     cargo install eza bat fd-find ripgrep
     echo -e "${GREEN}✅ Modern CLI tools installed successfully${NC}"

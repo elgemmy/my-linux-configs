@@ -42,8 +42,12 @@ elif command -v dnf &> /dev/null; then
     PKG_MANAGER="dnf"
     UPDATE_CMD="sudo dnf update -y"
     INSTALL_CMD="sudo dnf install -y"
+elif command -v pacman &> /dev/null; then
+    PKG_MANAGER="pacman"
+    UPDATE_CMD="sudo pacman -Sy"
+    INSTALL_CMD="sudo pacman -S --noconfirm"
 else
-    echo "❌ Unsupported package manager. This script supports apt (Ubuntu/Debian) and dnf (Fedora)."
+    echo "❌ Unsupported package manager. This script supports apt (Ubuntu/Debian), dnf (Fedora), and pacman (Arch Linux)."
     exit 1
 fi
 
@@ -60,6 +64,8 @@ if [ "$PKG_MANAGER" = "apt" ]; then
     $INSTALL_CMD build-essential curl git wget
 elif [ "$PKG_MANAGER" = "dnf" ]; then
     $INSTALL_CMD @development-tools curl git wget
+elif [ "$PKG_MANAGER" = "pacman" ]; then
+    $INSTALL_CMD base-devel curl git wget
 fi
 
 # Install Python development (interactive)
@@ -75,6 +81,8 @@ else
         $INSTALL_CMD python3 python3-pip python3-venv python3-dev
     elif [ "$PKG_MANAGER" = "dnf" ]; then
         $INSTALL_CMD python3 python3-pip python3-devel
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        $INSTALL_CMD python python-pip
     fi
     PYTHON_INSTALLED=true
     echo -e "${GREEN}✅ Python installation completed${NC}"
@@ -108,27 +116,27 @@ else
         echo -e "${BLUE}📥 Fetching latest NVM version...${NC}"
         # Get the latest NVM version dynamically from GitHub API
         NVM_VERSION=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
-        
+
         if [ -z "$NVM_VERSION" ]; then
             echo -e "${YELLOW}⚠️  Could not fetch latest NVM version, using fallback v0.40.3${NC}"
             NVM_VERSION="v0.40.3"
         else
             echo -e "${GREEN}✅ Latest NVM version: $NVM_VERSION${NC}"
         fi
-        
+
         # Install NVM with the latest version
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
-        
+
         # Source NVM for this script
         export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        
+
         # Install latest LTS Node.js (dynamically determined)
         echo -e "${BLUE}📥 Installing latest LTS Node.js...${NC}"
         nvm install --lts
         nvm use --lts
         nvm alias default lts/*
-        
+
         # Get installed Node.js version for display
         NODE_VERSION=$(node --version 2>/dev/null || echo "unknown")
         echo -e "${GREEN}✅ Node.js $NODE_VERSION LTS installed via NVM${NC}"
@@ -138,11 +146,11 @@ else
         # Still ensure we're using the latest LTS if NVM exists
         export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        
+
         echo -e "${BLUE}🔄 Ensuring latest LTS Node.js is installed...${NC}"
         nvm install --lts --reinstall-packages-from=current 2>/dev/null || nvm install --lts
         nvm alias default lts/*
-        
+
         NODE_VERSION=$(node --version 2>/dev/null || echo "unknown")
         echo -e "${GREEN}✅ Using Node.js $NODE_VERSION LTS${NC}"
         NODEJS_INSTALLED=true

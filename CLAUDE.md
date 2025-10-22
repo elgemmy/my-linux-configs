@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a modular Linux development environment configuration repository that provides clean, organized dotfiles and installation scripts for Debian/Ubuntu and Fedora-based distributions. The repository focuses on creating a modern terminal-based development environment with ZSH, modern CLI tools, and essential development tooling.
+This is a modular Linux development environment configuration repository that provides clean, organized dotfiles and installation scripts for Debian/Ubuntu, Fedora, and Arch Linux-based distributions. The repository focuses on creating a modern terminal-based development environment with ZSH, modern CLI tools, and essential development tooling.
 
 ## Architecture & Structure
 
@@ -27,10 +27,11 @@ The repository follows a modular component-based architecture where each compone
 
 **Key Design Principles:**
 - Interactive installation with user choice at each step
-- Automatic package manager detection (apt/dnf)
+- Automatic package manager detection (apt/dnf/pacman)
 - Safe backup mechanisms for existing configurations
 - Proper dependency ordering (fonts → dev tools → shell → terminal → editor)
 - Comprehensive testing and validation framework
+- Cross-distribution compatibility (Debian/Ubuntu, Fedora, Arch Linux)
 
 ## Common Commands
 
@@ -49,12 +50,16 @@ cd dev && ./install-essentials.sh
 cd dev && ./install-optional.sh
 ```
 
-### Recent Fixes (2024)
-The installation system includes several important fixes for fresh system installations:
+### Recent Updates (2024-2025)
+The installation system includes several important fixes and enhancements:
+
+**Arch Linux Support (2025)**: Full support for Arch Linux and derivatives (Manjaro, EndeavourOS, etc.) with pacman package manager detection. Arch benefits from excellent package availability in official repos, eliminating cargo compilation for modern CLI tools.
 
 **PATH Loading Issues**: Scripts now automatically reload shell environment after installing Rust and Go, ensuring dependent tools can be installed in the same session.
 
 **Fedora Java Support**: Enhanced Java installation with proper alternatives system setup and cross-platform path detection.
+
+**Arch Java Integration**: Java installation uses archlinux-java for version management, with custom switcher functions in ~/.zshrc.local.
 
 **Hyprland Compatibility**: Master installer automatically detects Hyprland environment and uses safe script execution to avoid command injection issues.
 
@@ -123,7 +128,7 @@ The ZSH installation includes modern replacements for traditional Unix tools:
 
 ### Installation Scripts
 - Each component has a self-contained `install.sh` script
-- Scripts detect package manager automatically (apt vs dnf)
+- Scripts detect package manager automatically (apt/dnf/pacman)
 - Interactive prompts for user choice where appropriate
 - Comprehensive error handling and verification
 - Color-coded output for better user experience
@@ -153,12 +158,26 @@ The repository includes a comprehensive testing framework in `testing/`:
 ### Script Structure
 All installation scripts follow a consistent pattern:
 1. Color code definitions for output
-2. Package manager detection
-3. Update package lists
-4. Install core dependencies
+2. Package manager detection (apt/dnf/pacman)
+3. Update package lists (apt update / dnf update / pacman -Sy)
+4. Install core dependencies with distro-specific package names
 5. Interactive user choices for optional components
 6. Configuration file installation with backup
 7. Verification and completion messages
+
+**Package Manager Pattern:**
+```bash
+if command -v apt &> /dev/null; then
+    PKG_MANAGER="apt"
+    INSTALL_CMD="sudo apt install -y"
+elif command -v dnf &> /dev/null; then
+    PKG_MANAGER="dnf"
+    INSTALL_CMD="sudo dnf install -y"
+elif command -v pacman &> /dev/null; then
+    PKG_MANAGER="pacman"
+    INSTALL_CMD="sudo pacman -S --noconfirm"
+fi
+```
 
 ### Error Handling
 - Scripts use `set -e` for early termination on errors
@@ -171,3 +190,27 @@ All installation scripts follow a consistent pattern:
 - Java version switching is implemented as ZSH functions
 - Modern CLI tools are integrated via aliases and PATH modifications
 - All development environments respect user-level installations over system-wide when possible
+
+### Distribution-Specific Notes
+
+**Arch Linux Advantages:**
+- Modern CLI tools (bat, fd, ripgrep, eza) available in official repos - no cargo compilation needed
+- Fonts (ttf-fira-code, ttf-jetbrains-mono) in official repos
+- Java version management via `archlinux-java` command
+- Generally more up-to-date packages than Debian/Ubuntu
+- Package names often simpler (python vs python3, fd vs fd-find)
+
+**Debian/Ubuntu:**
+- Most stable package versions
+- Broader hardware support
+- Some packages require PPA or manual installation
+
+**Fedora:**
+- Balance between stability and up-to-date packages
+- Uses alternatives system for Java version management
+- Similar package naming to Arch for many tools
+
+**Java Path Detection (Cross-Platform):**
+- Debian/Ubuntu: `/usr/lib/jvm/java-XX-openjdk-amd64`
+- Fedora/Arch: `/usr/lib/jvm/java-XX-openjdk`
+- System-specific paths override via `~/.zshrc.local`
