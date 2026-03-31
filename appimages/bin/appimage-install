@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# appimage-install — install an AppImage as a desktop app
+#
+# Usage: appimage-install <path-to.AppImage>
+#
+# What it does:
+#   1. Asks you to confirm the target name (suggests one from the filename)
+#   2. Moves the AppImage to ~/Applications/<name>.AppImage
+#   3. Extracts the icon and metadata from inside the AppImage
+#   4. Creates ~/.local/share/applications/<name>.desktop
+#   5. Refreshes the desktop and icon caches
+
+set -e
+
+SRC="$1"
+APPS_DIR="$HOME/Applications"
+ICONS_BASE="$HOME/.local/share/icons/hicolor"
+DESKTOP_DIR="$HOME/.local/share/applications"
+TMP="/tmp/appimage-install-$$"
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+die()  { echo "error: $*" >&2; rm -rf "$TMP"; exit 1; }
+info() { echo "  $*"; }
+
+desktop_field() {
+    /usr/bin/grep -m1 "^${1}=" "$TMP/squashfs-root/"*.desktop 2>/dev/null \
+        | cut -d= -f2-
+}
+
+best_icon() {
+    for size in 512x512 256x256 1024x1024 128x128 64x64 48x48; do
+        local icon
+        icon=$(ls "$TMP/squashfs-root/usr/share/icons/hicolor/$size/apps/"*.png 2>/dev/null | head -1)
+        [ -n "$icon" ] && echo "$icon" && return
+    done
+    ls "$TMP/squashfs-root/"*.png 2>/dev/null | head -1
+}
+
+# ── validate input ────────────────────────────────────────────────────────────
+
+[ -z "$SRC" ] && die "Usage: appimage-install <path-to.AppImage>"
+[ -f "$SRC" ] || die "File not found: $SRC"
+
+# ── ask for name ──────────────────────────────────────────────────────────────
+
+BASENAME=$(basename "$SRC")
+
+# Derive a suggestion: strip extension + version patterns, lowercase, kebab
+SUGGESTED=$(echo "${BASENAME%.AppImage}" \
+    | sed 's/[-_][vV]*[0-9][0-9.]*[^[:space:]]*//' \
+    | tr '[:upper:]' '[:lower:]' \
+    | tr ' _' '-' \
+    | sed 's/-$//')
+
+echo ""
+echo "File: $BASENAME"
+echo ""
+printf "Target name [%s]: " "$SUGGESTED"
+read -r INPUT
+NAME="${INPUT:-$SUGGESTED}"
+
+# Basic sanity check on the name
+[[ "$NAME" =~ ^[a-z0-9][a-z0-9-]*$ ]] \
+    || die "Name must be lowercase letters, digits, and hyphens (got: '$NAME')"
+
+TARGET="$APPS_DIR/$NAME.AppImage"
+[ -f "$TARGET" ] && die "$NAME is already installed — use appimage-update to upgrade."
+
+echo ""
+echo "→ Installing as '$NAME'"
+
+# ── install ───────────────────────────────────────────────────────────────────
+
+mv -f "$SRC" "$TARGET"
+chmod +x "$TARGET"
+
+mkdir -p "$TMP" && cd "$TMP"
+"$TARGET" --appimage-extract > /dev/null 2>&1 \
+    || die "Extraction failed — is this a valid AppImage?"
+
+APP_NAME=$(desktop_field Name)
+APP_COMMENT=$(desktop_field Comment)
+APP_WMCLASS=$(desktop_field StartupWMClass)
+APP_MIME=$(desktop_field MimeType)
+APP_CATS=$(desktop_field Categories)
+APP_VER=$(desktop_field X-AppImage-Version)
+
+[ -z "$APP_NAME" ] && APP_NAME="$NAME"
+
+ICON_SRC=$(best_icon)
+if [ -n "$ICON_SRC" ]; then
+    EXT="${ICON_SRC##*.}"
+    SIZE=$(echo "$ICON_SRC" | sed 's|.*/hicolor/\([^/]*\)/.*|\1|')
+    [ -z "$SIZE" ] && SIZE="512x512"
+    ICON_DEST="$ICONS_BASE/$SIZE/apps/$NAME.$EXT"
+    mkdir -p "$(dirname "$ICON_DEST")"
+    cp "$ICON_SRC" "$ICON_DEST"
+    info "Icon:    $ICON_DEST"
+else
+    ICON_DEST=""
+    echo "warning: no icon found inside AppImage"
+fi
+
+{
+    echo "[Desktop Entry]"
+    echo "Name=$APP_NAME"
+    [ -n "$APP_COMMENT" ] && echo "Comment=$APP_COMMENT"
+    echo "Exec=$TARGET --no-sandbox %U"
+    echo "Terminal=false"
+    echo "Type=Application"
+    [ -n "$ICON_DEST" ]   && echo "Icon=$ICON_DEST"
+    [ -n "$APP_WMCLASS" ] && echo "StartupWMClass=$APP_WMCLASS"
+    [ -n "$APP_VER" ]     && echo "X-AppImage-Version=$APP_VER"
+    [ -n "$APP_MIME" ]    && echo "MimeType=$APP_MIME"
+    [ -n "$APP_CATS" ]    && echo "Categories=$APP_CATS"
+} > "$DESKTOP_DIR/$NAME.desktop"
+info "Desktop: $DESKTOP_DIR/$NAME.desktop"
+
+rm -rf "$TMP"
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+gtk-update-icon-cache   "$ICONS_BASE" -f -t 2>/dev/null || true
+
+echo ""
+echo "✓ $APP_NAME installed"

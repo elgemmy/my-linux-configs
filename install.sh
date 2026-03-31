@@ -156,6 +156,14 @@ if ask_confirmation "Optional Development Tools" "Install additional development
     echo -e "\n${GREEN}✅ Optional tools installation completed${NC}\n"
 fi
 
+# Module 9: AppImage Management
+if ask_confirmation "AppImage Management" "Set up ~/Applications/ and install two scripts:\n  • appimage-install: install any AppImage as a desktop app\n  • appimage-update:  update an installed AppImage\nOptional — only useful on desktop environments."; then
+    print_header "📦 AppImage Management Setup"
+    echo -e "${BLUE}📦 Setting up AppImage management...${NC}"
+    cd appimages && ./install.sh && cd ..
+    echo -e "\n${GREEN}✅ AppImage management setup completed${NC}\n"
+fi
+
 # Final summary
 print_header "🎉 Installation Complete!"
 echo -e "${GREEN}Your development environment has been successfully set up!${NC}"

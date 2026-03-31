@@ -32,6 +32,12 @@ my-linux-config/
 ├── fonts/
 │   ├── install.sh
 │   └── README.md
+├── appimages/
+│   ├── bin/
+│   │   ├── appimage-install
+│   │   └── appimage-update
+│   ├── install.sh
+│   └── README.md
 └── troubleshooting/
     ├── TROUBLESHOOTING.md
     └── fix-permissions.sh
@@ -62,6 +68,7 @@ The easiest way to set up your development environment:
 6. **Editor** (Vim configuration - optional)
 7. **Java development** (OpenJDK 17 & 21 - optional)
 8. **Additional tools** (databases, Docker, etc. - selective)
+9. **AppImage management** (`appimage-install` / `appimage-update` scripts - optional, desktop only)
 
 ### ⚡ One-Command Setup
 For a complete development environment with sensible defaults:
@@ -170,10 +177,16 @@ cp zsh/zshrc ~/.zshrc
 - Fira Code (primary) with JetBrains Mono backup
 - Automatic installation and fallback handling
 
+### AppImage Management
+- `appimage-install` — one command to turn any AppImage into a proper desktop app (icon, launcher entry, URI scheme handler)
+- `appimage-update` — one command to update any installed AppImage and refresh its icon
+- Follows the XDG desktop entry spec; works across GNOME, KDE, and other desktop environments
+- See `appimages/README.md` for full documentation
+
 ## Supported Systems
 - Ubuntu/Debian-based distributions (Ubuntu, Linux Mint, Pop!_OS, Elementary OS, etc.)
+- Arch-based distributions (Arch, Manjaro, EndeavourOS, etc.)
 - Fedora and Red Hat-based distributions
-- Other derivatives with apt or dnf package managers
 
 ## Installation Scripts
 - Automatic package manager detection (apt/dnf)

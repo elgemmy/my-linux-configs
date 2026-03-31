@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# appimage-update — replace an installed AppImage with a newer version
+#
+# Usage: appimage-update <name> <path-to-new.AppImage>
+# Example: appimage-update obsidian ~/Downloads/Obsidian-2.0.0.AppImage
+
+set -e
+
+NAME="$1"
+NEW_SRC="$2"
+APPS_DIR="$HOME/Applications"
+ICONS_BASE="$HOME/.local/share/icons/hicolor"
+DESKTOP_DIR="$HOME/.local/share/applications"
+TMP="/tmp/appimage-update-$$"
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+die()  { echo "error: $*" >&2; rm -rf "$TMP"; exit 1; }
+
+desktop_field() {
+    /usr/bin/grep -m1 "^${1}=" "$TMP/squashfs-root/"*.desktop 2>/dev/null \
+        | cut -d= -f2-
+}
+
+best_icon() {
+    for size in 512x512 256x256 1024x1024 128x128 64x64 48x48; do
+        local icon
+        icon=$(ls "$TMP/squashfs-root/usr/share/icons/hicolor/$size/apps/"*.png 2>/dev/null | head -1)
+        [ -n "$icon" ] && echo "$icon" && return
+    done
+    ls "$TMP/squashfs-root/"*.png 2>/dev/null | head -1
+}
+
+# ── validate ──────────────────────────────────────────────────────────────────
+
+[ -z "$NAME" ] || [ -z "$NEW_SRC" ] \
+    && die "Usage: appimage-update <name> <path-to-new.AppImage>"
+
+[ -f "$NEW_SRC" ] || die "File not found: $NEW_SRC"
+
+TARGET="$APPS_DIR/$NAME.AppImage"
+[ -f "$TARGET" ] || die "'$NAME' is not installed (expected $TARGET). Use appimage-install first."
+
+DESKTOP="$DESKTOP_DIR/$NAME.desktop"
+[ -f "$DESKTOP" ] || die "Desktop entry not found: $DESKTOP"
+
+# ── update ────────────────────────────────────────────────────────────────────
+
+echo "→ Updating $NAME..."
+
+mv -f "$NEW_SRC" "$TARGET"
+chmod +x "$TARGET"
+
+# Extract new AppImage to refresh icon and read new version
+mkdir -p "$TMP" && cd "$TMP"
+"$TARGET" --appimage-extract > /dev/null 2>&1 \
+    || die "Extraction failed — is this a valid AppImage?"
+
+NEW_VER=$(desktop_field X-AppImage-Version)
+
+# Refresh icon in-place (read destination from existing desktop entry)
+ICON_DEST=$(/usr/bin/grep -m1 "^Icon=" "$DESKTOP" | cut -d= -f2-)
+ICON_SRC=$(best_icon)
+
+if [ -n "$ICON_SRC" ] && [ -n "$ICON_DEST" ]; then
+    mkdir -p "$(dirname "$ICON_DEST")"
+    cp "$ICON_SRC" "$ICON_DEST"
+    echo "  Icon refreshed."
+fi
+
+# Update version field in existing desktop entry
+if [ -n "$NEW_VER" ]; then
+    sed -i "s/^X-AppImage-Version=.*/X-AppImage-Version=$NEW_VER/" "$DESKTOP"
+fi
+
+rm -rf "$TMP"
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+gtk-update-icon-cache   "$ICONS_BASE" -f -t 2>/dev/null || true
+
+echo "✓ $NAME updated${NEW_VER:+ to v$NEW_VER}"
