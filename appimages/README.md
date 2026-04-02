@@ -52,6 +52,18 @@ The script will:
 
 The app appears in the launcher immediately.
 
+### Removing an installed AppImage
+
+```bash
+appimage-uninstall <name>
+```
+
+Shows every file that will be deleted (AppImage, desktop entry, icon) and prompts for confirmation before touching anything. Defaults to **No** — you must explicitly type `y`.
+
+```bash
+appimage-uninstall -y <name>   # skip confirmation (for scripting)
+```
+
 ### Updating an installed AppImage
 
 ```bash

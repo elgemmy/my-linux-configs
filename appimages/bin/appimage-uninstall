@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# appimage-uninstall — remove an installed AppImage and all its desktop artifacts
+#
+# Usage:
+#   appimage-uninstall <name>       # prompts for confirmation
+#   appimage-uninstall -y <name>    # skips confirmation (for scripting)
+
+set -e
+
+APPS_DIR="$HOME/Applications"
+DESKTOP_DIR="$HOME/.local/share/applications"
+ICONS_BASE="$HOME/.local/share/icons/hicolor"
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+die() { echo "error: $*" >&2; exit 1; }
+
+# ── confirmation ──────────────────────────────────────────────────────────────
+# TODO: implement your preferred confirmation behavior.
+#
+# Receives: the list of files that will be deleted (as "$@")
+# Must:     show the user what will be removed, then either
+#           return 0 to proceed or exit 1 to abort.
+#
+# The -y flag bypasses this function entirely (see below).
+#
+# Approaches to consider:
+#   • List each file + single "Remove? [y/N]" — explicit, no surprises
+#   • Just name + count + "Remove? [y/N]" — cleaner for routine use
+#   Default-to-no [y/N] is safer for a destructive op; default-to-yes [Y/n] is faster.
+confirm_uninstall() {
+    local files=("$@")
+    # your implementation here (~5-8 lines)
+    echo "Would remove:"
+    for f in "${files[@]}"; do echo "  $f"; done
+    printf "Proceed? [y/N] "
+    read -r reply
+    [[ "$reply" =~ ^[Yy]$ ]] || exit 1
+}
+
+# ── argument parsing ──────────────────────────────────────────────────────────
+
+SKIP_CONFIRM=false
+if [[ "$1" == "-y" ]]; then
+    SKIP_CONFIRM=true
+    shift
+fi
+
+NAME="$1"
+[ -z "$NAME" ] && die "Usage: appimage-uninstall [-y] <name>"
+
+# ── resolve artifacts ─────────────────────────────────────────────────────────
+
+APPIMAGE="$APPS_DIR/$NAME.AppImage"
+DESKTOP="$DESKTOP_DIR/$NAME.desktop"
+
+[ -f "$APPIMAGE" ] || [ -f "$DESKTOP" ] \
+    || die "'$NAME' does not appear to be installed (nothing found in $APPS_DIR or $DESKTOP_DIR)"
+
+# Collect everything that exists
+TO_REMOVE=()
+[ -f "$APPIMAGE" ] && TO_REMOVE+=("$APPIMAGE")
+
+# Any .zs-old AppImageUpdate backup
+[ -f "$APPIMAGE.zs-old" ] && TO_REMOVE+=("$APPIMAGE.zs-old")
+
+# Icon — read path from desktop entry so we don't have to guess size/location
+if [ -f "$DESKTOP" ]; then
+    ICON_PATH=$(/usr/bin/grep -m1 "^Icon=" "$DESKTOP" | cut -d= -f2-)
+    # Only add if it's an absolute path we installed (not a theme icon name)
+    if [[ "$ICON_PATH" == /* ]] && [ -f "$ICON_PATH" ]; then
+        TO_REMOVE+=("$ICON_PATH")
+    fi
+    TO_REMOVE+=("$DESKTOP")
+fi
+
+# ── confirm and remove ────────────────────────────────────────────────────────
+
+if [ "$SKIP_CONFIRM" = false ]; then
+    confirm_uninstall "${TO_REMOVE[@]}"
+fi
+
+for f in "${TO_REMOVE[@]}"; do
+    rm -f "$f"
+done
+
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+gtk-update-icon-cache   "$ICONS_BASE" -f -t 2>/dev/null || true
+
+echo "✓ $NAME removed"

@@ -20,10 +20,13 @@ echo -e "${GREEN}✅ ~/Applications ready${NC}"
 # Install scripts
 echo -e "\n${BLUE}🔧 Installing scripts to ~/.local/bin...${NC}"
 mkdir -p "$HOME/.local/bin"
-cp "$SCRIPT_DIR/bin/appimage-install" "$HOME/.local/bin/appimage-install"
-cp "$SCRIPT_DIR/bin/appimage-update"  "$HOME/.local/bin/appimage-update"
-chmod +x "$HOME/.local/bin/appimage-install" "$HOME/.local/bin/appimage-update"
-echo -e "${GREEN}✅ appimage-install and appimage-update installed${NC}"
+cp "$SCRIPT_DIR/bin/appimage-install"   "$HOME/.local/bin/appimage-install"
+cp "$SCRIPT_DIR/bin/appimage-update"    "$HOME/.local/bin/appimage-update"
+cp "$SCRIPT_DIR/bin/appimage-uninstall" "$HOME/.local/bin/appimage-uninstall"
+chmod +x "$HOME/.local/bin/appimage-install" \
+         "$HOME/.local/bin/appimage-update" \
+         "$HOME/.local/bin/appimage-uninstall"
+echo -e "${GREEN}✅ appimage-install, appimage-update, appimage-uninstall installed${NC}"
 
 # PATH check
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
@@ -54,7 +57,8 @@ echo
 echo -e "${GREEN}✅ AppImage management setup complete${NC}"
 echo
 echo -e "${BLUE}Usage:${NC}"
-echo -e "  ${YELLOW}appimage-install <file.AppImage>${NC}       install a new AppImage"
-echo -e "  ${YELLOW}appimage-update <name> <file.AppImage>${NC}  update an installed AppImage"
+echo -e "  ${YELLOW}appimage-install <file.AppImage>${NC}         install a new AppImage"
+echo -e "  ${YELLOW}appimage-update <name> <file.AppImage>${NC}   update an installed AppImage"
+echo -e "  ${YELLOW}appimage-uninstall [-y] <name>${NC}           remove an installed AppImage"
 echo
 echo -e "${BLUE}See appimages/README.md for full documentation.${NC}"
