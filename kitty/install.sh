@@ -43,10 +43,27 @@ echo -e "${YELLOW}Installing kitty configuration...${NC}"
 cp kitty.conf ~/.config/kitty/kitty.conf
 echo -e "${GREEN}✅ Configuration installed${NC}"
 
+# Add kitty alias to ~/.zshrc.local
+echo -e "\n${BLUE}🔧 Adding kitty aliases to ~/.zshrc.local...${NC}"
+KITTY_MARKER="# --- kitty-helpers-start ---"
+if ! grep -q "$KITTY_MARKER" "$HOME/.zshrc.local" 2>/dev/null; then
+    touch "$HOME/.zshrc.local"
+    cat >> "$HOME/.zshrc.local" << 'KITTYEOF'
+
+# --- kitty-helpers-start ---
+# Kitty aliases (added by kitty/install.sh)
+alias icat="kitten icat"
+# --- kitty-helpers-end ---
+KITTYEOF
+    echo -e "${GREEN}✅ Kitty aliases added to ~/.zshrc.local${NC}"
+else
+    echo -e "${GREEN}✅ Kitty aliases already in ~/.zshrc.local${NC}"
+fi
+
 echo
 echo -e "${GREEN}✅ Kitty terminal installed successfully${NC}"
 echo -e "${BLUE}Launch with: ${YELLOW}kitty${NC}"
 echo -e "${BLUE}Key shortcuts:${NC}"
-echo -e "${BLUE}  • ${YELLOW}Ctrl+Shift+T${NC} (new tab)"
-echo -e "${BLUE}  • ${YELLOW}Ctrl+Shift+Enter${NC} (new window)"
-echo -e "${YELLOW}Note: Install Fira Code font for best experience (run fonts/install.sh)${NC}"
+echo -e "${BLUE}  • ${YELLOW}Ctrl+Alt+Enter${NC} (new tab)"
+echo -e "${BLUE}  • ${YELLOW}Ctrl+Shift+H/J/K/L${NC} (pane navigation)"
+echo -e "${YELLOW}Note: Pick a theme with: kitten themes${NC}"

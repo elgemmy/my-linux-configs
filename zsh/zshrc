@@ -17,7 +17,6 @@ plugins=(
   zsh-autosuggestions
   docker
   docker-compose
-  npm
   node
   python
   golang
@@ -32,6 +31,8 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
+
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#585b70"
 
 # ===================================================================
 # Editor Configuration (Vim Integration)
@@ -77,22 +78,6 @@ setJdk21() {
     echo "Java 21 activated: $(java -version 2>&1 | head -n1)"
 }
 
-# Node.js (NVM integration with lazy loading for faster shell startup)
-export NVM_DIR="$HOME/.nvm"
-
-# Lazy load NVM - only load when needed
-lazy_load_nvm() {
-    unset -f nvm node npm npx
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-}
-
-# Create wrapper functions that trigger lazy loading
-nvm() { lazy_load_nvm; nvm "$@"; }
-node() { lazy_load_nvm; node "$@"; }
-npm() { lazy_load_nvm; npm "$@"; }
-npx() { lazy_load_nvm; npx "$@"; }
-
 # Go configuration
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
@@ -133,19 +118,13 @@ alias glog='git log --oneline --graph --decorate --all -20'
 alias gdiff='git diff --word-diff'   # Word-level diff
 alias gundo='git reset --soft HEAD~1'
 alias gclean='git clean -fd && git reset --hard'
-alias gpull='git pull --rebase --autostash'
+alias gpull='git pull --autostash'
 
 # Development aliases
 alias py='python3'
 alias pip='pip3'
 alias serve='python3 -m http.server'
 alias jsonpp='python3 -m json.tool'
-
-# Docker aliases
-alias d='docker'
-alias dc='docker-compose'
-alias dps='docker ps'
-alias di='docker images'
 
 # System aliases
 alias grep='grep --color=auto'
@@ -176,8 +155,36 @@ alias docs='cd ~/Documents'
 alias dwn='cd ~/Downloads'
 alias repos='cd ~/Projects/repos'
 
-# Coffee Aliases
-alias coffee="echo ☕ Brewing inspiration..."
+# Kitty
+alias icat="kitten icat"
+
+# Bitwarden + GitHub credential integration
+bw-unlock() {
+    echo "Unlocking Bitwarden..."
+    export BW_SESSION="$(bw unlock --raw)"
+    if [[ -n "$BW_SESSION" ]]; then
+        echo "Bitwarden unlocked for this terminal session."
+    else
+        echo "Failed to unlock Bitwarden." >&2
+        return 1
+    fi
+}
+
+# Lazy gh wrapper: fetches GH_TOKEN from Bitwarden on first use
+gh() {
+    if [[ -z "$GH_TOKEN" ]]; then
+        if [[ -z "$BW_SESSION" ]]; then
+            echo "Run 'bw-unlock' first to unlock Bitwarden." >&2
+            return 1
+        fi
+        export GH_TOKEN="$(bw get password 'GitHub PAT' 2>/dev/null)"
+        if [[ -z "$GH_TOKEN" ]]; then
+            echo "Failed to fetch GitHub PAT from Bitwarden." >&2
+            return 1
+        fi
+    fi
+    command gh "$@"
+}
 
 # Modern CLI Tools (install with: cargo install eza bat fd-find ripgrep)
 if command -v eza >/dev/null 2>&1; then
@@ -212,52 +219,6 @@ fi
 # ===================================================================
 # Functions - Enhanced Productivity
 # ===================================================================
-
-# Quick project creation
-mkproject() {
-    if [ -z "$1" ]; then
-        echo "Usage: mkproject <project_name>"
-        return 1
-    fi
-    mkdir -p ~/Projects/$1
-    cd ~/Projects/$1
-    git init
-    echo "# $1" > README.md
-    echo "Created project: $1"
-}
-
-# Extract function
-extract() {
-    if [ -f $1 ] ; then
-        case $1 in
-            *.tar.bz2)   tar xjf $1     ;;
-            *.tar.gz)    tar xzf $1     ;;
-            *.bz2)       bunzip2 $1     ;;
-            *.rar)       unrar x $1     ;;
-            *.gz)        gunzip $1      ;;
-            *.tar)       tar xf $1      ;;
-            *.tbz2)      tar xjf $1     ;;
-            *.tgz)       tar xzf $1     ;;
-            *.zip)       unzip $1       ;;
-            *.Z)         uncompress $1  ;;
-            *.7z)        7z x $1        ;;
-            *)           echo "'$1' cannot be extracted via extract()" ;;
-        esac
-    else
-        echo "'$1' is not a valid file"
-    fi
-}
-
-# Find and edit files quickly
-vf() {
-    local file
-    file=$(find . -type f -name "*$1*" | head -1)
-    if [ -n "$file" ]; then
-        vim "$file"
-    else
-        echo "File not found: *$1*"
-    fi
-}
 
 # Quick grep in files
 grepf() {
@@ -351,79 +312,11 @@ copydir() {
 # Development Environment Utilities
 # ===================================================================
 
-# PostgreSQL Database Management
-if command -v psql >/dev/null 2>&1; then
-    # List all databases
-    psql-list() {
-        psql -U postgres -c "\l"
-    }
-    
-    # Create database
-    psql-create() {
-        [[ -z "$1" ]] && { echo "Usage: psql-create <dbname>"; return 1; }
-        createdb -U postgres "$1"
-        echo "Database '$1' created"
-    }
-    
-    # Drop database  
-    psql-drop() {
-        [[ -z "$1" ]] && { echo "Usage: psql-drop <dbname>"; return 1; }
-        read "response?Are you sure you want to drop database '$1'? (y/N): "
-        [[ "$response" =~ ^[Yy]$ ]] && dropdb -U postgres "$1" && echo "Database '$1' dropped"
-    }
-    
-    # Connect to database
-    psql-connect() {
-        local db="${1:-postgres}"
-        psql -U postgres -d "$db"
-    }
-fi
-
-# Docker Management Utilities  
-if command -v docker >/dev/null 2>&1; then
-    # Execute shell in running container
-    dexec() {
-        [[ -z "$1" ]] && { echo "Usage: dexec <container-name-or-id>"; return 1; }
-        docker exec -it "$1" /bin/bash 2>/dev/null || docker exec -it "$1" /bin/sh
-    }
-    
-    # Follow container logs
-    dlogs() {
-        [[ -z "$1" ]] && { echo "Usage: dlogs <container-name-or-id>"; return 1; }
-        docker logs -f "$1"
-    }
-    
-    # Clean up Docker system
-    dclean() {
-        echo "Cleaning up Docker system..."
-        docker system prune -f
-        docker image prune -f
-        echo "Docker cleanup complete"
-    }
-    
-    # Show container resource usage
-    dstats() {
-        docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
-    }
-    
-    # Quick container management
-    dstop() { docker stop "$1"; }
-    dstart() { docker start "$1"; }
-    drmi() { docker rmi "$1"; }
-fi
-
 # Development Server Management
 serve-py() {
     local port="${1:-8000}"
     echo "Starting Python server on port $port"
     python3 -m http.server "$port"
-}
-
-serve-node() {
-    local port="${1:-3000}"
-    [[ ! -f "package.json" ]] && { echo "No package.json found"; return 1; }
-    echo "Starting Node.js server on port $port"
-    npm start
 }
 
 # Environment Information Display
@@ -520,7 +413,6 @@ zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w 
 # ===================================================================
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 [ -f ~/.zshrc.work ] && source ~/.zshrc.work
-[ -f ~/.zshrc.paths ] && source ~/.zshrc.paths
 
 # ================================
 # Minimal Portable Welcome Message
@@ -579,40 +471,6 @@ print_welcome_msg
 
 # Alias clear to redisplay welcome message for better UX
 alias clear='command clear && print_welcome_msg'
-
-# ============================
-# Random "caf" Command
-# ============================
-caf() {
-  # Colors (safe fallback)
-  local RESET="\033[0m" CYAN="\033[36m" MAGENTA="\033[35m" YELLOW="\033[33m"
-
-  # --- Coffee Quotes ---
-  local quotes=(
-    "Today's brew: Courage, with a shot of chaos."
-    "Coffee is temporary, code reviews are forever."
-    "The mug chooses the programmer."
-    "Your caffeine intake today will make you write elegant regex."
-    "Beans whisper: Ship it to prod. Ignore QA."
-  )
-
-  # Random selection (1-indexed)
-  local quote_index=$(((RANDOM % ${#quotes[@]}) + 1))
-
-  case $mode in
-    0) # Coffee quote
-      printf '%b%s%b\n' "$MAGENTA" "${quotes[$quote_index]}" "$RESET"
-      ;;
-    1) # Coffee brewing animation
-      printf '%b%s%b' "$YELLOW" "Brewing coffee" "$RESET"
-      for i in {1..5}; do
-        printf "."
-        sleep 0.2
-      done
-      printf ' Ready!\n'
-      ;;
-  esac
-}
 
 # ===================================================================
 # Starship Prompt (must be at the end)

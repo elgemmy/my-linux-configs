@@ -1,6 +1,6 @@
 # Kitty Terminal Configuration
 
-High-performance terminal emulator configuration optimized for development workflows.
+High-performance terminal emulator configuration with vim-style navigation.
 
 ## Quick Setup
 
@@ -18,47 +18,80 @@ sudo dnf install kitty         # Fedora
 # Copy configuration
 mkdir -p ~/.config/kitty
 cp kitty.conf ~/.config/kitty/kitty.conf
+
+# Pick a theme
+kitten themes
 ```
 
 ## Key Features
 
-- **Fira Code font** with ligatures for better code readability
-- **Dark theme** optimized for long coding sessions
+- **Vim-style navigation** — directional pane movement, linear tab switching
+- **Background opacity** with dynamic adjustment
 - **GPU acceleration** for smooth performance
-- **Tab and window management** with intuitive shortcuts
-- **System clipboard integration** with copy-on-select
+- **Session management** — save and restore workspace layouts
+- **Customizable fonts and themes** (per-machine via `kitten themes` and `kitten choose-fonts`)
 
-## Essential Key Bindings
+## Keybindings
 
+### Tab Management (Ctrl+Alt)
 | Key | Action |
 |-----|--------|
-| `Ctrl+Shift+T` | New tab |
-| `Ctrl+Shift+W` | Close tab |
-| `Ctrl+Shift+Enter` | New window |
-| `Ctrl+Shift+C/V` | Copy/paste |
-| `Ctrl+Plus/Minus` | Increase/decrease font size |
-| `Ctrl+Shift+F` | Search in scrollback |
+| `Ctrl+Alt+Enter` | New tab |
+| `Ctrl+Alt+W` | Close tab |
+| `Ctrl+Alt+Q` | Close window |
+| `Ctrl+Alt+H/L` | Previous/Next tab |
+| `Ctrl+Alt+,/.` | Move tab backward/forward |
+
+### Pane Navigation (Ctrl+Shift)
+| Key | Action |
+|-----|--------|
+| `Ctrl+Shift+H/J/K/L` | Navigate to left/down/up/right pane |
+| `Ctrl+Shift+Alt+H/J/K/L` | Move pane left/down/up/right |
+| `Ctrl+Arrow keys` | Resize panes |
+| `Ctrl+Home` | Reset pane sizes |
+| `Ctrl+Shift+Space` | Cycle layouts |
+
+### General
+| Key | Action |
+|-----|--------|
+| `Ctrl+Shift+C/V` | Copy/Paste |
+| `Ctrl+Plus/Minus` | Font size |
+| `Ctrl+Shift+F` | Search scrollback |
+| `Ctrl+Shift+S` | Save session |
+| `Ctrl+Shift+Delete` | Clear terminal |
+
+## Theming
+
+Themes are per-machine and not tracked in the repo:
+```bash
+kitten themes              # Browse and apply a theme
+```
+
+Fonts are also per-machine:
+```bash
+kitten choose-fonts        # Select fonts interactively
+```
 
 ## Requirements
 
 - Kitty terminal emulator
-- Fira Code font (install with `fonts/install.sh`)
+- A Nerd Font for icons (install your preferred font, or use fonts/install.sh for Fira Code / JetBrains Mono)
 
 ## Customization
 
-Create `~/.config/kitty/local.conf` for machine-specific settings:
+Create `~/.config/kitty/local.conf` for machine-specific overrides:
 ```conf
 # Example local customizations
 font_size 16.0
-background #000000
+background_opacity 1.0
 ```
 
 ## Troubleshooting
 
 **Font not displaying correctly:**
-- Install Fira Code: Run `./install.sh` from the fonts directory  
+- Install a Nerd Font or run `fonts/install.sh`
 - Update font cache: `fc-cache -f`
 
 **Shortcuts not working:**
 - Check for conflicting system shortcuts
-- Verify kitty version supports the feature
+- Verify kitty version: `kitty --version`

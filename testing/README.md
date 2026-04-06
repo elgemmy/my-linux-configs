@@ -10,7 +10,7 @@ Creates timestamped backup of your current configuration files.
 ./backup-current-config.sh
 ```
 **Backs up:**
-- ZSH configuration (`.zshrc`, `.zshrc.local`)
+- ZSH configuration (`.zshrc`, `.zshrc.local`, `.zshrc.work`)
 - Oh My Zsh installation
 - Vim configuration (`.vimrc`)
 - Kitty terminal configuration
@@ -99,6 +99,8 @@ After testing, return to completely clean state:
 ```
 
 This removes all testing artifacts and restores system to pre-testing state.
+
+After testing, run `post-setup/configure.sh` to create `.zshrc.local` and `.zshrc.work` templates.
 
 ---
 

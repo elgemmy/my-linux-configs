@@ -42,8 +42,7 @@ chsh -s $(which zsh)
 - **Development aliases** for common tasks
 - **Java version switching** between JDK 17 and 21
 - **Git enhancements** - Interactive utilities and advanced workflows
-- **Development utilities** - PostgreSQL, Docker, and environment management
-- **Performance optimizations** - Lazy loading for faster shell startup
+- **Bitwarden/GitHub credential integration** (bw-unlock, lazy gh wrapper)
 - **Enhanced history** with 10,000 commands
 - **Smart completion** with case-insensitive matching
 - **Syntax highlighting** and auto-suggestions
@@ -141,7 +140,6 @@ mkproject service go              # Go project with go.mod
 fcd                               # Fuzzy change directory
 fcd ~/Projects                    # Fuzzy navigate within specific path
 vff                               # Fuzzy file finder with preview
-vf config                         # Find and edit file matching "config"
 grepf "TODO" "*.js"              # Search for pattern in specific file types
 ```
 
@@ -193,14 +191,6 @@ psg nginx                         # Find processes matching "nginx"
 | `...` | `cd ../..` | Go up two directories |
 | `....` | `cd ../../..` | Go up three directories |
 
-### Docker Shortcuts
-| Alias | Command | Description |
-|-------|---------|-------------|
-| `d` | `docker` | Docker command |
-| `dc` | `docker-compose` | Docker compose |
-| `dps` | `docker ps` | List running containers |
-| `di` | `docker images` | List images |
-
 ## 🔧 Git Enhancements
 
 ### Enhanced Git Aliases
@@ -225,7 +215,7 @@ gswitch     # Interactive branch switching with fuzzy finder
 
 # Remote Operations
 gp          # git push
-gpull       # git pull with rebase and autostash
+gpull       # git pull with autostash
 gsync       # Safe sync: pull with rebase + push
 
 # Utilities
@@ -256,32 +246,9 @@ setJdk21    # Switch to Java 21
 devinfo     # Show all development tool versions
 ```
 
-### PostgreSQL Database Management
-```bash
-psql-list                    # List all databases
-psql-create myapp_dev        # Create new database
-psql-connect myapp_dev       # Connect to database
-psql-drop old_project        # Drop database (with confirmation)
-```
-
-### Docker Container Management
-```bash
-dexec webapp_container       # Get shell access to running container
-dlogs webapp_container       # Follow container logs in real-time
-dstats                      # Show resource usage of all containers
-dclean                      # Clean up unused images and containers
-
-# Quick container operations
-dstop webapp_container      # Stop container
-dstart webapp_container     # Start container
-drm webapp_container        # Remove container
-drmi old_image:tag         # Remove image
-```
-
 ### Development Servers
 ```bash
 serve-py 8080              # Start Python HTTP server on port 8080
-serve-node 3000            # Start Node.js server (requires package.json)
 ```
 
 ### Environment Setup and Information
@@ -293,13 +260,6 @@ setup-env go               # Initialize Go module
 ```
 
 ## ⚡ Performance Optimizations
-
-### Lazy Loading
-The configuration includes lazy loading for Node.js/NVM to improve shell startup time:
-
-- **NVM loads only when needed** - First use of `node`, `npm`, or `nvm` triggers loading
-- **~200ms faster startup** - Shell opens immediately, tools load on demand
-- **Transparent operation** - You won't notice the difference in daily use
 
 ### Modern Tool Benefits
 - **eza**: 3x faster than `ls` with better output
@@ -344,9 +304,35 @@ The configuration includes lazy loading for Node.js/NVM to improve shell startup
 ## Customization
 
 Create local configuration files:
-- `~/.zshrc.local` - General customizations
-- `~/.zshrc.work` - Work-specific settings
-- `~/.zshrc.paths` - Custom PATH additions
+- `~/.zshrc.local` — Machine-specific customizations (NVM, extra paths, tool helpers)
+- `~/.zshrc.work` — Work-specific settings
+
+## 🔐 Bitwarden & GitHub Integration
+
+Seamless GitHub authentication using a PAT stored in Bitwarden — no credentials on disk.
+
+### Setup
+1. Store your GitHub Personal Access Token in Bitwarden as "GitHub PAT"
+2. Install Bitwarden CLI: `sudo snap install bw` or `npm install -g @bitwarden/cli`
+3. Run `git/install.sh` to set up the credential helper
+
+### Daily Workflow
+```bash
+bw-unlock          # Unlock Bitwarden (once per terminal session)
+git push           # Just works — credential helper fetches PAT from Bitwarden
+gh pr create       # Just works — GH_TOKEN fetched lazily on first gh command
+```
+
+### How It Works
+- `bw-unlock` exports `BW_SESSION` for the terminal session
+- `git push/pull` triggers `git-credential-bitwarden` which reads the PAT via Bitwarden CLI
+- `gh` is wrapped to lazily fetch `GH_TOKEN` from Bitwarden on first use
+
+## 🔧 On-Demand Shell Helpers
+
+Docker, PostgreSQL, and Kitty helpers are added to `~/.zshrc.local` automatically when their respective tools are installed via the repo's install scripts. They are not in the base zshrc to keep it clean and portable.
+
+See `dev/install-optional.sh` for Docker and PostgreSQL, `kitty/install.sh` for Kitty aliases.
 
 ## Troubleshooting
 

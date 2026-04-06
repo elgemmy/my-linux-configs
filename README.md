@@ -25,6 +25,16 @@ my-linux-config/
 │   ├── zshrc
 │   ├── install.sh
 │   └── README.md
+├── git/
+│   ├── git-credential-bitwarden
+│   ├── gitignore_global
+│   ├── gitconfig.template
+│   ├── install.sh
+│   └── README.md
+├── post-setup/
+│   ├── check.sh
+│   ├── configure.sh
+│   └── README.md
 ├── java/
 │   ├── GUIDE.md
 │   ├── install.sh
@@ -35,7 +45,8 @@ my-linux-config/
 ├── appimages/
 │   ├── bin/
 │   │   ├── appimage-install
-│   │   └── appimage-update
+│   │   ├── appimage-update
+│   │   └── appimage-uninstall
 │   ├── install.sh
 │   └── README.md
 └── troubleshooting/
@@ -69,6 +80,8 @@ The easiest way to set up your development environment:
 7. **Java development** (OpenJDK 17 & 21 - optional)
 8. **Additional tools** (databases, Docker, etc. - selective)
 9. **AppImage management** (`appimage-install` / `appimage-update` scripts - optional, desktop only)
+10. **Git & credentials** (Bitwarden credential helper, gitignore)
+11. **Post-setup check** (verify external tools, create config templates)
 
 ### ⚡ One-Command Setup
 For a complete development environment with sensible defaults:
@@ -156,8 +169,8 @@ cp zsh/zshrc ~/.zshrc
 - Smart search and navigation
 
 ### Kitty Terminal
-- Fira Code font with ligatures
-- Dark theme optimized for development
+- Customizable fonts and themes (per-machine via kitten themes)
+- Vim-style pane/tab navigation
 - Efficient keybindings for tab and window management
 - Performance optimizations
 
@@ -168,10 +181,8 @@ cp zsh/zshrc ~/.zshrc
 - Git integration and status indicators  
 - Syntax highlighting and auto-suggestions
 - **☕ Coffee-Powered Features** - Because I can't let my caffeine addiction leave me anywhere I go, I've baked coffee into the terminal itself:
-  - `coffee` alias for instant motivation brewing
   - Daily coffee quotes and programming wisdom
   - Coffee quotes on terminal startup
-  - Brewing animations for those "compiling..." moments
 
 ### Fonts
 - Fira Code (primary) with JetBrains Mono backup
@@ -183,9 +194,25 @@ cp zsh/zshrc ~/.zshrc
 - Follows the XDG desktop entry spec; works across GNOME, KDE, and other desktop environments
 - See `appimages/README.md` for full documentation
 
+### Extension Files
+The ZSH configuration supports machine-specific and work-specific extensions:
+- `~/.zshrc.local` — Machine-specific config (NVM loading, extra PATHs, tool-specific helpers installed on-demand)
+- `~/.zshrc.work` — Work-specific functions and aliases (not tracked in this repo)
+
+Docker, PostgreSQL, and Kitty shell helpers are automatically appended to `~/.zshrc.local` by their respective install scripts.
+
+### Post-Setup (External Tools)
+Some tools have their own installers and shouldn't be automated:
+- **Bitwarden CLI** (`bw`) — for credential management
+- **GitHub CLI** (`gh`) — for GitHub operations
+- **Docker** — kernel-level changes, group membership
+- **Go** — official installer at go.dev
+
+Run `post-setup/check.sh` to see what's installed and get install instructions for missing tools.
+Run `post-setup/configure.sh` to wire up credentials and create config templates.
+
 ## Supported Systems
 - Ubuntu/Debian-based distributions (Ubuntu, Linux Mint, Pop!_OS, Elementary OS, etc.)
-- Arch-based distributions (Arch, Manjaro, EndeavourOS, etc.)
 - Fedora and Red Hat-based distributions
 
 ## Installation Scripts

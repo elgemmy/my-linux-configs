@@ -1,5 +1,8 @@
 # Font Installation
 
+The kitty terminal configuration uses per-machine font selection via `kitten choose-fonts`.
+Fira Code and JetBrains Mono are installed as baseline development fonts.
+
 Essential development fonts: Fira Code (primary) and JetBrains Mono (backup).
 
 ## Quick Setup

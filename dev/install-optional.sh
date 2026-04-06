@@ -15,6 +15,27 @@ echo -e "${GREEN}=== Optional Development Tools Setup ===${NC}"
 echo -e "${BLUE}Installing additional development tools and utilities...${NC}"
 echo
 
+# Append a block to ~/.zshrc.local if not already present
+append_to_zshrc_local() {
+    local marker_start="$1"
+    local marker_end="$2"
+    local content="$3"
+
+    local target="$HOME/.zshrc.local"
+    touch "$target"
+
+    if grep -q "$marker_start" "$target" 2>/dev/null; then
+        echo -e "${GREEN}✅ Shell helpers already in ~/.zshrc.local${NC}"
+        return 0
+    fi
+
+    echo "" >> "$target"
+    echo "$marker_start" >> "$target"
+    echo "$content" >> "$target"
+    echo "$marker_end" >> "$target"
+    echo -e "${GREEN}✅ Shell helpers added to ~/.zshrc.local${NC}"
+}
+
 # Detect package manager
 if command -v apt &> /dev/null; then
     PKG_MANAGER="apt"
@@ -59,6 +80,29 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         install_package "postgresql" "PostgreSQL client"
         install_package "mysql" "MySQL client"
     fi
+
+    # Add PostgreSQL shell helpers
+    append_to_zshrc_local "# --- postgresql-helpers-start ---" "# --- postgresql-helpers-end ---" '# PostgreSQL helpers (added by install-optional.sh)
+psql-list() {
+    psql -U postgres -c "\l"
+}
+
+psql-create() {
+    [[ -z "$1" ]] && { echo "Usage: psql-create <dbname>"; return 1; }
+    createdb -U postgres "$1"
+    echo "Database '"'"'$1'"'"' created"
+}
+
+psql-drop() {
+    [[ -z "$1" ]] && { echo "Usage: psql-drop <dbname>"; return 1; }
+    read "response?Are you sure you want to drop database '"'"'$1'"'"'? (y/N): "
+    [[ "$response" =~ ^[Yy]$ ]] && dropdb -U postgres "$1" && echo "Database '"'"'$1'"'"' dropped"
+}
+
+psql-connect() {
+    local db="${1:-postgres}"
+    psql -U postgres -d "$db"
+}'
 else
     echo -e "${YELLOW}⏭️  Skipping database tools installation${NC}"
     echo
@@ -152,23 +196,51 @@ echo -e "${BLUE}🐳 Docker Installation${NC}"
 read -p "Do you want to install Docker? (y/N): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Installing Docker...${NC}"
-    
-    if [ "$PKG_MANAGER" = "apt" ]; then
-        # Docker official installation script
-        curl -fsSL https://get.docker.com -o get-docker.sh
-        sudo sh get-docker.sh
-        rm get-docker.sh
-        
-        # Add user to docker group
-        sudo usermod -aG docker $USER
-        echo -e "${GREEN}✅ Docker installed. Log out and back in to use docker without sudo.${NC}"
-        
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
-        $INSTALL_CMD docker docker-compose
-        sudo systemctl enable --now docker
-        sudo usermod -aG docker $USER
-        echo -e "${GREEN}✅ Docker installed and enabled. Log out and back in to use docker without sudo.${NC}"
+    if command -v docker &> /dev/null; then
+        echo -e "${GREEN}✅ Docker is already installed: $(docker --version)${NC}"
+    else
+        echo -e "${YELLOW}Docker is not currently installed.${NC}"
+        echo -e "${BLUE}To install Docker, follow these instructions:${NC}"
+        if [ "$PKG_MANAGER" = "apt" ]; then
+            echo -e "  ${YELLOW}Official guide:${NC} https://docs.docker.com/engine/install/ubuntu/"
+        elif [ "$PKG_MANAGER" = "dnf" ]; then
+            echo -e "  ${YELLOW}Quick install:${NC} sudo dnf install docker docker-compose && sudo systemctl enable --now docker && sudo usermod -aG docker \$USER"
+        fi
+        echo -e "${BLUE}Log out and back in after installing to use docker without sudo.${NC}"
+    fi
+
+    # Add Docker shell helpers if docker is available
+    if command -v docker &> /dev/null; then
+        append_to_zshrc_local "# --- docker-helpers-start ---" "# --- docker-helpers-end ---" '# Docker aliases and functions (added by install-optional.sh)
+alias d='"'"'docker'"'"'
+alias dc='"'"'docker-compose'"'"'
+alias dps='"'"'docker ps'"'"'
+alias di='"'"'docker images'"'"'
+
+dexec() {
+    [[ -z "$1" ]] && { echo "Usage: dexec <container-name-or-id>"; return 1; }
+    docker exec -it "$1" /bin/bash 2>/dev/null || docker exec -it "$1" /bin/sh
+}
+
+dlogs() {
+    [[ -z "$1" ]] && { echo "Usage: dlogs <container-name-or-id>"; return 1; }
+    docker logs -f "$1"
+}
+
+dclean() {
+    echo "Cleaning up Docker system..."
+    docker system prune -f
+    docker image prune -f
+    echo "Docker cleanup complete"
+}
+
+dstats() {
+    docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
+}
+
+dstop() { docker stop "$1"; }
+dstart() { docker start "$1"; }
+drmi() { docker rmi "$1"; }'
     fi
 else
     echo -e "${YELLOW}⏭️  Skipping Docker installation${NC}"

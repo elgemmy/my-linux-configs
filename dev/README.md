@@ -47,7 +47,8 @@ pip3 --version     # Should be 25.x for latest features
 # Install Go (latest version - recommended)
 # Easy Go installer from https://github.com/kerolloz/go-installer
 # Doesn't download the script ~ runs the script directly
-bash <(curl -sL https://git.io/go-installer)
+bash <(curl -sL https://raw.githubusercontent.com/kerolloz/go-installer/master/go-installer.sh)
+# Or see https://go.dev/doc/install for the official method.
 
 # Verify Go setup (paths already configured in ZSH config)
 source ~/.zshrc  # Use 'source ~/.bashrc' if not using ZSH
@@ -57,7 +58,7 @@ go version
 ### Node.js Development (Recommended: NVM)
 ```bash
 # Install NVM (Node Version Manager)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
 # Restart terminal or reload
 source ~/.zshrc  # Use 'source ~/.bashrc' if not using ZSH
@@ -71,6 +72,8 @@ nvm alias default lts/*
 # Ubuntu: sudo apt install nodejs npm
 # Fedora: sudo dnf install nodejs npm
 ```
+
+> **Note:** NVM loading is configured in `~/.zshrc.local` (created by `post-setup/configure.sh`). It is not in the base zshrc.
 
 ## Quick Installation Scripts
 
@@ -118,15 +121,12 @@ curl --version
 
 ### Container Development
 ```bash
-# Docker (optional but widely used)
-# Ubuntu/Debian
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
+# Docker — see official docs for your distro:
+# https://docs.docker.com/engine/install/
 
 # Fedora
 sudo dnf install docker docker-compose
-sudo systemctl enable --now docker  
+sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 
 # Note: Log out and back in for group changes to take effect

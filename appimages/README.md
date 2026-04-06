@@ -8,6 +8,7 @@ A lightweight system for managing AppImages as proper desktop apps — with laun
 ~/Applications/                              ← home for all AppImages
 ~/.local/bin/appimage-install                ← install any AppImage as a desktop app
 ~/.local/bin/appimage-update                 ← update an installed AppImage
+~/.local/bin/appimage-uninstall              ← remove an installed AppImage
 ```
 
 ## Installation
@@ -124,14 +125,7 @@ You can override it at the prompt.
 
 ---
 
-## Currently Installed AppImages
-
-| Name           | Description                       |
-|----------------|-----------------------------------|
-| `t3code`       | T3 Code (Alpha) — AI code editor  |
-| `cursor-glass` | Cursor Glass (Alpha) — Cursor branch |
-| `obsidian`     | Obsidian — knowledge base         |
-| `capacities`   | Capacities — note-taking          |
+Use `ls ~/Applications/` to see installed AppImages on this machine.
 
 ---
 

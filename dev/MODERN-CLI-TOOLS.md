@@ -68,22 +68,22 @@ rg "function" --stats          # Show search statistics
 - Unicode support
 - Multiline search
 
-### `exa` - Better `ls` (alternative to `ls`)
+### `eza` - Better `ls` (alternative to `ls`)
 Modern ls with more features and better defaults.
 
 ```bash
 # Traditional ls
 ls -la
 
-# Modern (exa) - if available
-exa -la                        # Long format with all files
-exa --tree                     # Tree view
-exa --tree --level=2           # Tree with depth limit
-exa --grid --icons             # Grid view with icons (if terminal supports)
-exa --long --header --git      # Show git status
+# Modern (eza) - if available
+eza -la                        # Long format with all files
+eza --tree                     # Tree view
+eza --tree --level=2           # Tree with depth limit
+eza --grid --icons             # Grid view with icons (if terminal supports)
+eza --long --header --git      # Show git status
 ```
 
-**Note:** exa may not be available in all repositories. Use standard `ls` if not installed.
+**Note:** eza may not be available in all repositories. Use standard `ls` if not installed.
 
 ## System Information Tools
 
@@ -138,13 +138,13 @@ Human-friendly HTTP client.
 
 ```bash
 # Traditional curl (complex)
-curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' https://api.example.com
+curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' https://api.ezample.com
 
 # Modern (httpie)
-http POST https://api.example.com key=value
-http GET https://api.example.com/users
-http PUT https://api.example.com/users/1 name="John" age:=30
-http --download https://example.com/file.zip  # Download file
+http POST https://api.ezample.com key=value
+http GET https://api.ezample.com/users
+http PUT https://api.ezample.com/users/1 name="John" age:=30
+http --download https://ezample.com/file.zip  # Download file
 ```
 
 **Key features:**
@@ -238,11 +238,11 @@ Add to your `~/.zshrc.local` (or `~/.bashrc` if using bash):
 alias cat='bat'                # Use bat instead of cat
 alias find='fd'                # Use fd instead of find  
 alias grep='rg'                # Use ripgrep instead of grep
-alias ls='exa'                 # Use exa instead of ls (if available)
+alias ls='eza'                 # Use eza instead of ls (if available)
 alias top='htop'               # Use htop instead of top
 
 # Helpful shortcuts
-alias ll='exa -la --git'       # Long listing with git status
+alias ll='eza -la --git'       # Long listing with git status
 alias tree2='tree -L 2'       # Tree with depth 2
 alias json='jq .'              # Pretty print JSON
 ```
@@ -300,7 +300,7 @@ htop --sort-key=PERCENT_CPU
 #### Data Processing
 ```bash
 # Process JSON API responses
-curl -s https://api.example.com/data | jq '.results[] | {id, name, status}'
+curl -s https://api.ezample.com/data | jq '.results[] | {id, name, status}'
 
 # Find and process files
 fd "\.json$" | xargs -I {} jq '.important_field' {}
@@ -335,7 +335,7 @@ htop --batch --iterations=1 | grep python
 | `cat file.py` | `bat file.py` | Better syntax highlighting |
 | `find . -name "*.py"` | `fd .py` | Simpler syntax |
 | `grep -r "text" .` | `rg "text"` | Faster, smarter defaults |
-| `ls -la` | `exa -la` | Better colors and git info |
+| `ls -la` | `eza -la` | Better colors and git info |
 | `top` | `htop` | Interactive, more intuitive |
 | `curl -X POST ...` | `http POST ...` | Human-friendly API calls |
 
@@ -375,8 +375,6 @@ Some tools have different names in different distributions:
 - `fd-find` (Ubuntu) vs `fd` (Fedora)
 - `bat` vs `batcat` (older Ubuntu versions)
 
-## Installation Troubleshooting
-
 ### Ubuntu Command Name Issues
 ```bash
 # If fd command not found after installing fd-find
@@ -390,24 +388,6 @@ echo "alias bat='batcat'" >> ~/.zshrc.local
 # Reload shell
 source ~/.zshrc
 ```
-
-### Tool Not Available
-```bash
-# Check if tool is installed
-command -v bat || echo "bat not installed"
-command -v fd || echo "fd not installed"
-command -v rg || echo "ripgrep not installed"
-
-# Alternative installation methods
-# bat: https://github.com/sharkdp/bat#installation
-# fd: https://github.com/sharkdp/fd#installation  
-# ripgrep: https://github.com/BurntSushi/ripgrep#installation
-```
-
-### Different Package Names
-Some tools have different names in different distributions:
-- `fd-find` (Ubuntu) vs `fd` (Fedora)
-- `bat` vs `batcat` (older Ubuntu versions)
 
 ### Performance Issues
 If modern tools seem slow:

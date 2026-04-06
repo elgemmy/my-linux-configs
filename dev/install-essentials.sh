@@ -69,10 +69,18 @@ if [[ $REPLY =~ ^[Nn]$ ]]; then
     echo -e "${YELLOW}⏭️  Skipping Go installation${NC}"
     GO_INSTALLED=false
 else
-    echo -e "${YELLOW}Installing Go programming language (latest version)...${NC}"
-    bash <(curl -sL https://git.io/go-installer)
-    GO_INSTALLED=true
-    echo -e "${GREEN}✅ Go installation completed${NC}"
+    if command -v go &> /dev/null; then
+        echo -e "${GREEN}✅ Go is already installed: $(go version)${NC}"
+        GO_INSTALLED=true
+    else
+        echo -e "${YELLOW}Go is not currently installed.${NC}"
+        echo -e "${BLUE}To install Go, choose one of these methods:${NC}"
+        echo -e "  ${YELLOW}Official:${NC} https://go.dev/doc/install"
+        echo -e "  ${YELLOW}Quick:${NC}    bash <(curl -sL https://raw.githubusercontent.com/kerolloz/go-installer/master/go-installer.sh)"
+        echo
+        echo -e "${BLUE}After installing, re-run this script or run: ${YELLOW}source ~/.zshrc${NC}"
+        GO_INSTALLED=false
+    fi
 fi
 
 # Install Node.js via NVM (interactive)

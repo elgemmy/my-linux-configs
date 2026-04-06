@@ -124,6 +124,60 @@ ls -la ~/.vimrc
 vim -c "syntax on" -c "q" /dev/null
 ```
 
+## Bitwarden / GitHub Credential Issues
+
+### BW_SESSION Not Set or Expired
+```bash
+# Unlock Bitwarden for this terminal session
+bw-unlock
+
+# Check if session is active
+echo $BW_SESSION  # Should show a long base64 string
+```
+
+### Git Still Prompting for Credentials
+```bash
+# Verify the credential helper is configured
+git config --global credential.helper
+# Should show: /home/<user>/.local/bin/git-credential-bitwarden
+
+# Verify the helper script exists and is executable
+ls -la ~/.local/bin/git-credential-bitwarden
+
+# Test manually
+echo -e "protocol=https\nhost=github.com\n" | git credential fill
+```
+
+### gh CLI Not Authenticated
+```bash
+# The gh() wrapper fetches GH_TOKEN from Bitwarden on first use
+# Make sure bw-unlock was run first
+bw-unlock
+gh auth status  # Should show authenticated
+```
+
+## .zshrc.local Issues
+
+### Helpers Not Loading
+```bash
+# Check if .zshrc.local exists and is sourced
+cat ~/.zshrc.local
+
+# The base zshrc sources it automatically:
+# [ -f ~/.zshrc.local ] && source ~/.zshrc.local
+
+# Re-run install scripts to re-add helpers:
+cd dev && ./install-optional.sh   # Re-adds Docker/PostgreSQL helpers
+cd kitty && ./install.sh          # Re-adds kitty aliases
+```
+
+### Duplicate Entries
+```bash
+# Install scripts use marker comments to prevent duplicates
+# If you see duplicates, remove the duplicate block manually
+# Look for markers like: # --- docker-helpers-start --- / # --- docker-helpers-end ---
+```
+
 ## Getting Help
 
 1. **Check this troubleshooting guide first**

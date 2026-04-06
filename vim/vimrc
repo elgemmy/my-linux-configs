@@ -13,6 +13,7 @@ set ignorecase                " Case-insensitive search by default
 set smartcase                 " Case-sensitive when uppercase letters are used
 set hlsearch                  " Highlight search results
 set clipboard=unnamedplus     " Use system clipboard (requires +clipboard support)
+autocmd FileType gitcommit setlocal colorcolumn=72 textwidth=72 spell
 
 " Indentation
 set autoindent                " Auto-indent new lines
@@ -25,6 +26,7 @@ set tabstop=4                 " A tab is 4 spaces
 " Key mappings
 let mapleader = ","           " Set leader key to comma
 inoremap jj <Esc>             " 'jj' to escape insert mode
+inoremap <Tab> <Esc>
 nnoremap <silent> <Space> :nohlsearch<CR> " Clear search highlight with space
 
 " Basic navigation

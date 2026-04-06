@@ -1,0 +1,11 @@
+# Git configuration template
+# Copy relevant sections or use git/install.sh to configure automatically.
+
+[user]
+    name = YOUR_NAME
+    email = YOUR_EMAIL
+[core]
+    editor = vim
+    excludesFile = ~/.gitignore_global
+[credential]
+    helper = ~/.local/bin/git-credential-bitwarden

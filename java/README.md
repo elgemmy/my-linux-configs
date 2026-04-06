@@ -79,3 +79,20 @@ ls -la /usr/lib/jvm/ | grep java
 **Switcher functions not working:**
 - Ensure ZSH configuration is installed
 - Restart terminal or run `source ~/.zshrc`
+
+## Alternative: Oracle JDK
+
+If you prefer Oracle JDK over OpenJDK:
+
+### Manual Installation
+1. Download from [Oracle JDK Downloads](https://www.oracle.com/java/technologies/downloads/)
+2. Extract to `/opt/java/`
+3. Update paths in `~/.zshrc.local`
+
+### Using Package Managers
+```bash
+# Ubuntu (requires adding Oracle repository)
+sudo add-apt-repository ppa:linuxuprising/java
+sudo apt update
+sudo apt install oracle-java17-installer oracle-java21-installer
+```

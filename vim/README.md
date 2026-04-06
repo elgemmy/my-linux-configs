@@ -30,12 +30,14 @@ mkdir -p ~/.vim/undo
 - **Quick escape** - `jj` alternative to Escape key
 - **Persistent undo** - undo history survives file closes
 - **Clean interface** - relative line numbers, current line highlighting
+- **Git commit formatting** — automatic column guide at 72 characters and spell check for commit messages
 
 ## Essential Key Bindings
 
 | Key | Action |
 |-----|--------|
 | `jj` | Exit insert mode |
+| `Tab` | Exit insert mode (alternative to jj/Esc) |
 | `Space` | Clear search highlighting |
 | `H` / `L` | Beginning / end of line |
 | `Ctrl+h/j/k/l` | Navigate between split windows |
