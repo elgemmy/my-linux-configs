@@ -199,7 +199,7 @@ The ZSH configuration supports machine-specific and work-specific extensions:
 - `~/.zshrc.local` — Machine-specific config (NVM loading, extra PATHs, tool-specific helpers installed on-demand)
 - `~/.zshrc.work` — Work-specific functions and aliases (not tracked in this repo)
 
-Docker, PostgreSQL, and Kitty shell helpers are automatically appended to `~/.zshrc.local` by their respective install scripts.
+Docker, PostgreSQL, and Kitty shell helpers are automatically appended to `~/.zshrc.local` by their respective install scripts. Editor-specific shell integrations, such as Cursor Agent terminal capture, should also stay in `~/.zshrc.local` and be opt-in so VS Code/Cursor shell environment probes can exit quickly.
 
 ### Post-Setup (External Tools)
 Some tools have their own installers and shouldn't be automated:

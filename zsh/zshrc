@@ -418,6 +418,8 @@ zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w 
 # Minimal Portable Welcome Message
 # ================================
 [[ $- != *i* ]] && return
+_show_welcome_msg=1
+[[ "$TERM_PROGRAM" == "vscode" || "$TERM_PROGRAM" == "cursor" || -n "$VSCODE_PID" || -n "$CURSOR_RECORD_SESSION" || "$CURSOR_INVOKED_AS" == "cursor-agent" ]] && _show_welcome_msg=0
 
 # --- Color setup using ANSI codes (works almost everywhere) ---
 if [[ -t 1 ]]; then
@@ -466,11 +468,14 @@ _generate_coffee_quote() {
   done
 }
 
-# Display welcome message on shell startup
-print_welcome_msg
+if (( _show_welcome_msg )); then
+  # Display welcome message on shell startup
+  print_welcome_msg
 
-# Alias clear to redisplay welcome message for better UX
-alias clear='command clear && print_welcome_msg'
+  # Alias clear to redisplay welcome message for better UX
+  alias clear='command clear && print_welcome_msg'
+fi
+unset _show_welcome_msg
 
 # ===================================================================
 # Starship Prompt (must be at the end)

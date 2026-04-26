@@ -53,6 +53,14 @@ if [ ! -f ~/.zshrc.local ]; then
 
 # --- Additional PATH entries ---
 # export PATH="$HOME/some-custom-path/bin:$PATH"
+
+# --- Cursor Agent shell integration ---
+# Opt in only when you explicitly want Cursor Agent terminal capture. The
+# generated snippet can exec `agent record`, so keep it out of editor shell
+# environment probes by default.
+# if [[ "$ENABLE_CURSOR_AGENT_SHELL_INTEGRATION" == "1" && $- == *i* && -t 0 && -z "$VSCODE_PID" && "$TERM_PROGRAM" != "vscode" && "$TERM_PROGRAM" != "cursor" && -z "$CURSOR_RECORD_SESSION" ]]; then
+#   eval "$(~/.local/bin/agent shell-integration zsh)"
+# fi
 LOCALEOF
     echo -e "${GREEN}Created ~/.zshrc.local${NC}"
 else

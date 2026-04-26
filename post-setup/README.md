@@ -29,7 +29,7 @@ Shows which external tools are installed and provides install commands for missi
 
 Runs `check.sh` first, then:
 1. Offers to set up the git credential helper (if `bw` is installed)
-2. Creates `~/.zshrc.local` template (if missing) — with commented-out NVM loading and PATH placeholders
+2. Creates `~/.zshrc.local` template (if missing) — with commented-out NVM loading, PATH placeholders, and opt-in Cursor Agent shell integration
 3. Creates `~/.zshrc.work` template (if missing) — for work-specific functions
 
 ## Extension Files
@@ -40,6 +40,7 @@ Machine-specific configuration. Created by `configure.sh` with a template, then 
 - **Docker helpers** — added automatically by `dev/install-optional.sh` when Docker is installed
 - **PostgreSQL helpers** — added automatically by `dev/install-optional.sh` when PostgreSQL client is installed
 - **Kitty aliases** — added automatically by `kitty/install.sh`
+- **Cursor Agent shell integration** — keep opt-in to avoid blocking VS Code/Cursor shell environment resolution
 - **Extra PATH entries** — for tools installed to non-standard locations
 
 ### `~/.zshrc.work`

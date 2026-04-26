@@ -307,6 +307,8 @@ Create local configuration files:
 - `~/.zshrc.local` — Machine-specific customizations (NVM, extra paths, tool helpers)
 - `~/.zshrc.work` — Work-specific settings
 
+The base `zshrc` suppresses its startup welcome banner in VS Code/Cursor shell environment probes so editor startup can resolve quickly without extra output.
+
 ## 🔐 Bitwarden & GitHub Integration
 
 Seamless GitHub authentication using a PAT stored in Bitwarden — no credentials on disk.
@@ -330,7 +332,7 @@ gh pr create       # Just works — GH_TOKEN fetched lazily on first gh command
 
 ## 🔧 On-Demand Shell Helpers
 
-Docker, PostgreSQL, and Kitty helpers are added to `~/.zshrc.local` automatically when their respective tools are installed via the repo's install scripts. They are not in the base zshrc to keep it clean and portable.
+Docker, PostgreSQL, and Kitty helpers are added to `~/.zshrc.local` automatically when their respective tools are installed via the repo's install scripts. Editor-specific integrations such as Cursor Agent terminal capture should also live in `~/.zshrc.local` and stay opt-in because their generated shell snippets can start long-running processes. They are not in the base zshrc to keep it clean and portable.
 
 See `dev/install-optional.sh` for Docker and PostgreSQL, `kitty/install.sh` for Kitty aliases.
 
