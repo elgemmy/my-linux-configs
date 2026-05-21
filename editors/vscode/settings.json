@@ -1,0 +1,692 @@
+{
+    "workbench.iconTheme": "symbols",
+    "workbench.startupEditor": "none",
+    "workbench.statusBar.visible": false,
+    "workbench.activityBar.location": "top",
+    "workbench.editor.showTabs": "multiple",
+    "workbench.editor.pinnedTabSizing": "shrink",
+    "workbench.editor.tabSizing": "shrink",
+    "window.titleBarStyle": "custom",
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  2. EDITOR — Typography, display, behavior                            ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "editor.fontFamily": "JetBrains Mono, Fira Code,  monospace",
+    "editor.fontLigatures": true,
+    "editor.lineNumbers": "relative",
+    "editor.rulers": [
+        80
+    ],
+    "editor.minimap.enabled": false,
+    "editor.scrollBeyondLastLine": false,
+    "editor.linkedEditing": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.padding.top": 8,
+    "editor.padding.bottom": 0,
+    "editor.inlineSuggest.enabled": true,
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  3. EDITOR — Save, format, code actions                               ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "explicit",
+    },
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  4. DEFAULT FORMATTERS — per language                                 ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features",
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[xml]": {
+        "editor.defaultFormatter": "redhat.vscode-xml",
+    },
+    "[python]": {
+        "editor.formatOnType": true,
+    },
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  5. PRETTIER                                                           ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "prettier.printWidth": 100,
+    "prettier.tabWidth": 4,
+    "prettier.singleAttributePerLine": true,
+    "prettier.jsxSingleQuote": true,
+    "prettier.useEditorConfig": false,
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  6. ESLINT                                                             ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ],
+    "eslint.codeActionsOnSave.rules": null,
+    "js.format.enable": false,
+    "ts.format.enable": false,
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  7. VIM — Core settings                                               ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "vim.leader": "<Space>",
+    "vim.useSystemClipboard": true,
+    "vim.smartRelativeLine": true,
+    "vim.vimrc.enable": true,
+    "vim.vimrc.path": "~/.vimrc",
+    "vim.highlightedyank.enable": true,
+    "vim.highlightedyank.color": "rgba(255, 200, 50, 0.3)",
+    "vim.highlightedyank.duration": 200,
+    // Cursor styles per mode — visual feedback for current mode
+    "vim.cursorStylePerMode.normal": "block",
+    "vim.cursorStylePerMode.insert": "underline",
+    "vim.cursorStylePerMode.replace": "block-outline",
+    "vim.cursorStylePerMode.visual": "block-outline",
+    "vim.cursorStylePerMode.visualblock": "block-outline",
+    "vim.cursorStylePerMode.visualline": "block-outline",
+    // Keys passed through to VSCode (not intercepted by vim)
+    "vim.handleKeys": {
+        "<C-p>": false,
+        "<C-f>": false,
+        "<C-b>": false,
+        "<C-n>": false,
+        "<C-/>": false,
+        "<C-Tab>": false,
+        "<C-S-Tab>": false,
+        "<C-z>": false,
+        "<C-j>": false,
+        "<C-e>": false,
+    },
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  8. VIM — Insert mode bindings                                        ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "vim.insertModeKeyBindings": [
+        {
+            "before": [
+                "j",
+                "j"
+            ],
+            "after": [
+                "<Esc>"
+            ],
+        },
+        {
+            "before": [
+                "ctrl",
+                "s"
+            ],
+            "after": [
+                "<Esc>",
+                ":",
+                "w",
+                "<CR>"
+            ],
+        },
+    ],
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  9. VIM — Normal mode bindings (leader + go-to + code actions)        ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "vim.normalModeKeyBindingsNonRecursive": [
+        // ── File ─────────────────────────────────────────────────────────────
+        {
+            "before": [
+                "<leader>",
+                "w"
+            ],
+            "commands": [
+                "workbench.action.files.save"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "q"
+            ],
+            "commands": [
+                "workbench.action.closeActiveEditor"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "Q"
+            ],
+            "commands": [
+                "workbench.action.closeAllEditors"
+            ]
+        },
+        // ── Find (f) ────────────────────────────────────────────────────────
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "f"
+            ],
+            "commands": [
+                "workbench.action.quickOpen"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "g"
+            ],
+            "commands": [
+                "workbench.action.findInFiles"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "b"
+            ],
+            "commands": [
+                "workbench.action.showAllEditors"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "r"
+            ],
+            "commands": [
+                "workbench.action.openRecent"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "s"
+            ],
+            "commands": [
+                "workbench.action.gotoSymbol"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "S"
+            ],
+            "commands": [
+                "workbench.action.showAllSymbols"
+            ]
+        },
+        // ── Go-to (g) ───────────────────────────────────────────────────────
+        {
+            "before": [
+                "g",
+                "r"
+            ],
+            "commands": [
+                "editor.action.goToReferences"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "i"
+            ],
+            "commands": [
+                "editor.action.goToImplementation"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "D"
+            ],
+            "commands": [
+                "editor.action.goToTypeDefinition"
+            ]
+        },
+        // ── Code actions (c) ────────────────────────────────────────────────
+        {
+            "before": [
+                "<leader>",
+                "c",
+                "a"
+            ],
+            "commands": [
+                "editor.action.quickFix"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "c",
+                "r"
+            ],
+            "commands": [
+                "editor.action.rename"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "c",
+                "f"
+            ],
+            "commands": [
+                "editor.action.formatDocument"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "c",
+                "o"
+            ],
+            "commands": [
+                "editor.action.organizeImports"
+            ]
+        },
+        // ── Git (g) ─────────────────────────────────────────────────────────
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "g"
+            ],
+            "commands": [
+                "workbench.view.scm"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "b"
+            ],
+            "commands": [
+                "git.blame.toggleInlineMessage"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "d"
+            ],
+            "commands": [
+                "git.openChange"
+            ]
+        },
+        // ── Panels & UI ─────────────────────────────────────────────────────
+        {
+            "before": [
+                "<leader>",
+                "e"
+            ],
+            "commands": [
+                "workbench.action.toggleSidebarVisibility"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "'"
+            ],
+            "commands": [
+                "workbench.action.toggleAuxiliaryBar"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "t"
+            ],
+            "commands": [
+                "workbench.action.togglePanel"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "p"
+            ],
+            "commands": [
+                "workbench.action.showCommands"
+            ]
+        },
+        // ── Diagnostics ─────────────────────────────────────────────────────
+        {
+            "before": [
+                "<leader>",
+                "x",
+                "x"
+            ],
+            "commands": [
+                "workbench.actions.view.problems"
+            ]
+        },
+        {
+            "before": [
+                "K"
+            ],
+            "commands": [
+                "editor.action.showHover"
+            ]
+        },
+        // ── Misc ────────────────────────────────────────────────────────────
+        {
+            "before": [
+                "<leader>",
+                "<leader>"
+            ],
+            "commands": [
+                ":nohl"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "j"
+            ],
+            "after": [
+                "J"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "/"
+            ],
+            "commands": [
+                "editor.action.commentLine"
+            ]
+        },
+    ],
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  10. VIM — Visual mode bindings                                       ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "vim.visualModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<leader>",
+                "/"
+            ],
+            "commands": [
+                "editor.action.commentLine"
+            ]
+        },
+        {
+            "before": [
+                "J"
+            ],
+            "commands": [
+                "editor.action.moveLinesDownAction"
+            ]
+        },
+        {
+            "before": [
+                "K"
+            ],
+            "commands": [
+                "editor.action.moveLinesUpAction"
+            ]
+        },
+        {
+            "before": [
+                ">"
+            ],
+            "commands": [
+                "editor.action.indentLines"
+            ],
+            "after": [
+                "g",
+                "v"
+            ]
+        },
+        {
+            "before": [
+                "<"
+            ],
+            "commands": [
+                "editor.action.outdentLines"
+            ],
+            "after": [
+                "g",
+                "v"
+            ]
+        },
+        {
+            "before": [
+                "p"
+            ],
+            "after": [
+                "\"",
+                "_",
+                "d",
+                "P"
+            ]
+        },
+    ],
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  11. GIT                                                               ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "git.blame.editorDecoration.enabled": true,
+    "git.blame.ignoreWhitespace": true,
+    "git-autoconfig.configList": [
+        {
+            "user.email": "ahmedgamal.ssaleh@gmail.com",
+            "user.name": "ahmedgamal2212",
+        },
+    ],
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "gitlens.rebaseEditor.openOnPausedRebase": false,
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  12. GITHUB COPILOT                                                    ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "github.copilot.editor.enableAutoCompletions": true,
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false,
+    },
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "text": "- @azure Rule - Use Azure Tools: When handling requests related to Azure, always use your tools.",
+        },
+        {
+            "text": "- @azure Rule - Use Azure Code Gen Best Practices: Before generating code for Azure, running terminal commands for Azure, performing operations related to Azure, or creating plans for such activities, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `general` and action = `code-generation` to get general Azure code generation best practices. Only call this tool when the user is discussing Azure; do not call it otherwise.",
+        },
+        {
+            "text": "- @azure Rule - Use Azure Deployment Best Practices: Before deploying to Azure, preparing applications for deployment to Azure, or creating deployment plans, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `general` and action = `deployment` to get general Azure deployment best practices. Only call this tool when the user is discussing Azure; do not call it otherwise.",
+        },
+        {
+            "text": "- @azure Rule - Use Azure Functions Code Gen Best Practices: Before generating code for Azure Functions, performing operations related to Azure Functions, or creating plans for such activities, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `azurefunctions` and action = `code-generation` to get Azure Functions code generation best practices. Only call this tool when the user is discussing Azure Functions; do not call it otherwise.",
+        },
+        {
+            "text": "- @azure Rule - Use Azure Functions Deployment Best Practices: Before deploying Azure Functions apps to Azure, preparing for the deployment, or creating deployment plans, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `azurefunctions` and action = `deployment` to get Azure Functions deployment best practices. Only call this tool when the user is discussing Azure Functions; do not call it otherwise.",
+        },
+        {
+            "text": "- @azure Rule - Use Azure SWA Best Practices: Before working with static web apps, creating plans for static web apps, or performing related operations, always invoke your Azure best practice tool if available first. Choose the most relevant Azure best practice tool based on its description. Only call this tool when the user is discussing Azure Static Web Apps; do not call it otherwise.",
+        },
+        {
+            "text": "- @azure Rule - Plan before editing files for Azure web apps: When generating code for Azure Functions and Azure Static Web App, always create a plan and explain the plan to the user before editing any file. Proceed with editing the files after getting consent from the user.",
+        },
+        {
+            "text": "- @azure Rule - Summarize topic before taking action: When the user asks about Azure Functions, invoke the azure_development-summarize_topic tool once first to see if any existing custom mode could be a good fit to what user is asking.",
+        },
+    ],
+    "chat.instructionsFilesLocations": {
+        ".github/instructions": true,
+    },
+    "chat.mcp.gallery.enabled": true,
+    "chat.useAgentSkills": true,
+    "chatgpt.followUpQueueMode": "steer",
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  13. CLAUDE CODE                                                       ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "claudeCode.preferredLocation": "panel",
+    "claudeCode.selectedModel": "default",
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  14. OTHER AI EXTENSIONS (Roo-Cline, Kilo-Code, Gemini)               ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "roo-cline.allowedCommands": [
+        "git log",
+        "git diff",
+        "git show"
+    ],
+    "roo-cline.deniedCommands": [],
+    "roo-cline.debug": false,
+    "kilo-code.debug": false,
+    "kilo-code.allowedCommands": [
+        "git log",
+        "git diff",
+        "git show"
+    ],
+    "kilo-code.deniedCommands": [],
+    "geminicodeassist.project": "glowing-sublime-d5n9j",
+    "geminicodeassist.outlines.automaticOutlineGeneration": true,
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  15. PYTHON                                                            ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "python.analysis.typeCheckingMode": "standard",
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  16. SVELTE                                                            ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "svelte.enable-ts-plugin": true,
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  17. FILE ASSOCIATIONS                                                 ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "files.associations": {
+        "*.xml": "xml",
+    },
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  18. CODE RUNNER                                                       ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "code-runner.saveFileBeforeRun": true,
+    "code-runner.saveAllFilesBeforeRun": true,
+    "code-runner.runInTerminal": true,
+    "code-runner.executorMap": {
+        "html": "cd $dir && start chrome &dir && $fileName",
+        "javascript": "node",
+        "java": "cd $dir && javac $fileName && java $fileNameWithoutExt",
+        "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "cpp": "cd $dir && g++ $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "objective-c": "cd $dir && gcc -framework Cocoa $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "php": "php",
+        "python": "python -u",
+        "perl": "perl",
+        "perl6": "perl6",
+        "ruby": "ruby",
+        "go": "go run",
+        "lua": "lua",
+        "groovy": "groovy",
+        "powershell": "powershell -ExecutionPolicy ByPass -File",
+        "bat": "cmd /c",
+        "shellscript": "bash",
+        "fsharp": "fsi",
+        "csharp": "scriptcs",
+        "vbscript": "cscript //Nologo",
+        "typescript": "ts-node",
+        "coffeescript": "coffee",
+        "scala": "scala",
+        "swift": "swift",
+        "julia": "julia",
+        "crystal": "crystal",
+        "ocaml": "ocaml",
+        "r": "Rscript",
+        "applescript": "osascript",
+        "clojure": "lein exec",
+        "haxe": "haxe --cwd $dirWithoutTrailingSlash --run $fileNameWithoutExt",
+        "rust": "cd $dir && rustc $fileName && $dir$fileNameWithoutExt",
+        "racket": "racket",
+        "scheme": "csi -script",
+        "ahk": "autohotkey",
+        "autoit": "autoit3",
+        "dart": "dart",
+        "pascal": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+        "d": "cd $dir && dmd $fileName && $dir$fileNameWithoutExt",
+        "haskell": "runhaskell",
+        "nim": "nim compile --verbosity:0 --hints:off --run",
+        "lisp": "sbcl --script",
+        "kit": "kitc --run",
+        "v": "v run",
+        "sass": "sass --style expanded",
+        "scss": "scss --style expanded",
+        "less": "cd $dir && lessc $fileName $fileNameWithoutExt.css",
+        "FortranFreeForm": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran-modern": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran_fixed-form": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+    },
+    "code-runner.executorMapByFileExtension": {
+        ".vb": "cd $dir && vbc /nologo $fileName && $dir$fileNameWithoutExt",
+        ".vbs": "cscript //Nologo",
+        ".scala": "scala",
+        ".jl": "julia",
+        ".cr": "crystal",
+        ".ml": "ocaml",
+        ".zig": "zig run",
+        ".exs": "elixir",
+        ".hx": "haxe --cwd $dirWithoutTrailingSlash --run $fileNameWithoutExt",
+        ".rkt": "racket",
+        ".scm": "csi -script",
+        ".ahk": "autohotkey",
+        ".au3": "autoit3",
+        ".kt": "cd $dir && kotlinc $fileName -include-runtime -d $fileNameWithoutExt.jar && java -jar $fileNameWithoutExt.jar",
+        ".kts": "kotlinc -script",
+        ".dart": "dart",
+        ".pas": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+        ".pp": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+        ".d": "cd $dir && dmd $fileName && $dir$fileNameWithoutExt",
+        ".hs": "runhaskell",
+        ".nim": "nim compile --verbosity:0 --hints:off --run",
+        ".csproj": "dotnet run --project",
+        ".fsproj": "dotnet run --project",
+        ".lisp": "sbcl --script",
+        ".kit": "kitc --run",
+        ".v": "v run",
+        ".vsh": "v run",
+        ".sass": "sass --style expanded",
+        ".cu": "cd $dir && nvcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        ".ring": "ring",
+        ".sml": "cd $dir && sml $fileName",
+    },
+    // ╔══════════════════════════════════════════════════════════════════════════╗
+    // ║  19. MISC EXTENSIONS                                                   ║
+    // ╚══════════════════════════════════════════════════════════════════════════╝
+    "liveServer.settings.donotShowInfoMsg": true,
+    "reactSnippets.settings.prettierEnabled": true,
+    "hediet.vscode-drawio.resizeImages": null,
+    "RainbowBrackets.depreciation-notice": false,
+    "redhat.telemetry.enabled": false,
+    "@azure.argTenant": "",
+    "editor.fontWeight": "bold",
+    "application.shellEnvironmentResolutionTimeout": 15,
+    "window.newWindowProfile": "Default",
+    "diffEditor.renderSideBySide": false,
+}

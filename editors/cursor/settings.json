@@ -1,0 +1,188 @@
+{
+    "window.commandCenter": true,
+    "workbench.iconTheme": "catppuccin-latte",
+    "workbench.startupEditor": "none",
+    "workbench.activityBar.location": "top",
+    "workbench.editor.showTabs": "multiple",
+    "workbench.editor.pinnedTabSizing": "shrink",
+    "workbench.editor.tabSizing": "shrink",
+
+    // Editor ergonomics (ported from VSCode profile)
+    "editor.fontFamily": "Jetbrains Mono, Fira Code, monospace",
+    "editor.fontLigatures": true,
+    "editor.fontWeight": "bold",
+    "editor.lineNumbers": "relative",
+    "editor.rulers": [
+        80
+    ],
+    "editor.minimap.enabled": false,
+    "editor.scrollBeyondLastLine": false,
+    "editor.linkedEditing": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.padding.top": 8,
+    "editor.padding.bottom": 0,
+    "editor.inlineSuggest.enabled": true,
+
+    // Save/format flow
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "explicit",
+    },
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features",
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[xml]": {
+        "editor.defaultFormatter": "redhat.vscode-xml",
+    },
+    "[python]": {
+        "editor.formatOnType": true,
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+    ],
+    "javascript.format.enable": false,
+    "typescript.format.enable": false,
+
+    // Vim core (ported)
+    "vim.leader": "<Space>",
+    "vim.useSystemClipboard": true,
+    "vim.highlightedyank.enable": true,
+    "vim.highlightedyank.color": "rgba(255, 200, 50, 0.3)",
+    "vim.highlightedyank.duration": 200,
+    "vim.hlsearch": true,
+    "vim.neovimPath": "/usr/bin/nvim",
+    "vim.smartRelativeLine": true,
+    "vim.vimrc.enable": true,
+    "vim.vimrc.path": "~/.vimrc",
+    "vim.cursorStylePerMode.normal": "block",
+    "vim.cursorStylePerMode.insert": "underline",
+    "vim.cursorStylePerMode.replace": "block-outline",
+    "vim.cursorStylePerMode.visual": "block-outline",
+    "vim.cursorStylePerMode.visualblock": "block-outline",
+    "vim.cursorStylePerMode.visualline": "block-outline",
+    "vim.handleKeys": {
+        "<C-d>": true,
+        "<C-s>": false,
+        "<C-p>": false, // file search
+        "<C-f>": false, // search in file
+        "<C-b>": false, // toggle sidebar
+        "<C-e>": false, // toggle sidebar (layered keymap)
+        "<C-n>": false, // new file
+        "<C-w>": false, // close tab
+        "<C-/>": false, // toggle comment
+        "<C-Tab>": false, // next tab
+        "<C-S-Tab>": false, // previous tab
+        "<C-z>": false, // undo
+        "<C-j>": false, // navigate autocomplete
+    },
+    "vim.insertModeKeyBindings": [
+        {
+            "before": [
+                "j",
+                "j"
+            ],
+            "after": [
+                "<Esc>"
+            ],
+        },
+        {
+            "before": [
+                "ctrl",
+                "s"
+            ],
+            "after": [
+                "<Esc>",
+                ":",
+                "w",
+                "<CR>"
+            ],
+        },
+    ],
+    "vim.normalModeKeyBindingsNonRecursive": [
+        { "before": ["<leader>", "w"], "commands": ["workbench.action.files.save"] },
+        { "before": ["<leader>", "q"], "commands": ["workbench.action.closeActiveEditor"] },
+        { "before": ["<leader>", "Q"], "commands": ["workbench.action.closeAllEditors"] },
+        { "before": ["<leader>", "f", "f"], "commands": ["workbench.action.quickOpen"] },
+        { "before": ["<leader>", "f", "g"], "commands": ["workbench.action.findInFiles"] },
+        { "before": ["<leader>", "f", "b"], "commands": ["workbench.action.showAllEditors"] },
+        { "before": ["<leader>", "f", "r"], "commands": ["workbench.action.openRecent"] },
+        { "before": ["<leader>", "f", "s"], "commands": ["workbench.action.gotoSymbol"] },
+        { "before": ["<leader>", "f", "S"], "commands": ["workbench.action.showAllSymbols"] },
+        { "before": ["g", "r"], "commands": ["editor.action.goToReferences"] },
+        { "before": ["g", "i"], "commands": ["editor.action.goToImplementation"] },
+        { "before": ["g", "D"], "commands": ["editor.action.goToTypeDefinition"] },
+        { "before": ["<leader>", "c", "a"], "commands": ["editor.action.quickFix"] },
+        { "before": ["<leader>", "c", "r"], "commands": ["editor.action.rename"] },
+        { "before": ["<leader>", "c", "f"], "commands": ["editor.action.formatDocument"] },
+        { "before": ["<leader>", "c", "o"], "commands": ["editor.action.organizeImports"] },
+        { "before": ["<leader>", "g", "g"], "commands": ["workbench.view.scm"] },
+        { "before": ["<leader>", "g", "b"], "commands": ["git.blame.toggleInlineMessage"] },
+        { "before": ["<leader>", "g", "d"], "commands": ["git.openChange"] },
+        { "before": ["<leader>", "e"], "commands": ["workbench.action.toggleSidebarVisibility"] },
+        { "before": ["<leader>", "t"], "commands": ["workbench.action.terminal.focus"] },
+        { "before": ["<leader>", "p"], "commands": ["workbench.action.showCommands"] },
+        { "before": ["<leader>", "x", "x"], "commands": ["workbench.actions.view.problems"] },
+        { "before": ["K"], "commands": ["editor.action.showHover"] },
+        { "before": ["<leader>", "<leader>"], "commands": [":nohl"] },
+        { "before": ["<leader>", "j"], "after": ["J"] },
+        { "before": ["<leader>", "/"], "commands": ["editor.action.commentLine"] },
+    ],
+    "vim.visualModeKeyBindingsNonRecursive": [
+        { "before": ["<leader>", "/"], "commands": ["editor.action.commentLine"] },
+        { "before": ["J"], "commands": ["editor.action.moveLinesDownAction"] },
+        { "before": ["K"], "commands": ["editor.action.moveLinesUpAction"] },
+        { "before": [">"], "commands": ["editor.action.indentLines"], "after": ["g", "v"] },
+        { "before": ["<"], "commands": ["editor.action.outdentLines"], "after": ["g", "v"] },
+        { "before": ["p"], "after": ["\"", "_", "d", "P"] },
+    ],
+
+    // Cursor-specific
+    "cursor.composer.shouldAllowCustomModes": true,
+    "cursor.enable_git_worktrees_setting": true,
+    "cursor.agent_layout_browser_beta_setting": true,
+    "cursor.cpp.enablePartialAccepts": true,
+    "cursor.composer.usageSummaryDisplay": "always",
+
+    // Other AI extension settings kept from existing Cursor profile
+    "kilo-code.debug": false,
+    "kilo-code.allowedCommands": [
+        "git log",
+        "git diff",
+        "git show"
+    ],
+    "kilo-code.deniedCommands": [],
+    "geminicodeassist.project": "glowing-sublime-d5n9j",
+    "geminicodeassist.outlines.automaticOutlineGeneration": true,
+    "geminicodeassist.inlineSuggestions.enableAuto": false,
+    "window.autoDetectColorScheme": false,
+}

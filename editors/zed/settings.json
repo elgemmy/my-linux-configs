@@ -1,0 +1,239 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "text_rendering_mode": "platform_default",
+  "terminal": {
+    "font_weight": 700.0,
+    "font_size": 16.0
+  },
+  "ui_font_family": "Inter",
+  "cli_default_open_behavior": "new_window",
+  "proxy": "",
+  "edit_predictions": {
+    "allow_data_collection": "no"
+  },
+  "colorize_brackets": true,
+  "vim": {
+    "cursor_shape": {
+      "replace": "hollow",
+      "normal": "underline"
+    },
+    "highlight_on_yank_duration": 350,
+    "toggle_relative_line_numbers": false
+  },
+  "relative_line_numbers": "wrapped",
+  "show_signature_help_after_edits": true,
+  "auto_signature_help": true,
+  "sticky_scroll": {
+    "enabled": true
+  },
+  "autoscroll_on_clicks": true,
+  "fast_scroll_sensitivity": 5.0,
+  "mouse_wheel_zoom": true,
+  "autosave": {
+    "after_delay": {
+      "milliseconds": 1000
+    }
+  },
+  "unnecessary_code_fade": 0.5,
+  "cursor_shape": "bar",
+  "agent_buffer_font_size": 15.0,
+  "ui_font_weight": 450.0,
+  "project_panel": {
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left",
+    "tree_view": false
+  },
+  "agent_servers": {
+    "codex-acp": {
+      "favorite_config_option_values": {
+        "model": [
+          "gpt-5.3-codex-spark"
+        ]
+      },
+      "type": "registry"
+    },
+    "goose": {
+      "type": "registry"
+    },
+    "cursor": {
+      "type": "registry"
+    },
+    "opencode": {
+      "favorite_models": [
+        "opencode/mimo-v2-pro-free/high",
+        "opencode-go/minimax-m2.7",
+        "opencode-go/minimax-m2.5",
+        "opencode-go/glm-5",
+        "opencode-go/kimi-k2.5",
+        "opencode/nemotron-3-super-free/high",
+        "opencode/mimo-v2-omni-free/high"
+      ],
+      "type": "registry"
+    },
+    "Droid": {
+      "type": "extension"
+    }
+  },
+  "context_servers": {
+    "mcp-server-context7": {
+      "enabled": true,
+      "settings": {
+        "context7_api_key": "<redacted>"
+      }
+    }
+  },
+  "buffer_font_family": "JetBrains Mono",
+  "agent_ui_font_size": 15.0,
+  "buffer_font_weight": 550.0,
+  "language_models": {
+    "opencode": {
+      "show_zen_models": false
+    },
+    "openai_compatible": {
+      
+    }
+  },
+  "agent": {
+    "favorite_models": [
+      {
+        "provider": "openai-subscribed",
+        "model": "gpt-5.5",
+        "enable_thinking": true,
+        "effort": "xhigh"
+      },
+      {
+        "provider": "openai-subscribed",
+        "model": "gpt-5.3-codex",
+        "enable_thinking": true,
+        "effort": "medium"
+      },
+      {
+        "provider": "opencode",
+        "model": "go/deepseek-v4-pro",
+        "enable_thinking": true,
+        "effort": "max"
+      },
+      {
+        "provider": "opencode",
+        "model": "go/glm-5.1",
+        "enable_thinking": false
+      },
+      {
+        "provider": "opencode",
+        "model": "go/deepseek-v4-flash",
+        "enable_thinking": true,
+        "effort": "max"
+      },
+      {
+        "provider": "opencode",
+        "model": "go/mimo-v2.5-pro",
+        "enable_thinking": true,
+        "effort": "high"
+      },
+      {
+        "provider": "opencode",
+        "model": "go/mimo-v2.5",
+        "enable_thinking": true,
+        "effort": "high"
+      },
+      {
+        "provider": "opencode",
+        "model": "go/minimax-m2.7",
+        "enable_thinking": false
+      },
+      {
+        "provider": "opencode",
+        "model": "go/qwen3.6-plus",
+        "enable_thinking": false
+      },
+      {
+        "provider": "openai-subscribed",
+        "model": "gpt-5.4",
+        "enable_thinking": true,
+        "effort": "medium"
+      }
+    ],
+    "use_modifier_to_send": true,
+    "sidebar_side": "left",
+    "show_turn_stats": true,
+    "dock": "right",
+    "notify_when_agent_waiting": "primary_screen",
+    "enable_feedback": false,
+    "tool_permissions": {
+      "default": "allow"
+    },
+    "default_profile": "ask",
+    "default_model": {
+      "effort": "xhigh",
+      "enable_thinking": true,
+      "provider": "openai-subscribed",
+      "model": "gpt-5.5"
+    },
+    "profiles": {
+      "ask": {
+        "name": "ask",
+        "tools": {},
+        "enable_all_context_servers": false,
+        "context_servers": {}
+      },
+      "plan": {
+        "name": "Plan",
+        "tools": {},
+        "enable_all_context_servers": false,
+        "context_servers": {}
+      },
+      "architect": {
+        "name": "Architect",
+        "tools": {
+          "grep": true,
+          "find_path": true,
+          "read_file": true,
+          "thinking": true
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {}
+      }
+    }
+  },
+  "inlay_hints": {
+    "enabled": true,
+    "show_value_hints": true,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true,
+    "show_background": false,
+    "edit_debounce_ms": 700,
+    "scroll_debounce_ms": 50,
+    "toggle_on_modifiers_press": {
+      "control": false,
+      "alt": false,
+      "shift": false,
+      "platform": false,
+      "function": false
+    }
+  },
+  "vim_mode": true,
+  "icon_theme": "Material Icon Theme",
+  "ui_font_size": 15.0,
+  "buffer_font_size": 15.0,
+  "theme": {
+    "mode": "dark",
+    "light": "Ayu Light",
+    "dark": "Ayu Darker"
+  }
+}
