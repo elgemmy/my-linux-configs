@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# tar-update — replace an installed tar app with a newer tarball
+#
+# Usage: tar-update <name> <path-to-new.tar.gz>
+# Example: tar-update antigravity ~/Downloads/Antigravity.tar.gz
+#
+# Keeps the existing desktop entry and command name; swaps out the /opt payload,
+# re-applies the sandbox bit, refreshes the icon, and removes the source tarball.
+
+set -e
+
+NAME="$1"
+NEW_SRC="$2"
+OPT_DIR="/opt"
+BIN_DIR="/usr/local/bin"
+ICONS_BASE="$HOME/.local/share/icons/hicolor"
+DESKTOP_DIR="$HOME/.local/share/applications"
+TMP="/tmp/tar-update-$$"
+
+trap 'rm -rf "$TMP"' EXIT
+
+die()  { echo "error: $*" >&2; exit 1; }
+info() { echo "  $*"; }
+
+# Same binary-detection heuristic as tar-install. If you tuned find_binary
+# there, mirror the change here.
+find_binary() {
+    local dir="$1" name="$2"
+    if [ -f "$dir/$name" ] && [ -x "$dir/$name" ]; then echo "$dir/$name"; return; fi
+    local f
+    for f in "$dir"/*; do
+        [ -f "$f" ] && [ -x "$f" ] || continue
+        case "$(basename "$f")" in
+            chrome-sandbox|chrome_crashpad_handler|crashpad_handler) continue ;;
+            *.so|*.so.*|*.bin|*.pak|*.dat|*.json|*.txt|*.html)        continue ;;
+        esac
+        echo "$f"; return
+    done
+}
+
+extract_asar_icon() {
+    local asar="$1" dest="$2"
+    command -v npx >/dev/null 2>&1 || return 1
+    local entry
+    entry=$(npx --yes @electron/asar list "$asar" 2>/dev/null \
+        | grep -iE '(^|/)(icon|app|logo)\.png$' | head -1)
+    [ -z "$entry" ] && entry=$(npx --yes @electron/asar list "$asar" 2>/dev/null \
+        | grep -iE '\.png$' | head -1)
+    [ -z "$entry" ] && return 1
+    ( cd "$TMP" && npx --yes @electron/asar extract-file "$asar" "${entry#/}" ) 2>/dev/null \
+        || return 1
+    mv "$TMP/$(basename "$entry")" "$dest" 2>/dev/null
+}
+
+# ── validate ──────────────────────────────────────────────────────────────────
+
+[ -z "$NAME" ] || [ -z "$NEW_SRC" ] && die "Usage: tar-update <name> <path-to-new.tar.gz>"
+[ -f "$NEW_SRC" ] || die "File not found: $NEW_SRC"
+
+DESKTOP="$DESKTOP_DIR/$NAME.desktop"
+[ -f "$DESKTOP" ] || die "'$NAME' is not installed (no $DESKTOP). Use tar-install first."
+
+OLD_BIN=$(/usr/bin/grep -m1 '^Exec=' "$DESKTOP" | cut -d= -f2- | awk '{print $1}')
+OLD_DIR=$(dirname "$OLD_BIN")
+[[ "$OLD_DIR" == /opt/?* ]] || die "Existing install dir '$OLD_DIR' is not under /opt — refusing to update."
+
+# ── inspect new archive ───────────────────────────────────────────────────────
+
+NEW_TOP=$(tar tf "$NEW_SRC" 2>/dev/null | head -1 | cut -d/ -f1)
+[ -z "$NEW_TOP" ] && die "Could not read archive contents"
+NEW_DIR="$OPT_DIR/$NEW_TOP"
+
+echo "→ Updating $NAME ($OLD_DIR → $NEW_DIR, sudo required)"
+
+# ── swap payload ──────────────────────────────────────────────────────────────
+
+sudo rm -rf "$OLD_DIR"
+[ "$NEW_DIR" != "$OLD_DIR" ] && [ -e "$NEW_DIR" ] && sudo rm -rf "$NEW_DIR"
+sudo tar xf "$NEW_SRC" -C "$OPT_DIR" || die "Extraction failed"
+[ -d "$NEW_DIR" ] || die "Expected $NEW_DIR after extraction, not found"
+
+BIN=$(find_binary "$NEW_DIR" "$NAME")
+[ -z "$BIN" ] && die "Could not find a launchable binary in $NEW_DIR (tune find_binary)"
+
+if [ -f "$NEW_DIR/chrome-sandbox" ]; then
+    sudo chown root:root "$NEW_DIR/chrome-sandbox"
+    sudo chmod 4755 "$NEW_DIR/chrome-sandbox"
+fi
+
+sudo ln -sf "$BIN" "$BIN_DIR/$NAME"
+
+# ── refresh icon & desktop Exec (in case the dir/binary path changed) ─────────
+
+mkdir -p "$TMP"
+ICON_DEST=$(/usr/bin/grep -m1 '^Icon=' "$DESKTOP" | cut -d= -f2-)
+if [ -n "$ICON_DEST" ]; then
+    mkdir -p "$(dirname "$ICON_DEST")"
+    LOOSE=$(find "$NEW_DIR" -path '*/icons/hicolor/512x512/apps/*.png' 2>/dev/null | head -1)
+    [ -z "$LOOSE" ] && LOOSE=$(find "$NEW_DIR" -maxdepth 2 -iname '*.png' 2>/dev/null | head -1)
+    if [ -n "$LOOSE" ]; then
+        cp "$LOOSE" "$ICON_DEST" && info "Icon refreshed (from tree)"
+    elif [ -f "$NEW_DIR/resources/app.asar" ] && extract_asar_icon "$NEW_DIR/resources/app.asar" "$ICON_DEST"; then
+        info "Icon refreshed (from app.asar)"
+    fi
+fi
+
+# Update the Exec path if it moved (preserve any trailing args like %U)
+if [ "$BIN" != "$OLD_BIN" ]; then
+    EXEC_ARGS=$(/usr/bin/grep -m1 '^Exec=' "$DESKTOP" | cut -d= -f2- | cut -s -d' ' -f2-)
+    sed -i "s|^Exec=.*|Exec=$BIN${EXEC_ARGS:+ $EXEC_ARGS}|" "$DESKTOP"
+    info "Desktop Exec updated"
+fi
+
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+gtk-update-icon-cache   "$ICONS_BASE" -f -t 2>/dev/null || true
+
+rm -f "$NEW_SRC"
+info "Removed source tarball: $NEW_SRC"
+
+echo "✓ $NAME updated"

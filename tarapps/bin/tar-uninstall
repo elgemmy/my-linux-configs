@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# tar-uninstall — remove a tar-installed app and every artifact it created
+#
+# Usage:
+#   tar-uninstall <name>       # prompts for confirmation (default No)
+#   tar-uninstall -y <name>    # skips confirmation (for scripting)
+#
+# Removes: the /opt install dir, the /usr/local/bin symlink, the icon, and the
+# .desktop entry. Leaves nothing behind.
+
+set -e
+
+BIN_DIR="/usr/local/bin"
+DESKTOP_DIR="$HOME/.local/share/applications"
+ICONS_BASE="$HOME/.local/share/icons/hicolor"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+# ── confirmation ──────────────────────────────────────────────────────────────
+# Default-to-No on a destructive op: you must explicitly type 'y'.
+confirm_uninstall() {
+    local files=("$@")
+    echo "Would remove:"
+    for f in "${files[@]}"; do echo "  $f"; done
+    printf "Proceed? [y/N] "
+    read -r reply
+    [[ "$reply" =~ ^[Yy]$ ]] || exit 1
+}
+
+# ── argument parsing ──────────────────────────────────────────────────────────
+
+SKIP_CONFIRM=false
+if [[ "$1" == "-y" ]]; then SKIP_CONFIRM=true; shift; fi
+
+NAME="$1"
+[ -z "$NAME" ] && die "Usage: tar-uninstall [-y] <name>"
+
+DESKTOP="$DESKTOP_DIR/$NAME.desktop"
+SYMLINK="$BIN_DIR/$NAME"
+
+[ -f "$DESKTOP" ] || [ -L "$SYMLINK" ] \
+    || die "'$NAME' does not appear to be installed (no desktop entry or command found)"
+
+# ── resolve artifacts ─────────────────────────────────────────────────────────
+
+TO_REMOVE=()        # user-owned files (rm)
+SUDO_REMOVE=()      # root-owned paths (sudo rm)
+
+# /opt install dir — derive from the Exec= binary path in the desktop entry,
+# falling back to the symlink target. Guard hard against deleting outside /opt.
+INSTALL_DIR=""
+if [ -f "$DESKTOP" ]; then
+    EXEC_BIN=$(/usr/bin/grep -m1 '^Exec=' "$DESKTOP" | cut -d= -f2- | awk '{print $1}')
+    [ -n "$EXEC_BIN" ] && INSTALL_DIR=$(dirname "$EXEC_BIN")
+fi
+if [ -z "$INSTALL_DIR" ] && [ -L "$SYMLINK" ]; then
+    INSTALL_DIR=$(dirname "$(readlink -f "$SYMLINK")")
+fi
+
+if [[ "$INSTALL_DIR" == /opt/?* ]] && [ "$INSTALL_DIR" != "/opt" ] && [ -d "$INSTALL_DIR" ]; then
+    SUDO_REMOVE+=("$INSTALL_DIR")
+elif [ -n "$INSTALL_DIR" ]; then
+    echo "warning: refusing to auto-remove install dir '$INSTALL_DIR' (not under /opt) — remove it manually if needed"
+fi
+
+[ -L "$SYMLINK" ] && SUDO_REMOVE+=("$SYMLINK")
+
+if [ -f "$DESKTOP" ]; then
+    ICON_PATH=$(/usr/bin/grep -m1 '^Icon=' "$DESKTOP" | cut -d= -f2-)
+    [[ "$ICON_PATH" == /* ]] && [ -f "$ICON_PATH" ] && TO_REMOVE+=("$ICON_PATH")
+    TO_REMOVE+=("$DESKTOP")
+fi
+
+# ── confirm & remove ──────────────────────────────────────────────────────────
+
+if [ "$SKIP_CONFIRM" = false ]; then
+    confirm_uninstall "${SUDO_REMOVE[@]}" "${TO_REMOVE[@]}"
+fi
+
+for f in "${TO_REMOVE[@]}";   do rm -f "$f"; done
+for f in "${SUDO_REMOVE[@]}"; do sudo rm -rf "$f"; done
+
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+gtk-update-icon-cache   "$ICONS_BASE" -f -t 2>/dev/null || true
+
+echo "✓ $NAME removed"

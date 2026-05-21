@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+# tar-install — install a .tar.gz desktop app into /opt as a launchable app
+#
+# Usage: tar-install <path-to.tar.gz>
+#
+# What it does:
+#   1. Inspects the archive, suggests a name from the top-level folder
+#   2. Extracts to /opt/<TopLevelDir>            (sudo)
+#   3. Detects the launchable binary             (see find_binary — your tuning point)
+#   4. (Electron) setuid-roots chrome-sandbox so the app runs sandboxed
+#   5. Symlinks the binary onto PATH (/usr/local/bin/<name>)
+#   6. Extracts an icon (loose, or from resources/app.asar) → hicolor/512x512
+#   7. Writes ~/.local/share/applications/<name>.desktop
+#   8. Refreshes caches, removes the source tarball, cleans every temp file
+#
+# Companion: tar-update, tar-uninstall
+
+set -e
+
+SRC="$1"
+OPT_DIR="/opt"
+BIN_DIR="/usr/local/bin"
+ICONS_BASE="$HOME/.local/share/icons/hicolor"
+DESKTOP_DIR="$HOME/.local/share/applications"
+TMP="/tmp/tar-install-$$"
+
+# Clean up the temp dir on ANY exit path — success, failure, or Ctrl-C.
+# This is what guarantees no footprints are left behind.
+trap 'rm -rf "$TMP"' EXIT
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+die()  { echo "error: $*" >&2; exit 1; }
+info() { echo "  $*"; }
+
+# Title-case a kebab name for the launcher label: some-app → Some App
+display_name() {
+    echo "$1" | sed -E 's/(^|-)([a-z])/\U\2/g' | tr '-' ' '
+}
+
+# find_binary — pick THE launchable binary out of the extracted folder.
+#
+# ┌─ YOUR TUNING POINT ──────────────────────────────────────────────────────┐
+# │ A tarball folder holds many files (the app binary, chrome-sandbox,         │
+# │ crashpad_handler, *.so, *.pak …). Only one is the thing to launch.         │
+# │ There's no single right answer — pick the heuristic you trust:             │
+# │   • match the install name / dir stem   (what's implemented below)         │
+# │   • largest executable ELF                                                 │
+# │   • first executable that isn't a known Chromium helper  (fallback below)  │
+# │   • read an Exec= from a bundled .desktop, if the archive ships one        │
+# │ Edit this function to taste — everything else keys off its output.         │
+# └───────────────────────────────────────────────────────────────────────────┘
+find_binary() {
+    local dir="$1" name="$2"
+
+    # 1. Exact match on the install name (e.g. /opt/Antigravity-x64/antigravity)
+    if [ -f "$dir/$name" ] && [ -x "$dir/$name" ]; then
+        echo "$dir/$name"; return
+    fi
+
+    # 2. Fallback: first top-level executable that isn't a known helper/asset
+    local f
+    for f in "$dir"/*; do
+        [ -f "$f" ] && [ -x "$f" ] || continue
+        case "$(basename "$f")" in
+            chrome-sandbox|chrome_crashpad_handler|crashpad_handler) continue ;;
+            *.so|*.so.*|*.bin|*.pak|*.dat|*.json|*.txt|*.html)        continue ;;
+        esac
+        echo "$f"; return
+    done
+}
+
+# Extract icon.png out of an Electron app.asar into $1 (needs node/npx)
+extract_asar_icon() {
+    local asar="$1" dest="$2"
+    command -v npx >/dev/null 2>&1 || return 1
+    local entry
+    entry=$(npx --yes @electron/asar list "$asar" 2>/dev/null \
+        | grep -iE '(^|/)(icon|app|logo)\.png$' | head -1)
+    [ -z "$entry" ] && entry=$(npx --yes @electron/asar list "$asar" 2>/dev/null \
+        | grep -iE '\.png$' | head -1)
+    [ -z "$entry" ] && return 1
+    ( cd "$TMP" && npx --yes @electron/asar extract-file "$asar" "${entry#/}" ) 2>/dev/null \
+        || return 1
+    mv "$TMP/$(basename "$entry")" "$dest" 2>/dev/null
+}
+
+# ── validate input ────────────────────────────────────────────────────────────
+
+[ -z "$SRC" ] && die "Usage: tar-install <path-to.tar.gz>"
+[ -f "$SRC" ] || die "File not found: $SRC"
+case "$SRC" in
+    *.tar.gz|*.tgz|*.tar.xz|*.tar.bz2|*.tar) ;;
+    *) die "Not a tarball: $SRC (expected .tar.gz/.tgz/.tar.xz/.tar.bz2/.tar)" ;;
+esac
+
+# ── inspect archive & suggest a name ──────────────────────────────────────────
+
+# Top-level directory inside the archive (tar auto-detects compression).
+TOP=$(tar tf "$SRC" 2>/dev/null | head -1 | cut -d/ -f1)
+[ -z "$TOP" ] && die "Could not read archive contents"
+
+SUGGESTED=$(echo "$TOP" \
+    | sed -E 's/[-_](x64|x86_64|amd64|x86|i386|linux|aarch64|arm64)$//I' \
+    | sed -E 's/[-_][vV]?[0-9][0-9.]*([-_][A-Za-z0-9]+)*$//' \
+    | tr '[:upper:]' '[:lower:]' \
+    | tr ' _' '-' \
+    | sed 's/-*$//')
+
+echo ""
+echo "Archive: $(basename "$SRC")"
+echo "Extracts to folder: $TOP"
+echo ""
+printf "Install name [%s]: " "$SUGGESTED"
+read -r INPUT
+NAME="${INPUT:-$SUGGESTED}"
+
+[[ "$NAME" =~ ^[a-z0-9][a-z0-9-]*$ ]] \
+    || die "Name must be lowercase letters, digits, and hyphens (got: '$NAME')"
+
+INSTALL_DIR="$OPT_DIR/$TOP"
+[ -e "$INSTALL_DIR" ] && die "$INSTALL_DIR already exists — use tar-update to upgrade."
+[ -e "$BIN_DIR/$NAME" ] && die "$BIN_DIR/$NAME already exists — pick another name or uninstall first."
+
+echo ""
+echo "→ Installing '$NAME' to $INSTALL_DIR (sudo required)"
+
+# ── extract ───────────────────────────────────────────────────────────────────
+
+sudo tar xf "$SRC" -C "$OPT_DIR" || die "Extraction failed"
+[ -d "$INSTALL_DIR" ] || die "Expected $INSTALL_DIR after extraction, not found"
+
+# ── locate binary ─────────────────────────────────────────────────────────────
+
+BIN=$(find_binary "$INSTALL_DIR" "$NAME")
+[ -z "$BIN" ] && die "Could not find a launchable binary in $INSTALL_DIR (tune find_binary)"
+info "Binary:  $BIN"
+
+# ── chromium sandbox (Electron apps) ──────────────────────────────────────────
+
+if [ -f "$INSTALL_DIR/chrome-sandbox" ]; then
+    sudo chown root:root "$INSTALL_DIR/chrome-sandbox"
+    sudo chmod 4755 "$INSTALL_DIR/chrome-sandbox"
+    info "Sandbox: chrome-sandbox setuid-root (runs sandboxed)"
+fi
+
+# ── PATH symlink ──────────────────────────────────────────────────────────────
+
+sudo ln -sf "$BIN" "$BIN_DIR/$NAME"
+info "Command: $BIN_DIR/$NAME"
+
+# ── icon ──────────────────────────────────────────────────────────────────────
+
+mkdir -p "$TMP"
+ICON_DEST="$ICONS_BASE/512x512/apps/$NAME.png"
+mkdir -p "$(dirname "$ICON_DEST")"
+
+# 1. loose icon already in the extracted tree (largest hicolor png)
+LOOSE=$(find "$INSTALL_DIR" -path '*/icons/hicolor/512x512/apps/*.png' 2>/dev/null | head -1)
+[ -z "$LOOSE" ] && LOOSE=$(find "$INSTALL_DIR" -maxdepth 2 -iname '*.png' 2>/dev/null | head -1)
+
+if [ -n "$LOOSE" ]; then
+    cp "$LOOSE" "$ICON_DEST"
+    info "Icon:    $ICON_DEST (from tree)"
+elif [ -f "$INSTALL_DIR/resources/app.asar" ] && extract_asar_icon "$INSTALL_DIR/resources/app.asar" "$ICON_DEST"; then
+    info "Icon:    $ICON_DEST (from app.asar)"
+else
+    ICON_DEST=""
+    echo "  warning: no icon found — launcher will use a generic icon"
+fi
+
+# ── desktop entry ─────────────────────────────────────────────────────────────
+
+mkdir -p "$DESKTOP_DIR"
+DISPLAY=$(display_name "$NAME")
+DESKTOP="$DESKTOP_DIR/$NAME.desktop"
+{
+    echo "[Desktop Entry]"
+    echo "Name=$DISPLAY"
+    echo "Comment=$DISPLAY"
+    echo "Exec=$BIN %U"
+    echo "Terminal=false"
+    echo "Type=Application"
+    [ -n "$ICON_DEST" ] && echo "Icon=$ICON_DEST"
+    echo "StartupWMClass=$DISPLAY"
+    echo "Categories=Development;"
+} > "$DESKTOP"
+info "Desktop: $DESKTOP"
+
+# ── refresh caches & clean up source ──────────────────────────────────────────
+
+update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+gtk-update-icon-cache   "$ICONS_BASE" -f -t 2>/dev/null || true
+
+rm -f "$SRC"
+info "Removed source tarball: $SRC"
+
+echo ""
+echo "✓ $DISPLAY installed — launch from the app menu or run: $NAME"
+echo "  (If the taskbar icon doesn't group correctly, fix StartupWMClass in $DESKTOP"
+echo "   using the value from: xprop WM_CLASS)"

@@ -164,7 +164,15 @@ if ask_confirmation "AppImage Management" "Set up ~/Applications/ and install tw
     echo -e "\n${GREEN}✅ AppImage management setup completed${NC}\n"
 fi
 
-# Module 10: Git & Credentials Setup
+# Module 10: Tarball App Management
+if ask_confirmation "Tarball App Management" "Install three scripts for .tar.gz desktop apps (Electron IDEs, browsers, etc.):\n  • tar-install:   extract a tarball app to /opt and wire up a launcher\n  • tar-update:    swap in a newer build\n  • tar-uninstall: remove an installed tarball app cleanly\nOptional — only useful on desktop environments."; then
+    print_header "📦 Tarball App Management Setup"
+    echo -e "${BLUE}📦 Setting up tarball app management...${NC}"
+    cd tarapps && ./install.sh && cd ..
+    echo -e "\n${GREEN}✅ Tarball app management setup completed${NC}\n"
+fi
+
+# Module 11: Git & Credentials Setup
 if ask_confirmation "Git & Credentials" "Set up git credential helper (Bitwarden integration),\nglobal gitignore, and git configuration.\nRequires: Bitwarden CLI (bw) installed separately."; then
     print_header "🔑 Git & Credentials Setup"
     echo -e "${BLUE}🔑 Setting up git credentials...${NC}"
@@ -172,7 +180,7 @@ if ask_confirmation "Git & Credentials" "Set up git credential helper (Bitwarden
     echo -e "\n${GREEN}✅ Git configuration completed${NC}\n"
 fi
 
-# Module 11: Post-Setup Verification
+# Module 12: Post-Setup Verification
 if ask_confirmation "Post-Setup Check" "Verify external tools and create local config templates.\nChecks: bw, gh, docker, go, nvm/node.\nCreates ~/.zshrc.local and ~/.zshrc.work templates if missing."; then
     print_header "🔍 Post-Setup Verification"
     echo -e "${BLUE}🔍 Running post-setup checks...${NC}"
