@@ -18,6 +18,12 @@ sudo dnf install kitty         # Fedora
 # Copy configuration
 mkdir -p ~/.config/kitty
 cp kitty.conf ~/.config/kitty/kitty.conf
+mkdir -p ~/.config/kitty/sessions
+cp sessions/daily.kitty-session ~/.config/kitty/sessions/daily.kitty-session
+
+# Optional desktop launcher for the daily session
+mkdir -p ~/.local/share/applications
+sed "s|__HOME__|$HOME|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
 
 # Pick a theme
 kitten themes
@@ -29,6 +35,7 @@ kitten themes
 - **Background opacity** with dynamic adjustment
 - **GPU acceleration** for smooth performance
 - **Session management** — save and restore workspace layouts
+- **Daily session launcher** — `kdev` alias plus an app launcher for `daily.kitty-session`
 - **Customizable fonts and themes** (per-machine via `kitten themes` and `kitten choose-fonts`)
 
 ## Keybindings
@@ -70,6 +77,20 @@ kitten themes              # Browse and apply a theme
 Fonts are also per-machine:
 ```bash
 kitten choose-fonts        # Select fonts interactively
+```
+
+## Daily Session
+
+The tracked session lives at `sessions/daily.kitty-session`. The installer copies it to:
+
+```bash
+~/.config/kitty/sessions/daily.kitty-session
+```
+
+It also installs `~/.local/share/applications/kdev.desktop`, which launches the same command as the `kdev` shell alias:
+
+```bash
+kitty --detach --session ~/.config/kitty/sessions/daily.kitty-session
 ```
 
 ## Requirements
