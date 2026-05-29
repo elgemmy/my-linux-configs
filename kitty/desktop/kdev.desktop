@@ -1,11 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Kitty Daily Session
-GenericName=Terminal emulator
+Name=kdev
+GenericName=Kitty daily session
 Comment=Open the daily Kitty development session
-TryExec=kitty
+TryExec=__KITTY__
 StartupNotify=true
-Exec=kitty --detach --session __HOME__/.config/kitty/sessions/daily.kitty-session
+Exec=__KITTY__ --detach --session __HOME__/.config/kitty/sessions/daily.kitty-session
 Icon=kitty
 Categories=System;TerminalEmulator;
+Keywords=kitty;kdev;daily;development;session;terminal;

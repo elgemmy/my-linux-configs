@@ -48,7 +48,11 @@ echo -e "${GREEN}✅ Configuration installed${NC}"
 # Install desktop launcher for daily development session
 echo -e "\n${BLUE}🖥️  Installing Kitty daily session launcher...${NC}"
 mkdir -p ~/.local/share/applications
-sed "s|__HOME__|$HOME|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
+KITTY_BIN="$(command -v kitty || true)"
+if [ -z "$KITTY_BIN" ]; then
+    KITTY_BIN="kitty"
+fi
+sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
 chmod 644 ~/.local/share/applications/kdev.desktop
 if command -v update-desktop-database &> /dev/null; then
     update-desktop-database ~/.local/share/applications 2>/dev/null || true

@@ -23,7 +23,8 @@ cp sessions/daily.kitty-session ~/.config/kitty/sessions/daily.kitty-session
 
 # Optional desktop launcher for the daily session
 mkdir -p ~/.local/share/applications
-sed "s|__HOME__|$HOME|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
+KITTY_BIN="$(command -v kitty || printf kitty)"
+sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
 
 # Pick a theme
 kitten themes
@@ -87,7 +88,7 @@ The tracked session lives at `sessions/daily.kitty-session`. The installer copie
 ~/.config/kitty/sessions/daily.kitty-session
 ```
 
-It also installs `~/.local/share/applications/kdev.desktop`, which launches the same command as the `kdev` shell alias:
+It also installs `~/.local/share/applications/kdev.desktop`, which appears in the app launcher as `kdev` and launches the same command as the `kdev` shell alias:
 
 ```bash
 kitty --detach --session ~/.config/kitty/sessions/daily.kitty-session
