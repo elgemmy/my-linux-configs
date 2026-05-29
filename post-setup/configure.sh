@@ -39,29 +39,7 @@ fi
 # 3. Create ~/.zshrc.local template if it doesn't exist
 if [ ! -f ~/.zshrc.local ]; then
     echo -e "${BLUE}Creating ~/.zshrc.local template...${NC}"
-    cat > ~/.zshrc.local << 'LOCALEOF'
-# ~/.zshrc.local
-# Machine-specific configuration that is NOT tracked in the dotfiles repo.
-# This file is sourced by ~/.zshrc if it exists.
-# Add anything here that is specific to this machine or shouldn't be committed.
-
-# --- NVM (Node Version Manager) ---
-# Uncomment the following lines to load NVM on shell startup:
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-# --- Additional PATH entries ---
-# export PATH="$HOME/some-custom-path/bin:$PATH"
-
-# --- Cursor Agent shell integration ---
-# Opt in only when you explicitly want Cursor Agent terminal capture. The
-# generated snippet can exec `agent record`, so keep it out of editor shell
-# environment probes by default.
-# if [[ "$ENABLE_CURSOR_AGENT_SHELL_INTEGRATION" == "1" && $- == *i* && -t 0 && -z "$VSCODE_PID" && "$TERM_PROGRAM" != "vscode" && "$TERM_PROGRAM" != "cursor" && -z "$CURSOR_RECORD_SESSION" ]]; then
-#   eval "$(~/.local/bin/agent shell-integration zsh)"
-# fi
-LOCALEOF
+    cp "$REPO_DIR/zsh/templates/zshrc.local" ~/.zshrc.local
     echo -e "${GREEN}Created ~/.zshrc.local${NC}"
 else
     echo -e "${YELLOW}~/.zshrc.local already exists — skipping.${NC}"
@@ -70,16 +48,7 @@ fi
 # 4. Create ~/.zshrc.work template if it doesn't exist
 if [ ! -f ~/.zshrc.work ]; then
     echo -e "${BLUE}Creating ~/.zshrc.work template...${NC}"
-    cat > ~/.zshrc.work << 'WORKEOF'
-# ~/.zshrc.work
-# Work-specific functions, aliases, and environment variables.
-# This file is sourced by ~/.zshrc if it exists.
-# Keep work-related configuration here to avoid mixing it with personal dotfiles.
-
-# Example:
-# alias vpn="sudo openconnect --protocol=gp vpn.company.com"
-# export WORK_PROJECT_DIR="$HOME/work"
-WORKEOF
+    cp "$REPO_DIR/zsh/templates/zshrc.work" ~/.zshrc.work
     echo -e "${GREEN}Created ~/.zshrc.work${NC}"
 else
     echo -e "${YELLOW}~/.zshrc.work already exists — skipping.${NC}"
