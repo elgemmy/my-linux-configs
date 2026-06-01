@@ -1,6 +1,2 @@
 # ~/.zshrc.work
 # Work-specific functions, aliases, and environment variables.
-
-if [[ -f "$HOME/Projects/work-scripts/odoo.zsh" ]]; then
-    source "$HOME/Projects/work-scripts/odoo.zsh"
-fi
