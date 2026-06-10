@@ -6,7 +6,7 @@ launch
 new_tab Codex
 layout fat
 cd ~/Projects
-launch codex
+launch
 
 new_tab Odoo Server
 layout splits
