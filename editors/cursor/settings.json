@@ -172,17 +172,5 @@
     "cursor.agent_layout_browser_beta_setting": true,
     "cursor.cpp.enablePartialAccepts": true,
     "cursor.composer.usageSummaryDisplay": "always",
-
-    // Other AI extension settings kept from existing Cursor profile
-    "kilo-code.debug": false,
-    "kilo-code.allowedCommands": [
-        "git log",
-        "git diff",
-        "git show"
-    ],
-    "kilo-code.deniedCommands": [],
-    "geminicodeassist.project": "glowing-sublime-d5n9j",
-    "geminicodeassist.outlines.automaticOutlineGeneration": true,
-    "geminicodeassist.inlineSuggestions.enableAuto": false,
     "window.autoDetectColorScheme": false,
 }

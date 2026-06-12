@@ -3,12 +3,6 @@
 # This file is sourced by ~/.zshrc if it exists.
 # Add anything here that is specific to this machine or should not be portable.
 
-# --- NVM (Node Version Manager) ---
-# Uncomment the following lines to load NVM on shell startup:
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
 # --- Additional PATH entries ---
 # export PATH="$HOME/some-custom-path/bin:$PATH"
 
@@ -20,30 +14,5 @@
 #   eval "$(~/.local/bin/agent shell-integration zsh)"
 # fi
 
-# --- Default browser switcher ---
-# Switch the desktop default browser for links opened by other apps.
-set-default-browser() {
-  local desktop_file="$1"
-
-  if [[ -z "$desktop_file" ]]; then
-    printf 'Usage: set-default-browser <browser.desktop>\n'
-    return 2
-  fi
-
-  xdg-settings set default-web-browser "$desktop_file" &&
-    xdg-mime default "$desktop_file" x-scheme-handler/http &&
-    xdg-mime default "$desktop_file" x-scheme-handler/https &&
-    xdg-mime default "$desktop_file" text/html &&
-    printf 'Default browser: %s\n' "$(xdg-settings get default-web-browser)"
-}
-
-default-browser() {
-  xdg-settings get default-web-browser
-}
-
-alias use-brave='set-default-browser brave-browser.desktop'
-alias use-chrome='set-default-browser google-chrome.desktop'
-alias use-zen='set-default-browser app.zen_browser.zen.desktop'
-alias use-firefox='set-default-browser firefox.desktop'
-alias use-helium='set-default-browser helium.desktop'
-alias use-min='set-default-browser min.desktop'
+# --- Private machine aliases ---
+# Add one-off aliases and secrets-adjacent config here, not in zsh/zshrc.

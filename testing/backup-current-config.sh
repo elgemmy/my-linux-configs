@@ -47,12 +47,29 @@ if [ -f ~/.vimrc ]; then
     echo -e "${GREEN}✅ Vim config backed up${NC}"
 fi
 
-# Backup Kitty config
-if [ -f ~/.config/kitty/kitty.conf ]; then
-    mkdir -p "$BACKUP_DIR/kitty"
-    cp ~/.config/kitty/kitty.conf "$BACKUP_DIR/kitty.conf.backup"
+# Backup Kitty config, including sessions
+if [ -d ~/.config/kitty ]; then
+    cp -r ~/.config/kitty "$BACKUP_DIR/kitty.backup"
     echo -e "${GREEN}✅ Kitty config backed up${NC}"
 fi
+
+# Backup editor user settings/keybindings only
+backup_editor_config() {
+    local name="$1"
+    local source_dir="$2"
+    local target_dir="$BACKUP_DIR/editors/$name"
+
+    if [ -f "$source_dir/settings.json" ] || [ -f "$source_dir/keybindings.json" ]; then
+        mkdir -p "$target_dir"
+        [ -f "$source_dir/settings.json" ] && cp "$source_dir/settings.json" "$target_dir/settings.json"
+        [ -f "$source_dir/keybindings.json" ] && cp "$source_dir/keybindings.json" "$target_dir/keybindings.json"
+        echo -e "${GREEN}✅ $name editor config backed up${NC}"
+    fi
+}
+
+backup_editor_config "vscode" "$HOME/.config/Code/User"
+backup_editor_config "cursor" "$HOME/.config/Cursor/User"
+backup_editor_config "zed" "$HOME/.config/zed"
 
 # Backup starship config
 if [ -f ~/.config/starship.toml ]; then

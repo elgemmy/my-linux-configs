@@ -71,7 +71,7 @@ echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
     if [ -f testing/backup-current-config.sh ]; then
         echo -e "${BLUE}🔄 Creating comprehensive backup...${NC}"
-        cd testing && ./backup-current-config.sh && cd ..
+        (cd testing && ./backup-current-config.sh)
         echo -e "${GREEN}✅ Backup completed - you can restore later if needed${NC}"
         echo
     else
@@ -104,7 +104,7 @@ fi
 if ask_confirmation "Fonts Installation" "Install Fira Code and JetBrains Mono fonts.\nRequired for proper terminal display and modern CLI tools."; then
     print_header "🔤 Installing Fonts"
     echo -e "${BLUE}📦 Installing font packages...${NC}"
-    cd fonts && ./install.sh && cd ..
+    (cd fonts && ./install.sh)
     echo -e "\n${GREEN}✅ Fonts installation completed${NC}\n"
 fi
 
@@ -112,7 +112,7 @@ fi
 if ask_confirmation "Development Environment" "Install core development tools and programming languages.\nIncludes: build tools, git, Rust (required for modern CLI tools).\n🎯 Interactive: You'll choose which languages to install (Python, Node.js, Go)."; then
     print_header "🛠️  Development Environment Setup"
     echo -e "${BLUE}🔧 Setting up development tools...${NC}"
-    cd dev && ./install-essentials.sh && cd ..
+    (cd dev && ./install-essentials.sh)
     echo -e "\n${GREEN}✅ Development environment completed${NC}\n"
 fi
 
@@ -120,7 +120,7 @@ fi
 if ask_confirmation "Terminal & Shell Setup" "Install and configure ZSH with Oh My Zsh, Starship prompt,\nand modern CLI tools (eza, bat, fd-find, ripgrep, tig, fzf).\nCreates a powerful, beautiful terminal experience."; then
     print_header "🐚 Terminal & Shell Setup"
     echo -e "${BLUE}🐚 Installing ZSH and modern CLI tools...${NC}"
-    cd zsh && ./install.sh && cd ..
+    (cd zsh && ./install.sh)
     echo -e "\n${GREEN}✅ Terminal & shell setup completed${NC}\n"
 fi
 
@@ -128,63 +128,71 @@ fi
 if ask_confirmation "Kitty Terminal" "Install and configure Kitty terminal emulator.\nModern GPU-accelerated terminal with great font rendering.\nOptional but recommended for best experience."; then
     print_header "🖥️  Terminal Emulator Setup"
     echo -e "${BLUE}🖥️  Installing Kitty terminal emulator...${NC}"
-    cd kitty && ./install.sh && cd ..
+    (cd kitty && ./install.sh)
     echo -e "\n${GREEN}✅ Kitty terminal setup completed${NC}\n"
 fi
 
-# Module 6: Editor Configuration
+# Module 6: Vim Configuration
 if ask_confirmation "Vim Editor" "Install and configure Vim with development-friendly settings.\nClean, minimal setup with essential features.\nOptional if you use other editors."; then
     print_header "📝 Editor Configuration"
     echo -e "${BLUE}📝 Configuring Vim editor...${NC}"
-    cd vim && ./install.sh && cd ..
+    (cd vim && ./install.sh)
     echo -e "\n${GREEN}✅ Vim configuration completed${NC}\n"
 fi
 
-# Module 7: Java Development (optional)
+# Module 7: VS Code / Cursor / Zed Configuration
+if ask_confirmation "Editor Apps Config" "Restore VS Code/Cursor/Zed settings, keybindings, and supported extensions.\nOnly configures editors that are installed on this machine."; then
+    print_header "🧰 Editor Apps Configuration"
+    echo -e "${BLUE}🧰 Configuring editor apps...${NC}"
+    (cd editors && ./install.sh)
+    echo -e "\n${GREEN}✅ Editor apps configuration completed${NC}\n"
+fi
+
+# Module 8: Java Development (optional)
 if ask_confirmation "Java Development" "Install and configure Java development environment.\nIncludes OpenJDK 17 & 21 with version switching.\nOptional - only install if you need Java development."; then
     print_header "☕ Java Development Setup"
     echo -e "${BLUE}☕ Installing Java development environment...${NC}"
-    cd java && ./install.sh && cd ..
+    (cd java && ./install.sh)
     echo -e "\n${GREEN}✅ Java development setup completed${NC}\n"
 fi
 
-# Module 8: Optional Development Tools
+# Module 9: Optional Development Tools
 if ask_confirmation "Optional Development Tools" "Install additional development tools:\n• Database clients (SQLite, PostgreSQL, MySQL)\n• Network tools (HTTPie, jq), Archive utilities\n• Docker (interactive choice), neofetch (interactive choice)\n🎯 Interactive: You'll choose specific tools within each category."; then
     print_header "🔧 Optional Development Tools"
     echo -e "${BLUE}🔧 Installing optional development tools...${NC}"
-    cd dev && ./install-optional.sh && cd ..
+    (cd dev && ./install-optional.sh)
     echo -e "\n${GREEN}✅ Optional tools installation completed${NC}\n"
 fi
 
-# Module 9: AppImage Management
+# Module 10: AppImage Management
 if ask_confirmation "AppImage Management" "Set up ~/Applications/ and install two scripts:\n  • appimage-install: install any AppImage as a desktop app\n  • appimage-update:  update an installed AppImage\nOptional — only useful on desktop environments."; then
     print_header "📦 AppImage Management Setup"
     echo -e "${BLUE}📦 Setting up AppImage management...${NC}"
-    cd appimages && ./install.sh && cd ..
+    (cd appimages && ./install.sh)
     echo -e "\n${GREEN}✅ AppImage management setup completed${NC}\n"
 fi
 
-# Module 10: Tarball App Management
+# Module 11: Tarball App Management
 if ask_confirmation "Tarball App Management" "Install three scripts for .tar.gz desktop apps (Electron IDEs, browsers, etc.):\n  • tar-install:   extract a tarball app to /opt and wire up a launcher\n  • tar-update:    swap in a newer build\n  • tar-uninstall: remove an installed tarball app cleanly\nOptional — only useful on desktop environments."; then
     print_header "📦 Tarball App Management Setup"
     echo -e "${BLUE}📦 Setting up tarball app management...${NC}"
-    cd tarapps && ./install.sh && cd ..
+    (cd tarapps && ./install.sh)
     echo -e "\n${GREEN}✅ Tarball app management setup completed${NC}\n"
 fi
 
-# Module 11: Git & Credentials Setup
+# Module 12: Git & Credentials Setup
 if ask_confirmation "Git & Credentials" "Set up git credential helper (Bitwarden integration),\nglobal gitignore, and git configuration.\nRequires: Bitwarden CLI (bw) installed separately."; then
     print_header "🔑 Git & Credentials Setup"
     echo -e "${BLUE}🔑 Setting up git credentials...${NC}"
-    cd git && ./install.sh && cd ..
+    (cd git && ./install.sh)
     echo -e "\n${GREEN}✅ Git configuration completed${NC}\n"
 fi
 
-# Module 12: Post-Setup Verification
+# Module 13: Post-Setup Verification
 if ask_confirmation "Post-Setup Check" "Verify external tools and create local config templates.\nChecks: bw, gh, docker, go, nvm/node.\nCreates ~/.zshrc.local and ~/.zshrc.work templates if missing."; then
     print_header "🔍 Post-Setup Verification"
     echo -e "${BLUE}🔍 Running post-setup checks...${NC}"
-    cd post-setup && ./configure.sh && cd ..
+    (cd post-setup && ./configure.sh)
     echo -e "\n${GREEN}✅ Post-setup configuration completed${NC}\n"
 fi
 

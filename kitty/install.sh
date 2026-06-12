@@ -12,20 +12,32 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== Kitty Terminal Setup ===${NC}"
 
-# Detect package manager and install kitty
+# Install Kitty from the official binary installer. Distro packages can lag and
+# have missed features needed by saved sessions on fresh machines.
 echo -e "\n${BLUE}📦 Installing Kitty terminal...${NC}"
-if command -v apt &> /dev/null; then
-    echo -e "${YELLOW}Installing Kitty terminal (Ubuntu/Debian)...${NC}"
-    sudo apt update && sudo apt install -y kitty
-    echo -e "${GREEN}✅ Kitty installed successfully${NC}"
-elif command -v dnf &> /dev/null; then
-    echo -e "${YELLOW}Installing Kitty terminal (Fedora)...${NC}"
-    sudo dnf install -y kitty
-    echo -e "${GREEN}✅ Kitty installed successfully${NC}"
-else
-    echo -e "${RED}Package manager not supported. Please install kitty manually.${NC}"
-    exit 1
+if ! command -v curl &> /dev/null; then
+    echo -e "${YELLOW}Installing curl dependency...${NC}"
+    if command -v apt &> /dev/null; then
+        sudo apt update && sudo apt install -y curl
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y curl
+    else
+        echo -e "${RED}curl is required. Please install curl and re-run this script.${NC}"
+        exit 1
+    fi
 fi
+
+if [ ! -x "$HOME/.local/kitty.app/bin/kitty" ]; then
+    echo -e "${YELLOW}Running official Kitty installer...${NC}"
+    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+else
+    echo -e "${GREEN}✅ Official Kitty binary already installed${NC}"
+fi
+
+mkdir -p "$HOME/.local/bin"
+ln -sfn "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/bin/kitty"
+ln -sfn "$HOME/.local/kitty.app/bin/kitten" "$HOME/.local/bin/kitten"
+echo -e "${GREEN}✅ Kitty installed and linked in ~/.local/bin${NC}"
 
 # Create config directory
 echo -e "\n${BLUE}📁 Setting up Kitty configuration...${NC}"
@@ -48,39 +60,17 @@ echo -e "${GREEN}✅ Configuration installed${NC}"
 # Install desktop launcher for daily development session
 echo -e "\n${BLUE}🖥️  Installing Kitty daily session launcher...${NC}"
 mkdir -p ~/.local/share/applications
-KITTY_BIN="$(command -v kitty || true)"
-if [ -z "$KITTY_BIN" ]; then
-    KITTY_BIN="kitty"
-fi
+mkdir -p ~/.config/autostart
+KITTY_BIN="$HOME/.local/bin/kitty"
 sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
+sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.config/autostart/kdev.desktop
 chmod 644 ~/.local/share/applications/kdev.desktop
+chmod 644 ~/.config/autostart/kdev.desktop
 if command -v update-desktop-database &> /dev/null; then
     update-desktop-database ~/.local/share/applications 2>/dev/null || true
 fi
-echo -e "${GREEN}✅ Desktop launcher installed as kdev.desktop${NC}"
-
-# Add kitty alias to ~/.zshrc.local
-echo -e "\n${BLUE}🔧 Adding kitty aliases to ~/.zshrc.local...${NC}"
-KITTY_MARKER="# --- kitty-helpers-start ---"
-if ! grep -q "$KITTY_MARKER" "$HOME/.zshrc.local" 2>/dev/null; then
-    touch "$HOME/.zshrc.local"
-    cat >> "$HOME/.zshrc.local" << 'KITTYEOF'
-
-# --- kitty-helpers-start ---
-# Kitty aliases (added by kitty/install.sh)
-alias icat="kitten icat"
-alias kdev="kitty --detach --session ~/.config/kitty/sessions/daily.kitty-session"
-# --- kitty-helpers-end ---
-KITTYEOF
-    echo -e "${GREEN}✅ Kitty aliases added to ~/.zshrc.local${NC}"
-else
-    echo -e "${GREEN}✅ Kitty aliases already in ~/.zshrc.local${NC}"
-fi
-
-if ! grep -q 'alias kdev=' "$HOME/.zshrc.local" 2>/dev/null; then
-    sed -i '/# --- kitty-helpers-end ---/i alias kdev="kitty --detach --session ~/.config/kitty/sessions/daily.kitty-session"' "$HOME/.zshrc.local"
-    echo -e "${GREEN}✅ kdev alias added to ~/.zshrc.local${NC}"
-fi
+echo -e "${GREEN}✅ Desktop and autostart launchers installed as kdev.desktop${NC}"
+echo -e "${YELLOW}Kitty aliases are provided by zsh/zshrc; restart your shell after installing ZSH.${NC}"
 
 echo
 echo -e "${GREEN}✅ Kitty terminal installed successfully${NC}"

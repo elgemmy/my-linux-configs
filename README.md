@@ -49,6 +49,11 @@ my-linux-config/
 │   │   └── appimage-uninstall
 │   ├── install.sh
 │   └── README.md
+├── editors/
+│   ├── install.sh
+│   ├── vscode/
+│   ├── cursor/
+│   └── zed/
 └── troubleshooting/
     ├── TROUBLESHOOTING.md
     └── fix-permissions.sh
@@ -77,11 +82,12 @@ The easiest way to set up your development environment:
 4. **Terminal & shell** (ZSH + modern CLI tools)
 5. **Terminal emulator** (Kitty - optional)
 6. **Editor** (Vim configuration - optional)
-7. **Java development** (OpenJDK 17 & 21 - optional)
-8. **Additional tools** (databases, Docker, etc. - selective)
-9. **AppImage management** (`appimage-install` / `appimage-update` scripts - optional, desktop only)
-10. **Git & credentials** (Bitwarden credential helper, gitignore)
-11. **Post-setup check** (verify external tools, create config templates)
+7. **Editor apps** (VS Code, Cursor, and Zed settings/extensions when installed)
+8. **Java development** (OpenJDK 17 & 21 - optional)
+9. **Additional tools** (databases, Docker, etc. - selective)
+10. **AppImage management** (`appimage-install` / `appimage-update` scripts - optional, desktop only)
+11. **Git & credentials** (Bitwarden credential helper, gitignore)
+12. **Post-setup check** (verify external tools, create config templates)
 
 ### ⚡ One-Command Setup
 For a complete development environment with sensible defaults:
@@ -101,8 +107,8 @@ Before manual installation, create a comprehensive backup of your current config
 # Create timestamped backup of current configs
 ./testing/backup-current-config.sh
 
-# This backs up: ~/.zshrc, ~/.vimrc, ~/.config/kitty/, ~/.config/starship.toml, 
-# ~/.oh-my-zsh/, and your current shell setting
+# This backs up: ~/.zshrc, ~/.vimrc, ~/.config/kitty/, ~/.config/starship.toml,
+# ~/.oh-my-zsh/, editor user configs, and your current shell setting
 ```
 
 **Restore Instructions:**
@@ -145,8 +151,9 @@ cd java && ./install.sh
 cd zsh && ./install.sh    # ZSH + modern CLI tools
 cd kitty && ./install.sh  # terminal emulator (optional)
 
-# 5. Editor
+# 5. Editors
 cd vim && ./install.sh    # vim configuration (optional)
+cd editors && ./install.sh # VS Code/Cursor/Zed config if installed
 ```
 
 ### Manual Configuration Fallback
@@ -169,6 +176,9 @@ cp zsh/zshrc ~/.zshrc
 - Smart search and navigation
 
 ### Kitty Terminal
+- Official binary install under `~/.local/kitty.app`
+- `kitty` and `kitten` symlinked into `~/.local/bin`
+- Daily `kdev` session launcher installed for both app menu and autostart
 - Customizable fonts and themes (per-machine via kitten themes)
 - Vim-style pane/tab navigation
 - Efficient keybindings for tab and window management
@@ -188,6 +198,11 @@ cp zsh/zshrc ~/.zshrc
 - Fira Code (primary) with JetBrains Mono backup
 - Automatic installation and fallback handling
 
+### Editor Apps
+- VS Code and Cursor settings/keybindings are restored from `editors/<name>/`
+- Extension lists use plain installable extension IDs and install current compatible versions
+- Zed settings are available as a reference and installed only when Zed exists on the machine
+
 ### AppImage Management
 - `appimage-install` — one command to turn any AppImage into a proper desktop app (icon, launcher entry, URI scheme handler)
 - `appimage-update` — one command to update any installed AppImage and refresh its icon
@@ -196,17 +211,18 @@ cp zsh/zshrc ~/.zshrc
 
 ### Extension Files
 The ZSH configuration supports machine-specific and work-specific extensions:
-- `~/.zshrc.local` — Machine-specific config (NVM loading, extra PATHs, tool-specific helpers installed on-demand)
+- `~/.zshrc.local` — Machine-specific config (extra PATHs, private aliases, opt-in integrations)
 - `~/.zshrc.work` — Work-specific functions and aliases (not tracked in this repo)
 
-Docker, PostgreSQL, and Kitty shell helpers are automatically appended to `~/.zshrc.local` by their respective install scripts. Editor-specific shell integrations, such as Cursor Agent terminal capture, should also stay in `~/.zshrc.local` and be opt-in so VS Code/Cursor shell environment probes can exit quickly.
+Machine-private shell integrations, such as Cursor Agent terminal capture, should stay in `~/.zshrc.local` and be opt-in so VS Code/Cursor shell environment probes can exit quickly.
 
 ### Post-Setup (External Tools)
-Some tools have their own installers and shouldn't be automated:
+Some tools have their own installers or need a final manual check:
 - **Bitwarden CLI** (`bw`) — for credential management
 - **GitHub CLI** (`gh`) — for GitHub operations
 - **Docker** — kernel-level changes, group membership
-- **Go** — official installer at go.dev
+- **Firewall / updates** — consider `sudo ufw enable` and `sudo apt install unattended-upgrades -y`
+- **Startup apps** — confirm the `kdev` autostart entry appears in your desktop startup applications UI
 
 Run `post-setup/check.sh` to see what's installed and get install instructions for missing tools.
 Run `post-setup/configure.sh` to wire up credentials and create config templates.

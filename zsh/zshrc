@@ -157,6 +157,7 @@ alias repos='cd ~/Projects/repos'
 
 # Kitty
 alias icat="kitten icat"
+alias kdev="kitty --detach --directory ~/.config/kitty/sessions --session ~/.config/kitty/sessions/daily.kitty-session"
 
 # Bitwarden + GitHub credential integration
 bw-unlock() {
@@ -170,21 +171,8 @@ bw-unlock() {
     fi
 }
 
-# Lazy gh wrapper: fetches GH_TOKEN from Bitwarden on first use
-gh() {
-    if [[ -z "$GH_TOKEN" ]]; then
-        if [[ -z "$BW_SESSION" ]]; then
-            echo "Run 'bw-unlock' first to unlock Bitwarden." >&2
-            return 1
-        fi
-        export GH_TOKEN="$(bw get password 'GitHub PAT' 2>/dev/null)"
-        if [[ -z "$GH_TOKEN" ]]; then
-            echo "Failed to fetch GitHub PAT from Bitwarden." >&2
-            return 1
-        fi
-    fi
-    command gh "$@"
-}
+# Prefer normal gh auth. The old lazy GH_TOKEN wrapper made HTTPS git and gh
+# commands fail whenever BW_SESSION was locked.
 
 # Modern CLI Tools (install with: cargo install eza bat fd-find ripgrep)
 if command -v eza >/dev/null 2>&1; then
@@ -308,6 +296,37 @@ copydir() {
     echo "Directory path copied: $(realpath "$dir")"
 }
 
+# Default browser switcher
+set-default-browser() {
+  local desktop_file="$1"
+
+  if [[ -z "$desktop_file" ]]; then
+    printf 'Usage: set-default-browser <browser.desktop>\n'
+    return 2
+  fi
+
+  xdg-settings set default-web-browser "$desktop_file" &&
+    xdg-mime default "$desktop_file" x-scheme-handler/http &&
+    xdg-mime default "$desktop_file" x-scheme-handler/https &&
+    xdg-mime default "$desktop_file" text/html &&
+    printf 'Default browser: %s\n' "$(xdg-settings get default-web-browser)"
+}
+
+default-browser() {
+  xdg-settings get default-web-browser
+}
+
+alias use-brave='set-default-browser brave-browser.desktop'
+alias use-chrome='set-default-browser google-chrome.desktop'
+alias use-zen='set-default-browser app.zen_browser.zen.desktop'
+alias use-firefox='set-default-browser firefox.desktop'
+alias use-helium='set-default-browser helium.desktop'
+alias use-min='set-default-browser min.desktop'
+
+# Claude Code profiles
+alias claude-mimo='CLAUDE_CONFIG_DIR="$HOME/.claude-mimo" claude'
+alias claude-max='CLAUDE_CONFIG_DIR="$HOME/.claude-max" claude'
+
 # ===================================================================
 # Development Environment Utilities
 # ===================================================================
@@ -411,6 +430,14 @@ zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w 
 # ===================================================================
 # Conditional Loading
 # ===================================================================
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+if [ -d "$HOME/.mimocode/bin" ]; then
+    export PATH="$HOME/.mimocode/bin:$PATH"
+fi
+
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 [ -f ~/.zshrc.work ] && source ~/.zshrc.work
 

@@ -58,11 +58,34 @@ if [ -f "$BACKUP_DIR/vimrc.backup" ]; then
 fi
 
 # Restore Kitty config
-if [ -f "$BACKUP_DIR/kitty.conf.backup" ]; then
+if [ -d "$BACKUP_DIR/kitty.backup" ]; then
+    mkdir -p ~/.config
+    rm -rf ~/.config/kitty
+    cp -r "$BACKUP_DIR/kitty.backup" ~/.config/kitty
+    echo -e "${GREEN}✅ Kitty config restored${NC}"
+elif [ -f "$BACKUP_DIR/kitty.conf.backup" ]; then
     mkdir -p ~/.config/kitty
     cp "$BACKUP_DIR/kitty.conf.backup" ~/.config/kitty/kitty.conf
-    echo -e "${GREEN}✅ Kitty config restored${NC}"
+    echo -e "${GREEN}✅ Kitty config restored from legacy backup${NC}"
 fi
+
+# Restore editor user settings/keybindings only
+restore_editor_config() {
+    local name="$1"
+    local target_dir="$2"
+    local source_dir="$BACKUP_DIR/editors/$name"
+
+    if [ -d "$source_dir" ]; then
+        mkdir -p "$target_dir"
+        [ -f "$source_dir/settings.json" ] && cp "$source_dir/settings.json" "$target_dir/settings.json"
+        [ -f "$source_dir/keybindings.json" ] && cp "$source_dir/keybindings.json" "$target_dir/keybindings.json"
+        echo -e "${GREEN}✅ $name editor config restored${NC}"
+    fi
+}
+
+restore_editor_config "vscode" "$HOME/.config/Code/User"
+restore_editor_config "cursor" "$HOME/.config/Cursor/User"
+restore_editor_config "zed" "$HOME/.config/zed"
 
 # Restore starship config
 if [ -f "$BACKUP_DIR/starship.toml.backup" ]; then
