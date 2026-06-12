@@ -20,20 +20,15 @@ echo -e "${BLUE}Running environment check...${NC}\n"
 bash "$SCRIPT_DIR/check.sh"
 echo
 
-# 2. Offer git credential helper setup if bw is available
-if command -v bw &>/dev/null; then
-    echo -e "${BLUE}Bitwarden CLI detected.${NC}"
-    read -rp "$(echo -e "${YELLOW}Set up git-credential-bitwarden? [Y/n]: ${NC}")" reply
-    if [[ ! "$reply" =~ ^[Nn]$ ]]; then
-        echo -e "${BLUE}Running git credential helper installer...${NC}"
-        bash "$REPO_DIR/git/install.sh"
-        echo
-    else
-        echo -e "${YELLOW}Skipping git credential helper setup.${NC}\n"
-    fi
+# 2. Offer baseline git setup. Credentials are intentionally left to SSH keys,
+# gh auth, or a separate credential manager outside this repo.
+read -rp "$(echo -e "${YELLOW}Set up baseline git config and global gitignore? [Y/n]: ${NC}")" reply
+if [[ ! "$reply" =~ ^[Nn]$ ]]; then
+    echo -e "${BLUE}Running git baseline installer...${NC}"
+    bash "$REPO_DIR/git/install.sh"
+    echo
 else
-    echo -e "${YELLOW}Bitwarden CLI not found — skipping git credential helper setup.${NC}"
-    echo -e "${YELLOW}Install bw first, then re-run this script or run git/install.sh directly.${NC}\n"
+    echo -e "${YELLOW}Skipping git baseline setup.${NC}\n"
 fi
 
 # 3. Create ~/.zshrc.local template if it doesn't exist

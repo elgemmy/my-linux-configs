@@ -124,37 +124,21 @@ ls -la ~/.vimrc
 vim -c "syntax on" -c "q" /dev/null
 ```
 
-## Bitwarden / GitHub Credential Issues
-
-### BW_SESSION Not Set or Expired
-```bash
-# Unlock Bitwarden for this terminal session
-bw-unlock
-
-# Check if session is active
-echo $BW_SESSION  # Should show a long base64 string
-```
+## GitHub Authentication Issues
 
 ### Git Still Prompting for Credentials
 ```bash
-# Verify the credential helper is configured
-git config --global credential.helper
-# Should show: /home/<user>/.local/bin/git-credential-bitwarden
+# Prefer SSH remotes for GitHub repos
+git remote -v
+git remote set-url origin git@github.com:<user>/<repo>.git
 
-# Verify the helper script exists and is executable
-ls -la ~/.local/bin/git-credential-bitwarden
-
-# Test manually
-echo -e "protocol=https\nhost=github.com\n" | git credential fill
+# Or authenticate GitHub CLI for gh commands
+gh auth login
+gh auth status
 ```
 
-### gh CLI Not Authenticated
-```bash
-# The gh() wrapper fetches GH_TOKEN from Bitwarden on first use
-# Make sure bw-unlock was run first
-bw-unlock
-gh auth status  # Should show authenticated
-```
+This repo intentionally does not configure a Git credential helper. If you use
+HTTPS remotes, configure your preferred credential manager outside this repo.
 
 ## .zshrc.local Issues
 

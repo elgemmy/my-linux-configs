@@ -159,7 +159,7 @@ alias repos='cd ~/Projects/repos'
 alias icat="kitten icat"
 alias kdev="kitty --detach --directory ~/.config/kitty/sessions --session ~/.config/kitty/sessions/daily.kitty-session"
 
-# Bitwarden + GitHub credential integration
+# Bitwarden CLI convenience helper
 bw-unlock() {
     echo "Unlocking Bitwarden..."
     export BW_SESSION="$(bw unlock --raw)"
@@ -171,8 +171,7 @@ bw-unlock() {
     fi
 }
 
-# Prefer normal gh auth. The old lazy GH_TOKEN wrapper made HTTPS git and gh
-# commands fail whenever BW_SESSION was locked.
+# Prefer normal gh auth. Git credentials are not configured through Bitwarden.
 
 # Modern CLI Tools (install with: cargo install eza bat fd-find ripgrep)
 if command -v eza >/dev/null 2>&1; then

@@ -26,7 +26,6 @@ my-linux-config/
 │   ├── install.sh
 │   └── README.md
 ├── git/
-│   ├── git-credential-bitwarden
 │   ├── gitignore_global
 │   ├── gitconfig.template
 │   ├── install.sh
@@ -86,7 +85,7 @@ The easiest way to set up your development environment:
 8. **Java development** (OpenJDK 17 & 21 - optional)
 9. **Additional tools** (databases, Docker, etc. - selective)
 10. **AppImage management** (`appimage-install` / `appimage-update` scripts - optional, desktop only)
-11. **Git & credentials** (Bitwarden credential helper, gitignore)
+11. **Git configuration** (global gitignore, identity prompts; no credential helper)
 12. **Post-setup check** (verify external tools, create config templates)
 
 ### ⚡ One-Command Setup

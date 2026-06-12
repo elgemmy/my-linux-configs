@@ -7,5 +7,3 @@
 [core]
     editor = vim
     excludesFile = ~/.gitignore_global
-[credential]
-    helper = ~/.local/bin/git-credential-bitwarden

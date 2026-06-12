@@ -42,7 +42,7 @@ chsh -s $(which zsh)
 - **Development aliases** for common tasks
 - **Java version switching** between JDK 17 and 21
 - **Git enhancements** - Interactive utilities and advanced workflows
-- **Bitwarden/GitHub credential integration** (bw-unlock, lazy gh wrapper)
+- **Bitwarden convenience helper** (`bw-unlock`) without Git credential wiring
 - **Enhanced history** with 10,000 commands
 - **Smart completion** with case-insensitive matching
 - **Syntax highlighting** and auto-suggestions
@@ -309,26 +309,17 @@ Create local configuration files:
 
 The base `zshrc` suppresses its startup welcome banner in VS Code/Cursor shell environment probes so editor startup can resolve quickly without extra output.
 
-## 🔐 Bitwarden & GitHub Integration
+## 🔐 Bitwarden Helper
 
-Seamless GitHub authentication using a PAT stored in Bitwarden — no credentials on disk.
+The shell includes `bw-unlock` as a convenience for Bitwarden CLI sessions:
 
-### Setup
-1. Store your GitHub Personal Access Token in Bitwarden as "GitHub PAT"
-2. Install Bitwarden CLI: `sudo snap install bw` or `npm install -g @bitwarden/cli`
-3. Run `git/install.sh` to set up the credential helper
-
-### Daily Workflow
 ```bash
-bw-unlock          # Unlock Bitwarden (once per terminal session)
-git push           # Just works — credential helper fetches PAT from Bitwarden
-gh pr create       # Just works — GH_TOKEN fetched lazily on first gh command
+bw-unlock
 ```
 
-### How It Works
-- `bw-unlock` exports `BW_SESSION` for the terminal session
-- `git push/pull` triggers `git-credential-bitwarden` which reads the PAT via Bitwarden CLI
-- `gh` is wrapped to lazily fetch `GH_TOKEN` from Bitwarden on first use
+Git and GitHub authentication are intentionally not wired to Bitwarden here.
+Use SSH remotes, `gh auth login`, or a credential manager configured outside
+this repo.
 
 ## 🔧 On-Demand Shell Helpers
 

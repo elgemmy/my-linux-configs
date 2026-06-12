@@ -1,5 +1,5 @@
 #!/bin/bash
-# Git credential helper and global config installation script
+# Git global config installation script
 
 set -e
 
@@ -14,14 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo -e "${GREEN}=== Git Configuration Setup ===${NC}"
 
-# 1. Install git-credential-bitwarden
-echo -e "\n${BLUE}Installing git-credential-bitwarden...${NC}"
-mkdir -p ~/.local/bin
-cp "$SCRIPT_DIR/git-credential-bitwarden" ~/.local/bin/git-credential-bitwarden
-chmod +x ~/.local/bin/git-credential-bitwarden
-echo -e "${GREEN}Installed git-credential-bitwarden to ~/.local/bin/${NC}"
-
-# 2. Install global gitignore
+# 1. Install global gitignore
 echo -e "\n${BLUE}Installing global gitignore...${NC}"
 if [ -f ~/.gitignore_global ]; then
     echo -e "${YELLOW}Backing up existing ~/.gitignore_global to ~/.gitignore_global.backup${NC}"
@@ -30,17 +23,20 @@ fi
 cp "$SCRIPT_DIR/gitignore_global" ~/.gitignore_global
 echo -e "${GREEN}Installed ~/.gitignore_global${NC}"
 
-# 3. Set credential helper
-echo -e "\n${BLUE}Configuring git credential helper...${NC}"
-git config --global credential.helper ~/.local/bin/git-credential-bitwarden
-echo -e "${GREEN}Set credential.helper to ~/.local/bin/git-credential-bitwarden${NC}"
+# 2. Remove old Bitwarden credential helper config if this repo installed it.
+current_helper="$(git config --global --get-all credential.helper 2>/dev/null || true)"
+if echo "$current_helper" | grep -q "git-credential-bitwarden"; then
+    echo -e "\n${YELLOW}Removing old Bitwarden credential helper config...${NC}"
+    git config --global --unset-all credential.helper ".*git-credential-bitwarden.*" || true
+    echo -e "${GREEN}Removed credential.helper entries that used git-credential-bitwarden${NC}"
+fi
 
-# 4. Set global excludes file
+# 3. Set global excludes file
 echo -e "\n${BLUE}Configuring global excludes file...${NC}"
 git config --global core.excludesFile ~/.gitignore_global
 echo -e "${GREEN}Set core.excludesFile to ~/.gitignore_global${NC}"
 
-# 5. Check and prompt for user identity
+# 4. Check and prompt for user identity
 echo -e "\n${BLUE}Checking git user identity...${NC}"
 
 current_name="$(git config --global user.name 2>/dev/null || true)"
@@ -73,5 +69,5 @@ else
 fi
 
 echo -e "\n${GREEN}=== Git configuration complete ===${NC}"
-echo -e "${BLUE}Credential helper uses Bitwarden — make sure 'bw' is installed and BW_SESSION is set.${NC}"
+echo -e "${BLUE}No credential helper is configured by this script. Use SSH keys or gh auth for GitHub.${NC}"
 echo -e "${BLUE}See gitconfig.template for a reference of all configured settings.${NC}"

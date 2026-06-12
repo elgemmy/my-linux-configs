@@ -30,22 +30,9 @@ check_tool() {
     fi
 }
 
-# Bitwarden CLI
-check_tool "bw (Bitwarden CLI)" "bw" "bw --version" \
-    "sudo snap install bw  OR  npm install -g @bitwarden/cli"
-
 # GitHub CLI
 check_tool "gh (GitHub CLI)" "gh" "gh --version | head -1" \
     "sudo apt install gh  /  sudo dnf install gh"
-
-# git-credential-bitwarden
-echo -n ""
-if [ -x "$HOME/.local/bin/git-credential-bitwarden" ]; then
-    echo -e "  ${GREEN}[OK]${NC}      ${BLUE}git-credential-bitwarden${NC} — installed in ~/.local/bin/"
-else
-    echo -e "  ${RED}[MISSING]${NC} ${BLUE}git-credential-bitwarden${NC}"
-    echo -e "            ${YELLOW}Install: cd git && ./install.sh${NC}"
-fi
 
 # Docker
 check_tool "docker" "docker" "docker --version" \

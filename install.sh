@@ -181,15 +181,15 @@ if ask_confirmation "Tarball App Management" "Install three scripts for .tar.gz 
 fi
 
 # Module 12: Git & Credentials Setup
-if ask_confirmation "Git & Credentials" "Set up git credential helper (Bitwarden integration),\nglobal gitignore, and git configuration.\nRequires: Bitwarden CLI (bw) installed separately."; then
-    print_header "🔑 Git & Credentials Setup"
-    echo -e "${BLUE}🔑 Setting up git credentials...${NC}"
+if ask_confirmation "Git Configuration" "Set up global gitignore, core.excludesFile, and Git identity prompts.\nCredentials are intentionally left to SSH keys, gh auth, or your chosen external manager."; then
+    print_header "🔑 Git Configuration Setup"
+    echo -e "${BLUE}🔑 Setting up Git baseline config...${NC}"
     (cd git && ./install.sh)
     echo -e "\n${GREEN}✅ Git configuration completed${NC}\n"
 fi
 
 # Module 13: Post-Setup Verification
-if ask_confirmation "Post-Setup Check" "Verify external tools and create local config templates.\nChecks: bw, gh, docker, go, nvm/node.\nCreates ~/.zshrc.local and ~/.zshrc.work templates if missing."; then
+if ask_confirmation "Post-Setup Check" "Verify external tools and create local config templates.\nChecks: gh, docker, go, nvm/node.\nCreates ~/.zshrc.local and ~/.zshrc.work templates if missing."; then
     print_header "🔍 Post-Setup Verification"
     echo -e "${BLUE}🔍 Running post-setup checks...${NC}"
     (cd post-setup && ./configure.sh)
