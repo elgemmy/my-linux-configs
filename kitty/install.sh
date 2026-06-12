@@ -57,19 +57,41 @@ cp kitty.conf ~/.config/kitty/kitty.conf
 cp sessions/daily.kitty-session ~/.config/kitty/sessions/daily.kitty-session
 echo -e "${GREEN}✅ Configuration installed${NC}"
 
-# Install desktop launcher for daily development session
-echo -e "\n${BLUE}🖥️  Installing Kitty daily session launcher...${NC}"
+# Install desktop launchers
+echo -e "\n${BLUE}🖥️  Installing Kitty desktop launchers...${NC}"
 mkdir -p ~/.local/share/applications
+mkdir -p ~/.local/share/icons/hicolor/256x256/apps
 mkdir -p ~/.config/autostart
 KITTY_BIN="$HOME/.local/bin/kitty"
+if command -v xdg-icon-resource &> /dev/null; then
+    xdg-icon-resource install --novendor --size 256 "$HOME/.local/kitty.app/lib/kitty/logo/kitty.png" kitty || true
+else
+    cp "$HOME/.local/kitty.app/lib/kitty/logo/kitty.png" ~/.local/share/icons/hicolor/256x256/apps/kitty.png
+fi
+sed -e "s|^TryExec=kitty$|TryExec=$KITTY_BIN|g" \
+    -e "s|^Exec=kitty$|Exec=$KITTY_BIN|g" \
+    "$HOME/.local/kitty.app/share/applications/kitty.desktop" > ~/.local/share/applications/kitty.desktop
+sed -e "s|^TryExec=kitty$|TryExec=$KITTY_BIN|g" \
+    -e "s|^Exec=kitty +open %U$|Exec=$KITTY_BIN +open %U|g" \
+    "$HOME/.local/kitty.app/share/applications/kitty-open.desktop" > ~/.local/share/applications/kitty-open.desktop
 sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
 sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.config/autostart/kdev.desktop
+chmod 644 ~/.local/share/applications/kitty.desktop
+chmod 644 ~/.local/share/applications/kitty-open.desktop
 chmod 644 ~/.local/share/applications/kdev.desktop
 chmod 644 ~/.config/autostart/kdev.desktop
+printf '%s\n%s\n' kitty.desktop org.gnome.Terminal.desktop > ~/.config/xdg-terminals.list
+printf '%s\n%s\n' kitty.desktop org.gnome.Terminal.desktop > ~/.config/GNOME-xdg-terminals.list
+printf '%s\n%s\n' kitty.desktop org.gnome.Terminal.desktop > ~/.config/ubuntu-xdg-terminals.list
+gsettings set org.gnome.desktop.default-applications.terminal exec "$KITTY_BIN" || true
+gsettings set org.gnome.desktop.default-applications.terminal exec-arg "--" || true
 if command -v update-desktop-database &> /dev/null; then
     update-desktop-database ~/.local/share/applications 2>/dev/null || true
 fi
-echo -e "${GREEN}✅ Desktop and autostart launchers installed as kdev.desktop${NC}"
+if command -v gtk-update-icon-cache &> /dev/null; then
+    gtk-update-icon-cache -q ~/.local/share/icons/hicolor 2>/dev/null || true
+fi
+echo -e "${GREEN}✅ Kitty terminal, URL opener, KDev, and autostart launchers installed${NC}"
 echo -e "${YELLOW}Kitty aliases are provided by zsh/zshrc; restart your shell after installing ZSH.${NC}"
 
 echo
