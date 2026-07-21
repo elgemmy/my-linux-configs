@@ -3,6 +3,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+
 # Color codes for better output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -95,7 +97,9 @@ fi
 
 # Copy zshrc
 echo -e "${YELLOW}Installing ZSH configuration...${NC}"
-cp zshrc ~/.zshrc
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/modules"
+cp "$SCRIPT_DIR/../dotfiles/zsh/zshrc" ~/.zshrc
+cp "$SCRIPT_DIR/../dotfiles/zsh/modules/main.zsh" "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/modules/main.zsh"
 echo -e "${GREEN}✅ ZSH configuration installed${NC}"
 
 # Create Projects directory
@@ -123,7 +127,7 @@ echo -e "${BLUE}  • Starship prompt (modern cross-shell prompt)${NC}"
 echo -e "${BLUE}  • Modern CLI tools: eza, bat, fd-find, ripgrep, tig, fzf${NC}"
 echo -e "${BLUE}  • Enhanced Oh My Zsh plugins (jsontools, web-search, copyfile, etc.)${NC}"
 echo -e "${BLUE}  • Vi mode with development aliases${NC}"
-echo -e "${BLUE}  • Java version switching (setJdk17/setJdk21)${NC}"
+echo -e "${BLUE}  • Dynamic JAVA_HOME when the optional default JDK is installed${NC}"
 echo -e "${BLUE}  • Git enhancements and utilities${NC}"
 echo -e "${BLUE}  • Development environment utilities (Docker, PostgreSQL, etc.)${NC}"
 echo -e "${BLUE}  • Performance optimizations (lazy loading)${NC}"

@@ -1,0 +1,10 @@
+ca-certificates
+curl
+build-essential
+unzip
+jq
+ripgrep
+fd-find
+bat
+fzf
+tig

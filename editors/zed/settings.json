@@ -89,14 +89,7 @@
       "type": "extension"
     }
   },
-  "context_servers": {
-    "mcp-server-context7": {
-      "enabled": true,
-      "settings": {
-        "context7_api_key": "<redacted>"
-      }
-    }
-  },
+  "context_servers": {},
   "buffer_font_family": "JetBrains Mono",
   "agent_ui_font_size": 15.0,
   "buffer_font_weight": 550.0,

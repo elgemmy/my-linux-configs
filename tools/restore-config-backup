@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+if (($# != 1)); then
+  echo "Usage: $0 <backup-directory>" >&2
+  exit 2
+fi
+
+backup="$(cd -- "$1" 2>/dev/null && pwd -P)" || {
+  echo "Backup directory not found: $1" >&2
+  exit 2
+}
+manifest="$backup/manifest.tsv"
+[[ -f $manifest ]] || { echo "Missing manifest: $manifest" >&2; exit 2; }
+
+mapfile -t records < "$manifest"
+for ((i=${#records[@]}-1; i>=0; i--)); do
+  IFS=$'\t' read -r operation first second <<< "${records[i]}"
+  [[ $operation == BACKUP ]] || continue
+  target=$first
+  saved="$backup/$second"
+  [[ -e $saved || -L $saved ]] || { echo "Missing saved entry: $saved" >&2; exit 1; }
+  if [[ -e $target || -L $target ]]; then
+    echo "Refusing to overwrite current target: $target" >&2
+    echo "Move or remove it after reviewing, then rerun this command." >&2
+    exit 1
+  fi
+done
+
+for ((i=${#records[@]}-1; i>=0; i--)); do
+  IFS=$'\t' read -r operation first second <<< "${records[i]}"
+  [[ $operation == BACKUP ]] || continue
+  target=$first
+  saved="$backup/$second"
+  mkdir -p -- "$(dirname -- "$target")"
+  mv -- "$saved" "$target"
+  printf 'RESTORED %s\n' "$target"
+done

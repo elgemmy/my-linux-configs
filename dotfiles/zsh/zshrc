@@ -1,0 +1,5 @@
+# Small loader: optional integrations belong in modules and machine files.
+typeset -g ZDOT_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+[[ -r "$ZDOT_CONFIG_HOME/modules/main.zsh" ]] && source "$ZDOT_CONFIG_HOME/modules/main.zsh"
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+[[ -r "$HOME/.zshrc.work" ]] && source "$HOME/.zshrc.work"
