@@ -31,4 +31,13 @@ unset -f ln
 # A mid-deployment failure restores the original target.
 echo original > "$HOME/.vimrc"; if deployment_mappings vim shell | DEPLOY_FAIL_AFTER=2 deploy_apply >/dev/null 2>&1; then exit 1; fi; grep -qx original "$HOME/.vimrc"
 if HOME="$tmp/empty" XDG_STATE_HOME="$tmp/empty-state" "$ROOT/doctor.sh" --profile minimal >/dev/null 2>&1; then echo 'doctor unexpectedly passed' >&2; exit 1; fi
+# Assert that the URL remains version-parameterized.
+# shellcheck disable=SC2016
+grep -Fq 'rustup/archive/$RUSTUP_VERSION/x86_64-unknown-linux-gnu/rustup-init' "$ROOT/modules/rust.sh"
+KITTY_BIN="$HOME/.local/bin/kitty"
+sed -e "s|^TryExec=.*$|TryExec=$KITTY_BIN|" \
+  -e "s|^Exec=.*$|Exec=$KITTY_BIN --class kdev --detach --session $HOME/.config/kitty/sessions/daily.kitty-session|" \
+  "$ROOT/kitty/desktop/kdev.desktop" > "$tmp/kdev.desktop"
+grep -Fqx "TryExec=$KITTY_BIN" "$tmp/kdev.desktop"
+grep -Fqx "Exec=$KITTY_BIN --class kdev --detach --session $HOME/.config/kitty/sessions/daily.kitty-session" "$tmp/kdev.desktop"
 echo 'PASS focused tests'

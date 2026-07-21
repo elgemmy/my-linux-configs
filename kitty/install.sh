@@ -73,8 +73,12 @@ sed -e "s|^TryExec=kitty$|TryExec=$KITTY_BIN|g" \
 sed -e "s|^TryExec=kitty$|TryExec=$KITTY_BIN|g" \
     -e "s|^Exec=kitty +open %U$|Exec=$KITTY_BIN +open %U|g" \
     "$HOME/.local/kitty.app/share/applications/kitty-open.desktop" > ~/.local/share/applications/kitty-open.desktop
-sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
-sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.config/autostart/kdev.desktop
+sed -e "s|^TryExec=.*$|TryExec=$KITTY_BIN|" \
+    -e "s|^Exec=.*$|Exec=$KITTY_BIN --class kdev --detach --session $HOME/.config/kitty/sessions/daily.kitty-session|" \
+    desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
+sed -e "s|^TryExec=.*$|TryExec=$KITTY_BIN|" \
+    -e "s|^Exec=.*$|Exec=$KITTY_BIN --class kdev --detach --session $HOME/.config/kitty/sessions/daily.kitty-session|" \
+    desktop/kdev.desktop > ~/.config/autostart/kdev.desktop
 chmod 644 ~/.local/share/applications/kitty.desktop
 chmod 644 ~/.local/share/applications/kitty-open.desktop
 chmod 644 ~/.local/share/applications/kdev.desktop
