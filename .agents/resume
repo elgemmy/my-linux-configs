@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# This repository has no services or other runtime state to restore.
+echo "No orb services need to be resumed."

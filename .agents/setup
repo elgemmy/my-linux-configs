@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Preparing tools for this shell configuration repository..."
+
+missing_packages=()
+for package in git curl wget shellcheck; do
+    if ! command -v "$package" >/dev/null 2>&1; then
+        missing_packages+=("$package")
+    fi
+done
+
+if ((${#missing_packages[@]})); then
+    sudo apt-get update
+    sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y "${missing_packages[@]}"
+else
+    echo "Required tools are already installed."
+fi
+
+echo "Orb setup complete."
