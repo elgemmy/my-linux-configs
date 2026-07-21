@@ -11,32 +11,19 @@ Install Java 17 and 21 to work with the ZSH switcher functions.
 
 ### Manual Installation
 
-#### Ubuntu/Debian-based distributions
+#### Debian/Ubuntu
 ```bash
 sudo apt update
 sudo apt install -y openjdk-17-jdk openjdk-21-jdk
-```
-
-#### Fedora
-```bash
-sudo dnf install -y java-17-openjdk-devel java-21-openjdk-devel
-
-# Add Fedora paths to local config
-echo 'export JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk' >> ~/.zshrc.local
-echo 'export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk' >> ~/.zshrc.local
 ```
 
 ## Expected Paths
 
 The ZSH configuration expects Java at these locations:
 
-**Ubuntu/Debian:**
+**Debian/Ubuntu:**
 - Java 17: `/usr/lib/jvm/java-17-openjdk-amd64`
 - Java 21: `/usr/lib/jvm/java-21-openjdk-amd64`
-
-**Fedora:**
-- Java 17: `/usr/lib/jvm/java-17-openjdk`
-- Java 21: `/usr/lib/jvm/java-21-openjdk`
 
 ## Usage with ZSH
 

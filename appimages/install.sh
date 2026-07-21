@@ -49,9 +49,9 @@ check_cmd() {
 }
 
 check_cmd update-desktop-database \
-    "apt: desktop-file-utils | pacman: desktop-file-utils | dnf: desktop-file-utils"
+    "sudo apt install desktop-file-utils"
 check_cmd gtk-update-icon-cache \
-    "apt: libgtk-3-bin | pacman: gtk3 | dnf: gtk3"
+    "sudo apt install libgtk-3-bin"
 
 echo
 echo -e "${GREEN}✅ AppImage management setup complete${NC}"

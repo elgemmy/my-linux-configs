@@ -370,10 +370,9 @@ command -v rg || echo "ripgrep not installed"
 # ripgrep: https://github.com/BurntSushi/ripgrep#installation
 ```
 
-### Different Package Names
-Some tools have different names in different distributions:
-- `fd-find` (Ubuntu) vs `fd` (Fedora)
-- `bat` vs `batcat` (older Ubuntu versions)
+### Debian/Ubuntu Command Names
+Some Debian and Ubuntu releases expose `fd-find` as `fdfind` and `bat` as
+`batcat`.
 
 ### Ubuntu Command Name Issues
 ```bash

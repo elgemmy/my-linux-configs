@@ -12,6 +12,11 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== Font Installation ===${NC}"
 
+if ! command -v apt &> /dev/null; then
+    echo -e "${RED}❌ apt is required. This script supports Debian and Ubuntu only.${NC}" >&2
+    exit 1
+fi
+
 # Create fonts directory
 echo -e "${BLUE}📁 Creating fonts directory...${NC}"
 mkdir -p ~/.local/share/fonts
@@ -42,14 +47,9 @@ install_font() {
 
 # Try package manager first
 echo -e "\n${BLUE}📦 Trying package manager installation...${NC}"
-if command -v apt &> /dev/null; then
-    echo -e "${YELLOW}Trying package installation (Ubuntu/Debian)...${NC}"
-    sudo apt update
-    sudo apt install -y fonts-firacode 2>/dev/null || echo -e "${YELLOW}Fira Code not in repos, using manual install${NC}"
-elif command -v dnf &> /dev/null; then
-    echo -e "${YELLOW}Trying package installation (Fedora)...${NC}"
-    sudo dnf install -y fira-code-fonts 2>/dev/null || echo -e "${YELLOW}Fira Code not in repos, using manual install${NC}"
-fi
+echo -e "${YELLOW}Trying package installation (Debian/Ubuntu)...${NC}"
+sudo apt update
+sudo apt install -y fonts-firacode 2>/dev/null || echo -e "${YELLOW}Fira Code not in repos, using manual install${NC}"
 
 # Manual installation as backup
 echo -e "\n${BLUE}🔤 Installing programming fonts...${NC}"

@@ -12,7 +12,7 @@ JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk-amd64
 
 ## Installation Instructions
 
-### Ubuntu/Debian-based distributions
+### Debian/Ubuntu
 
 ```bash
 # Update package list
@@ -23,15 +23,6 @@ sudo apt install -y openjdk-17-jdk openjdk-21-jdk
 
 # Verify installation paths
 ls -la /usr/lib/jvm/ | grep java
-```
-
-### Fedora
-
-```bash
-# Install Java 17 and 21 OpenJDK
-sudo dnf install -y java-17-openjdk-devel java-21-openjdk-devel
-
-# Note: Fedora uses different paths, see customization section below
 ```
 
 ## Verify Installation
@@ -53,30 +44,15 @@ setJdk21
 java -version
 ```
 
-## System-Specific Path Differences
-
-### Ubuntu/Debian Paths
+## Debian/Ubuntu Paths
 ```
 /usr/lib/jvm/java-17-openjdk-amd64/
 /usr/lib/jvm/java-21-openjdk-amd64/
 ```
 
-### Fedora Paths
-```
-/usr/lib/jvm/java-17-openjdk/
-/usr/lib/jvm/java-21-openjdk/
-```
-
 ## Customization for Different Systems
 
 If your system uses different paths, update your `~/.zshrc.local`:
-
-### For Fedora
-```bash
-# ~/.zshrc.local
-export JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk
-export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk
-```
 
 ### For Custom Java Installations
 ```bash
@@ -136,16 +112,9 @@ find /usr/lib/jvm -name "java-*-openjdk*" -type d
 
 ## Quick Setup Commands
 
-### For Ubuntu/Debian-based distributions
+### For Debian/Ubuntu
 ```bash
 sudo apt update && sudo apt install -y openjdk-17-jdk openjdk-21-jdk
-```
-
-### For Fedora
-```bash
-sudo dnf install -y java-17-openjdk-devel java-21-openjdk-devel
-echo 'export JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk' >> ~/.zshrc.local
-echo 'export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk' >> ~/.zshrc.local
 ```
 
 After installation, restart your terminal or run `source ~/.zshrc` to use the Java switcher functions.

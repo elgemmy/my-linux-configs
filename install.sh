@@ -15,6 +15,17 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# This repository intentionally supports Debian and Ubuntu only.
+if [ ! -r /etc/os-release ]; then
+    echo -e "${RED}❌ Unsupported platform. This installer supports Debian and Ubuntu only.${NC}" >&2
+    exit 1
+fi
+. /etc/os-release
+if [ "${ID:-}" != "debian" ] && [ "${ID:-}" != "ubuntu" ]; then
+    echo -e "${RED}❌ Unsupported platform '${ID:-unknown}'. This installer supports Debian and Ubuntu only.${NC}" >&2
+    exit 1
+fi
+
 # Function to print colored headers
 print_header() {
     echo -e "\n${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"

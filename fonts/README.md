@@ -16,11 +16,8 @@ Essential development fonts: Fira Code (primary) and JetBrains Mono (backup).
 
 #### Package Manager (Recommended)
 ```bash
-# Ubuntu/Debian
+# Debian/Ubuntu
 sudo apt install fonts-firacode
-
-# Fedora
-sudo dnf install fira-code-fonts
 ```
 
 #### Manual Download

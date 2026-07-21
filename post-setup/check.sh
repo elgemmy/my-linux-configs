@@ -32,7 +32,7 @@ check_tool() {
 
 # GitHub CLI
 check_tool "gh (GitHub CLI)" "gh" "gh --version | head -1" \
-    "sudo apt install gh  /  sudo dnf install gh"
+    "sudo apt install gh"
 
 # Docker
 check_tool "docker" "docker" "docker --version" \

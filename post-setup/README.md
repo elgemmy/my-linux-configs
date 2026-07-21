@@ -50,24 +50,15 @@ manually for your work environment.
 ### GitHub CLI
 
 ```bash
-# Ubuntu/Debian, after adding the official gh repo
+# Debian/Ubuntu, after adding the official gh repo
 sudo apt install gh
-
-# Fedora
-sudo dnf install gh
 ```
 
 ### Docker
 
 ```bash
-# See official docs for your distro:
+# Follow the Debian or Ubuntu instructions:
 # https://docs.docker.com/engine/install/
-
-# Fedora
-sudo dnf install docker docker-compose
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
-# Log out and back in for group changes
 ```
 
 ### Go

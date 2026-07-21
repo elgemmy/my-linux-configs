@@ -11,9 +11,8 @@ High-performance terminal emulator configuration with vim-style navigation.
 
 ### Manual Installation
 ```bash
-# Install kitty
-sudo apt install kitty         # Ubuntu/Debian
-sudo dnf install kitty         # Fedora
+# Install kitty on Debian/Ubuntu
+sudo apt install kitty
 
 # Copy configuration
 mkdir -p ~/.config/kitty

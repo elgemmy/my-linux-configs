@@ -12,40 +12,20 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== Java Development Kit Setup ===${NC}"
 
+if ! command -v apt &> /dev/null; then
+    echo -e "${RED}❌ apt is required. This script supports Debian and Ubuntu only.${NC}" >&2
+    exit 1
+fi
+
 # Function to detect system and install Java
 install_java() {
-    if command -v apt &> /dev/null; then
-        echo -e "${YELLOW}Installing Java on Ubuntu/Debian system...${NC}"
-        sudo apt update
-        sudo apt install -y openjdk-17-jdk openjdk-21-jdk
-        echo -e "${GREEN}✅ Java packages installed${NC}"
-        
-        # Verify Ubuntu/Debian paths
-        JAVA_17_PATH="/usr/lib/jvm/java-17-openjdk-amd64"
-        JAVA_21_PATH="/usr/lib/jvm/java-21-openjdk-amd64"
-        
-    elif command -v dnf &> /dev/null; then
-        echo -e "${YELLOW}Installing Java on Fedora system...${NC}"
-        sudo dnf install -y java-17-openjdk-devel java-21-openjdk-devel
-        echo -e "${GREEN}✅ Java packages installed${NC}"
-        
-        # Fedora uses different paths
-        JAVA_17_PATH="/usr/lib/jvm/java-17-openjdk"
-        JAVA_21_PATH="/usr/lib/jvm/java-21-openjdk"
-        
-        # Create local config for Fedora paths
-        echo -e "${YELLOW}Creating ~/.zshrc.local with Fedora-specific Java paths...${NC}"
-        cat >> ~/.zshrc.local << EOF
-# Fedora Java paths (overrides zshrc defaults)
-export JAVA_HOME_17=$JAVA_17_PATH
-export JAVA_HOME_21=$JAVA_21_PATH
-EOF
-        echo -e "${GREEN}✅ Fedora paths configured${NC}"
-        
-    else
-        echo -e "${RED}Package manager not supported. Please install Java manually.${NC}"
-        exit 1
-    fi
+    echo -e "${YELLOW}Installing Java on Debian/Ubuntu system...${NC}"
+    sudo apt update
+    sudo apt install -y openjdk-17-jdk openjdk-21-jdk
+    echo -e "${GREEN}✅ Java packages installed${NC}"
+
+    JAVA_17_PATH="/usr/lib/jvm/java-17-openjdk-amd64"
+    JAVA_21_PATH="/usr/lib/jvm/java-21-openjdk-amd64"
 }
 
 # Install Java
@@ -99,6 +79,3 @@ echo -e "${BLUE}  • ${YELLOW}setJdk17${NC}    # Switch to Java 17"
 echo -e "${BLUE}  • ${YELLOW}setJdk21${NC}    # Switch to Java 21"
 echo -e "${BLUE}  • ${YELLOW}java -version${NC}   # Check current version"
 echo
-if command -v dnf &> /dev/null; then
-    echo -e "${YELLOW}Note: Fedora-specific paths have been added to ~/.zshrc.local${NC}"
-fi

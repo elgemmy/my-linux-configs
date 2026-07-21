@@ -1,7 +1,7 @@
 # Linux Config Repository
 
 ## Overview
-Clean, modular dotfiles for quick Linux development environment setup on Debian and Fedora distros.
+Clean, modular dotfiles for quick development environment setup on Debian and Ubuntu.
 
 ## Repository Structure
 ```
@@ -128,8 +128,7 @@ Before manual installation, create a comprehensive backup of your current config
 chmod +x */install.sh
 
 # Install system build tools (required for development)
-# Ubuntu/Debian: sudo apt update && sudo apt install -y build-essential curl git wget
-# Fedora: sudo dnf install -y @development-tools curl git wget
+# Debian/Ubuntu: sudo apt update && sudo apt install -y build-essential curl git wget
 ```
 
 ### Component Installation Order
@@ -227,11 +226,11 @@ Run `post-setup/check.sh` to see what's installed and get install instructions f
 Run `post-setup/configure.sh` to wire up credentials and create config templates.
 
 ## Supported Systems
-- Ubuntu/Debian-based distributions (Ubuntu, Linux Mint, Pop!_OS, Elementary OS, etc.)
-- Fedora and Red Hat-based distributions
+- Debian
+- Ubuntu
 
 ## Installation Scripts
-- Automatic package manager detection (apt/dnf)
+- Clear validation that the system uses apt
 - Safe backup of existing configurations
 - Error handling and verification
 - Minimal dependencies and complexity

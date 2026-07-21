@@ -12,20 +12,16 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== Vim Configuration Setup ===${NC}"
 
-# Detect package manager and install vim with clipboard support
-echo -e "\n${BLUE}📦 Installing Vim with clipboard support...${NC}"
-if command -v apt &> /dev/null; then
-    echo -e "${YELLOW}Installing vim with clipboard support (Ubuntu/Debian)...${NC}"
-    sudo apt update && sudo apt install -y vim-gtk3 xclip
-    echo -e "${GREEN}✅ Vim installed successfully${NC}"
-elif command -v dnf &> /dev/null; then
-    echo -e "${YELLOW}Installing vim with clipboard support (Fedora)...${NC}"
-    sudo dnf install -y vim-enhanced xclip
-    echo -e "${GREEN}✅ Vim installed successfully${NC}"
-else
-    echo -e "${RED}Package manager not supported. Please install vim with clipboard support manually.${NC}"
+if ! command -v apt &> /dev/null; then
+    echo -e "${RED}❌ apt is required. This script supports Debian and Ubuntu only.${NC}" >&2
     exit 1
 fi
+
+# Detect package manager and install vim with clipboard support
+echo -e "\n${BLUE}📦 Installing Vim with clipboard support...${NC}"
+echo -e "${YELLOW}Installing vim with clipboard support (Debian/Ubuntu)...${NC}"
+sudo apt update && sudo apt install -y vim-gtk3 xclip
+echo -e "${GREEN}✅ Vim installed successfully${NC}"
 
 # Backup existing vimrc
 echo -e "\n${BLUE}📁 Setting up Vim configuration...${NC}"
