@@ -52,6 +52,7 @@ fi
 # Copy configuration
 echo -e "${YELLOW}Installing kitty configuration...${NC}"
 cp kitty.conf ~/.config/kitty/kitty.conf
+cp current-theme.conf ~/.config/kitty/current-theme.conf
 cp sessions/daily.kitty-session ~/.config/kitty/sessions/daily.kitty-session
 echo -e "${GREEN}✅ Configuration installed${NC}"
 

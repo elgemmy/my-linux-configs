@@ -1,258 +1,55 @@
-# Linux Config Repository
+# Ubuntu/Debian workstation bootstrap
 
-## Overview
-Clean, modular dotfiles for quick development environment setup on Debian and Ubuntu.
-
-## Repository Structure
-```
-my-linux-config/
-├── README.md
-├── install.sh          # 🚀 Interactive master installer
-├── dev/
-│   ├── README.md
-│   ├── MODERN-CLI-TOOLS.md
-│   ├── install-essentials.sh
-│   └── install-optional.sh
-├── vim/
-│   ├── vimrc
-│   ├── install.sh
-│   └── README.md
-├── kitty/
-│   ├── kitty.conf
-│   ├── install.sh
-│   └── README.md
-├── zsh/
-│   ├── zshrc
-│   ├── install.sh
-│   └── README.md
-├── git/
-│   ├── gitignore_global
-│   ├── gitconfig.template
-│   ├── install.sh
-│   └── README.md
-├── post-setup/
-│   ├── check.sh
-│   ├── configure.sh
-│   └── README.md
-├── java/
-│   ├── GUIDE.md
-│   ├── install.sh
-│   └── README.md
-├── fonts/
-│   ├── install.sh
-│   └── README.md
-├── appimages/
-│   ├── bin/
-│   │   ├── appimage-install
-│   │   ├── appimage-update
-│   │   └── appimage-uninstall
-│   ├── install.sh
-│   └── README.md
-├── editors/
-│   ├── install.sh
-│   ├── vscode/
-│   ├── cursor/
-│   └── zed/
-└── troubleshooting/
-    ├── TROUBLESHOOTING.md
-    └── fix-permissions.sh
-```
-
-## Quick Setup
-
-### 🚀 Interactive Installation (Recommended)
-The easiest way to set up your development environment:
+The supported path is a straightforward Bash bootstrap for **Ubuntu (primary)** and Debian on amd64/x86_64. Run it from any directory; it refuses root. `setup.sh` mutates the machine, while `doctor.sh` is strictly read-only (no sudo, writes, or network).
 
 ```bash
-./install.sh
+./setup.sh --profile developer --plan       # local plan; no writes/sudo/downloads/logs
+./setup.sh --profile developer
+./setup.sh --profile minimal --non-interactive
+./doctor.sh --profile developer
 ```
 
-**Features:**
-- **Interactive guidance** - Clear descriptions for each module
-- **Selective installation** - Choose only what you need
-- **Proper dependency order** - Automatically handles prerequisites
-- **Colorful progress** - Visual feedback throughout the process
-- **Safety checks** - Backs up existing configurations
+`--non-interactive` requires an explicit profile and never reads stdin. There is no `--only` or `--check` mode.
 
-**What you'll choose:**
-1. **System preparation** (permissions, script setup)
-2. **Fonts** (Fira Code, JetBrains Mono) 
-3. **Development environment** (languages: Python, Node.js, Go - your choice)
-4. **Terminal & shell** (ZSH + modern CLI tools)
-5. **Terminal emulator** (Kitty - optional)
-6. **Editor** (Vim configuration - optional)
-7. **Editor apps** (VS Code, Cursor, and Zed settings/extensions when installed)
-8. **Java development** (OpenJDK 17 & 21 - optional)
-9. **Additional tools** (databases, Docker, etc. - selective)
-10. **AppImage management** (`appimage-install` / `appimage-update` scripts - optional, desktop only)
-11. **Git configuration** (global gitignore, identity prompts; no credential helper)
-12. **Post-setup check** (verify external tools, create config templates)
+## Fully expanded profiles
 
-### ⚡ One-Command Setup
-For a complete development environment with sensible defaults:
-```bash
-# Clone and run (press 'Y' for recommended modules)
-git clone <repository-url>
-cd my-linux-configs
-./install.sh
-```
+* `minimal`: `core shell git vim`
+* `developer`: `core shell git vim python node rust`
+* `desktop`: `core shell git vim python node rust fonts kitty editors`
 
-## Manual Installation
-
-### 🔄 Backup First (Recommended)
-Before manual installation, create a comprehensive backup of your current configuration:
+Go and Java are intentional extras, never profile dependencies:
 
 ```bash
-# Create timestamped backup of current configs
-./testing/backup-current-config.sh
-
-# This backs up: ~/.zshrc, ~/.vimrc, ~/.config/kitty/, ~/.config/starship.toml,
-# ~/.oh-my-zsh/, editor user configs, and your current shell setting
+./extras/install.sh             # interactive selection
+./extras/install.sh go java     # explicit
 ```
 
-**Restore Instructions:**
-```bash
-# If you need to restore later
-./testing/restore-config.sh ~/.config-backup-YYYYMMDD-HHMMSS
+Go uses the distribution `golang-go`; Java installs exactly the distribution `default-jdk` and reports a `JAVA_HOME` dynamically derived from the selected `java`. Apt packages are intentionally unpinned. Node, Rust, Starship, Oh My Zsh, and its custom plugins use the revisions or checksums recorded in `versions.conf`; upstream release publishers remain an explicit trust boundary.
 
-# Clean up test backups when done
-./testing/clean-all.sh
-```
+## Package and configuration policy
 
-### System Preparation
-```bash
-# Fix any permission issues first (if needed)
-./troubleshooting/fix-permissions.sh
+All profile package requirements are collected first. Installed packages are queried without sudo. If anything is missing, setup performs one `apt-get update`, verifies every candidate, then one fatal `apt-get install` transaction. If complete, apt is not called. Python is distro Python plus `venv`, pip and pipx—never `pip --user` or `--break-system-packages`. Common CLI tools come from apt; `batcat`/`fdfind` compatibility names are placed in `~/.local/bin` without Cargo builds.
 
-# Make scripts executable
-chmod +x */install.sh
+Configuration deployment uses explicit **per-file symlinks** from the home directory into this repository. Keep the clone in a stable location: moving or deleting it breaks managed configuration until setup is rerun from the new path. Correct links are no-ops. Every conflicting file, directory, or link in one run is moved into one timestamped `$XDG_STATE_HOME/linux-config/backups/` tree, preserving its absolute-path-relative layout; `manifest.tsv` records backup/link operations. A deployment error rolls back links changed in that phase. This is transactional only for config deployment: apt changes and user changes after a successful prior run are outside recovery. Shared editor directories are never wholesale linked.
 
-# Install system build tools (required for development)
-# Debian/Ubuntu: sudo apt update && sudo apt install -y build-essential curl git wget
-```
+To recover a preserved conflict, first review the manifest and current target, remove the setup-managed replacement, then run `tools/restore-config-backup <backup-directory>`. The recovery tool refuses to overwrite an existing target.
 
-### Component Installation Order
-Install components in the recommended order for best results:
+Git setup owns only the XDG global ignore file. It never changes identity, credentials, SSH, or `gh`; doctor warns when identity is missing. Editor settings, keybindings, and extension lists remain under `editors/`. Setup deploys each config file but never installs extensions. Install desired IDs manually, for example:
 
 ```bash
-# 1. Fonts (needed for terminal display)
-cd fonts && ./install.sh
-
-# 2. Development environment (see dev/README.md for details)
-cd dev && ./install-essentials.sh
-cd dev && ./install-optional.sh  # optional tools
-
-# 3. Java development (see java/README.md for details)
-cd java && ./install.sh
-
-# 4. Terminal & shell
-cd zsh && ./install.sh    # ZSH + modern CLI tools
-cd kitty && ./install.sh  # terminal emulator (optional)
-
-# 5. Editors
-cd vim && ./install.sh    # vim configuration (optional)
-cd editors && ./install.sh # VS Code/Cursor/Zed config if installed
+xargs -n1 code --install-extension < editors/vscode/extensions.txt
 ```
 
-### Manual Configuration Fallback
-If installation scripts fail, manually copy configuration files:
+The Zsh config is a small loader plus a managed feature module. Existing aliases and productivity functions are preserved, while optional Kitty, Bitwarden, Java, NVM, Starship, eza, bat, fd, and rg behavior activates only when available. It does not force `TERM`, `LANG`, or `LC_ALL`, and preserves `~/.zshrc.local` and `~/.zshrc.work`.
 
-```bash
-# System preparation
-cp vim/vimrc ~/.vimrc
-mkdir -p ~/.config/kitty && cp kitty/kitty.conf ~/.config/kitty/
-cp zsh/zshrc ~/.zshrc
-```
+## Desktop and trusted-workflow utilities
 
+Desktop setup installs Kitty via apt and deploys its config/session/launcher plus per-file editor settings. It deliberately does **not** change login shell, default terminal, or autostart. Review and intentionally run `extras/desktop-preferences.sh` for those changes. Editor extension installation is also manual.
 
-## Features
+`appimages/` and `tarapps/` retain their existing setup commands and all `tar-install`, `tar-update`, and `tar-uninstall` abilities. They are excluded from every profile because they are **intentional trusted-workflow utilities**: they execute/extract user-supplied application payloads and may manage desktop files or `/opt`. Review their dedicated READMEs before use.
 
-### Vim Configuration
-- Clean, minimal setup with essential development features
-- System clipboard integration
-- Vim motions and keyboard-centric workflow
-- Smart search and navigation
+Legacy component scripts, broad permission repair, destructive backup tests, authentication helpers, post-setup mutation, and the old `install.sh` implementation remain for migration/history but are not used by normal setup. `install.sh` now warns and delegates to `setup.sh`.
 
-### Kitty Terminal
-- Official binary install under `~/.local/kitty.app`
-- `kitty` and `kitten` symlinked into `~/.local/bin`
-- Daily `kdev` session launcher installed for both app menu and autostart
-- Customizable fonts and themes (per-machine via kitten themes)
-- Vim-style pane/tab navigation
-- Efficient keybindings for tab and window management
-- Performance optimizations
+## Validation
 
-### ZSH Shell
-- Oh My Zsh framework with intelligent completions
-- **Starship prompt** - Fast, cross-platform, highly customizable prompt
-- Custom aliases and productivity shortcuts
-- Git integration and status indicators  
-- Syntax highlighting and auto-suggestions
-- **☕ Coffee-Powered Features** - Because I can't let my caffeine addiction leave me anywhere I go, I've baked coffee into the terminal itself:
-  - Daily coffee quotes and programming wisdom
-  - Coffee quotes on terminal startup
-
-### Fonts
-- Fira Code (primary) with JetBrains Mono backup
-- Automatic installation and fallback handling
-
-### Editor Apps
-- VS Code and Cursor settings/keybindings are restored from `editors/<name>/`
-- Extension lists use plain installable extension IDs and install current compatible versions
-- Zed settings are available as a reference and installed only when Zed exists on the machine
-
-### AppImage Management
-- `appimage-install` — one command to turn any AppImage into a proper desktop app (icon, launcher entry, URI scheme handler)
-- `appimage-update` — one command to update any installed AppImage and refresh its icon
-- Follows the XDG desktop entry spec; works across GNOME, KDE, and other desktop environments
-- See `appimages/README.md` for full documentation
-
-### Extension Files
-The ZSH configuration supports machine-specific and work-specific extensions:
-- `~/.zshrc.local` — Machine-specific config (extra PATHs, private aliases, opt-in integrations)
-- `~/.zshrc.work` — Work-specific functions and aliases (not tracked in this repo)
-
-Machine-private shell integrations, such as Cursor Agent terminal capture, should stay in `~/.zshrc.local` and be opt-in so VS Code/Cursor shell environment probes can exit quickly.
-
-### Post-Setup (External Tools)
-Some tools have their own installers or need a final manual check:
-- **Bitwarden CLI** (`bw`) — for credential management
-- **GitHub CLI** (`gh`) — for GitHub operations
-- **Docker** — kernel-level changes, group membership
-- **Firewall / updates** — consider `sudo ufw enable` and `sudo apt install unattended-upgrades -y`
-- **Startup apps** — confirm the `kdev` autostart entry appears in your desktop startup applications UI
-
-Run `post-setup/check.sh` to see what's installed and get install instructions for missing tools.
-Run `post-setup/configure.sh` to wire up credentials and create config templates.
-
-## Supported Systems
-- Debian
-- Ubuntu
-
-## Installation Scripts
-- Clear validation that the system uses apt
-- Safe backup of existing configurations
-- Error handling and verification
-- Minimal dependencies and complexity
-
-## Troubleshooting
-
-### Permission Denied Errors
-If install scripts fail with permission errors:
-
-```bash
-# Quick fix - make scripts executable
-chmod +x */install.sh
-
-# Fix config file permissions (if previously created as root)
-sudo chown -R $USER:$USER ~/.vimrc ~/.vim/ ~/.config/ ~/.zshrc
-
-# Run the fix-permissions script (nuclear option)
-./troubleshooting/fix-permissions.sh
-```
-
-### Common Issues
-
-- **Scripts not executable:** Run `chmod +x */install.sh`
-- **Config files owned by root:** Run permission fix command above
-- **Home directory permission issues:** Run `sudo chown -R $USER:$USER ~/`
+Run `tests/run.sh` for Bash syntax, optional ShellCheck, exact profile validation, plan no-write, symlink conflict/idempotency/rollback, and doctor failure semantics. `tests/container-smoke.sh` documents the Ubuntu/Debian container smoke entry point. Tests do not perform destructive host installation.

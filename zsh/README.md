@@ -7,30 +7,12 @@ Comprehensive ZSH setup with Oh My Zsh, development tools, and vim integration.
 
 ### Automatic Installation
 ```bash
-./install.sh
+../setup.sh --profile minimal
 ```
 
-### Manual Installation
-```bash
-# Install ZSH on Debian/Ubuntu
-sudo apt install zsh curl git
-
-# Install Oh My Zsh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# Install plugins
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-
-# Install Starship prompt
-curl -sS https://starship.rs/install.sh | sh
-
-# Copy configuration
-cp zshrc ~/.zshrc
-
-# Set as default shell
-chsh -s $(which zsh)
-```
+The supported setup pins Oh My Zsh, its custom plugins, and Starship through
+`versions.conf`. To intentionally change the login shell after setup, run
+`../extras/desktop-preferences.sh`.
 
 ## Key Features
 
@@ -39,7 +21,7 @@ chsh -s $(which zsh)
 - **Enhanced Oh My Zsh plugins** - JSON tools, web search, clipboard integration
 - **Vi mode** for vim-like command line editing
 - **Development aliases** for common tasks
-- **Java version switching** between JDK 17 and 21
+- **Dynamic Java integration** when the optional default JDK is installed
 - **Git enhancements** - Interactive utilities and advanced workflows
 - **Bitwarden convenience helper** (`bw-unlock`) without Git credential wiring
 - **Enhanced history** with 10,000 commands
@@ -240,9 +222,9 @@ gwip        # Quick WIP commit with timestamp
 
 ### Java Environment
 ```bash
-setJdk17    # Switch to Java 17
-setJdk21    # Switch to Java 21
-devinfo     # Show all development tool versions
+../extras/install.sh java  # Install the distro's one default JDK
+java -version              # Check the selected JDK
+devinfo                    # Show all development tool versions
 ```
 
 ### Development Servers

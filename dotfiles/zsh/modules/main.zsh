@@ -3,10 +3,10 @@
 # ===================================================================
 
 # Path configuration
-export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:/usr/local/bin:$PATH
 
 # Oh My Zsh configuration
-export ZSH=~/.oh-my-zsh
+export ZSH="${XDG_DATA_HOME:-$HOME/.local/share}/linux-config/oh-my-zsh/current"
 # Using Starship prompt instead of Oh My Zsh themes
 ZSH_THEME=""
 
@@ -30,7 +30,9 @@ plugins=(
   sudo               # Press ESC twice to add sudo to current/previous command
 )
 
-source $ZSH/oh-my-zsh.sh
+if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
+  source "$ZSH/oh-my-zsh.sh"
+fi
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#585b70"
 
@@ -61,22 +63,10 @@ zle -N zle-keymap-select
 # Development Environment Setup
 # ===================================================================
 
-# Java version switcher functions
-export JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk-amd64
-export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk-amd64
-export JAVA_HOME=$JAVA_HOME_21
-
-setJdk17() { 
-    export JAVA_HOME=$JAVA_HOME_17
-    export PATH=$JAVA_HOME/bin:$PATH
-    echo "Java 17 activated: $(java -version 2>&1 | head -n1)"
-}
-
-setJdk21() { 
-    export JAVA_HOME=$JAVA_HOME_21
-    export PATH=$JAVA_HOME/bin:$PATH
-    echo "Java 21 activated: $(java -version 2>&1 | head -n1)"
-}
+# Use the distribution's selected JDK without assuming a version or architecture.
+if command -v java >/dev/null 2>&1; then
+  export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
+fi
 
 # Go configuration
 export GOPATH=$HOME/go
@@ -156,8 +146,10 @@ alias dwn='cd ~/Downloads'
 alias repos='cd ~/Projects/repos'
 
 # Kitty
-alias icat="kitten icat"
-alias kdev="kitty --detach --directory ~/.config/kitty/sessions --session ~/.config/kitty/sessions/daily.kitty-session"
+if command -v kitty >/dev/null 2>&1; then
+  alias icat="kitty +kitten icat"
+  alias kdev="kitty --detach --session ${XDG_CONFIG_HOME:-$HOME/.config}/kitty/sessions/daily.kitty-session"
+fi
 
 # Bitwarden CLI convenience helper
 bw-unlock() {
@@ -173,7 +165,7 @@ bw-unlock() {
 
 # Prefer normal gh auth. Git credentials are not configured through Bitwarden.
 
-# Modern CLI Tools (install with: cargo install eza bat fd-find ripgrep)
+# Modern CLI Tools (installed from Ubuntu/Debian packages)
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza --icons'
     alias ll='eza -l --icons --git'
@@ -412,10 +404,7 @@ setopt NO_CASE_GLOB
 # ===================================================================
 # Terminal and Display
 # ===================================================================
-export TERM=xterm-256color
 export LESS='-R'
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
 
 # ===================================================================
 # Completion Enhancements
@@ -429,16 +418,13 @@ zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w 
 # ===================================================================
 # Conditional Loading
 # ===================================================================
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/linux-config/nvm/current"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 if [ -d "$HOME/.mimocode/bin" ]; then
     export PATH="$HOME/.mimocode/bin:$PATH"
 fi
-
-[ -f ~/.zshrc.local ] && source ~/.zshrc.local
-[ -f ~/.zshrc.work ] && source ~/.zshrc.work
 
 # ================================
 # Minimal Portable Welcome Message
@@ -506,4 +492,6 @@ unset _show_welcome_msg
 # ===================================================================
 # Starship Prompt (must be at the end)
 # ===================================================================
-eval "$(starship init zsh)"
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
