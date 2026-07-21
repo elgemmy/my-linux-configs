@@ -11,12 +11,12 @@ source "$ROOT/lib/download.sh"
 
 action=${1:-}
 case "$action" in
-  plan) printf '  rust: toolchain %s through checksum-pinned rustup-init\n' "$RUST_TOOLCHAIN" ;;
+  plan) printf '  rust: toolchain %s through rustup-init %s\n' "$RUST_TOOLCHAIN" "$RUSTUP_VERSION" ;;
   apply)
     if [[ ! -x $HOME/.cargo/bin/rustc ]] || [[ $("$HOME/.cargo/bin/rustc" --version | awk '{ print $2 }') != "$RUST_TOOLCHAIN" ]]; then
       tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
       download_checked \
-        https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init \
+        "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/x86_64-unknown-linux-gnu/rustup-init" \
         "$RUSTUP_INIT_SHA256" "$tmp/rustup-init"
       chmod +x "$tmp/rustup-init"
       "$tmp/rustup-init" -y --profile default --default-toolchain "$RUST_TOOLCHAIN" --no-modify-path
