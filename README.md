@@ -30,7 +30,7 @@ Go uses the distribution `golang-go`; Java installs exactly the distribution `de
 
 All profile package requirements are collected first. Installed packages are queried without sudo. If anything is missing, setup performs one `apt-get update`, verifies every candidate, then one fatal `apt-get install` transaction. If complete, apt is not called. Python is distro Python plus `venv`, pip and pipx—never `pip --user` or `--break-system-packages`. Common CLI tools come from apt; `batcat`/`fdfind` compatibility names are placed in `~/.local/bin` without Cargo builds.
 
-Configuration deployment is **currently copy-based**. Explicit per-file mappings are centralized in `lib/deploy.sh` so a later small migration can switch correct targets to symlinks. Identical files are no-ops. Every conflict in one run is moved into one timestamped `$XDG_STATE_HOME/linux-config/backups/` tree, preserving its absolute-path-relative layout; `manifest.tsv` records backup/copy operations. A deployment error rolls back files changed in that phase. This is transactional only for config deployment: apt changes and user changes after a successful prior run are outside recovery. Shared editor directories are never wholesale copied.
+Configuration deployment uses explicit **per-file symlinks** from the home directory into this repository. Keep the clone in a stable location: moving or deleting it breaks managed configuration until setup is rerun from the new path. Correct links are no-ops. Every conflicting file, directory, or link in one run is moved into one timestamped `$XDG_STATE_HOME/linux-config/backups/` tree, preserving its absolute-path-relative layout; `manifest.tsv` records backup/link operations. A deployment error rolls back links changed in that phase. This is transactional only for config deployment: apt changes and user changes after a successful prior run are outside recovery. Shared editor directories are never wholesale linked.
 
 To recover a preserved conflict, first review the manifest and current target, remove the setup-managed replacement, then run `tools/restore-config-backup <backup-directory>`. The recovery tool refuses to overwrite an existing target.
 
@@ -52,4 +52,4 @@ Legacy component scripts, broad permission repair, destructive backup tests, aut
 
 ## Validation
 
-Run `tests/run.sh` for Bash syntax, optional ShellCheck, exact profile validation, plan no-write, copy conflict/idempotency/rollback, and doctor failure semantics. `tests/container-smoke.sh` documents the Ubuntu/Debian container smoke entry point. Tests do not perform destructive host installation.
+Run `tests/run.sh` for Bash syntax, optional ShellCheck, exact profile validation, plan no-write, symlink conflict/idempotency/rollback, and doctor failure semantics. `tests/container-smoke.sh` documents the Ubuntu/Debian container smoke entry point. Tests do not perform destructive host installation.

@@ -25,7 +25,7 @@ if [[ " ${MODULES[*]} " == *' vim '* ]] && ! vim --version | grep -q '+clipboard
   failures=$((failures+1))
 fi
 while IFS=$'\t' read -r src dst; do
-  if [[ -f $dst ]] && cmp -s "$ROOT/$src" "$dst"; then
+  if [[ -L $dst ]] && [[ $(readlink -f -- "$dst") == "$(readlink -f -- "$ROOT/$src")" ]]; then
     echo "OK config $dst"
   elif [[ -e $dst || -L $dst ]]; then
     echo "FAIL managed config differs: $dst"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Explicit source<TAB>destination mappings make a future copy-to-symlink change local.
+# Explicit source<TAB>destination mappings keep deployment ownership reviewable.
 deployment_mappings() {
   local module
   for module in "$@"; do
@@ -24,13 +24,20 @@ deploy_plan() {
   local src dst
   while IFS=$'\t' read -r src dst; do
     [[ -e $dst || -L $dst ]] || { printf '  INSTALL %s\n' "$dst"; continue; }
-    [[ -f $dst && ! -L $dst ]] && cmp -s "$REPO_ROOT/$src" "$dst" && printf '  NO-OP   %s\n' "$dst" || printf '  CONFLICT %s (will be backed up)\n' "$dst"
+    if [[ -L $dst ]] && [[ $(readlink -f -- "$dst") == "$(readlink -f -- "$REPO_ROOT/$src")" ]]; then
+      printf '  NO-OP   %s\n' "$dst"
+    else
+      printf '  CONFLICT %s (will be backed up)\n' "$dst"
+    fi
   done
 }
 
 deploy_apply() {
   local stamp backup manifest src dst rel count=0
-  stamp="$(date -u +%Y%m%dT%H%M%SZ)-$$"; backup="$STATE_DIR/backups/$stamp"; manifest="$backup/manifest.tsv"
+  stamp="$(date -u +%Y%m%dT%H%M%SZ)-$$"
+  mkdir -p -- "$STATE_DIR/backups"
+  backup="$(mktemp -d "$STATE_DIR/backups/$stamp.XXXXXX")"
+  manifest="$backup/manifest.tsv"
   local -a installed=() moved=()
   rollback() {
     local i
@@ -39,20 +46,22 @@ deploy_apply() {
   }
   trap 'rollback; echo "Deployment failed; changes rolled back." >&2' ERR
   while IFS=$'\t' read -r src dst; do
-    [[ -f $dst && ! -L $dst ]] && cmp -s "$REPO_ROOT/$src" "$dst" && continue
-    mkdir -p -- "$backup"
+    [[ -f $REPO_ROOT/$src ]] || { echo "Missing managed source: $REPO_ROOT/$src" >&2; rollback; trap - ERR; return 1; }
+    if [[ -L $dst ]] && [[ $(readlink -f -- "$dst") == "$(readlink -f -- "$REPO_ROOT/$src")" ]]; then
+      continue
+    fi
     if [[ -e $dst || -L $dst ]]; then
       rel="${dst#/}"; mkdir -p -- "$backup/$(dirname "$rel")"; mv -- "$dst" "$backup/$rel"; moved+=("$dst"$'\t'"$rel")
       printf 'BACKUP\t%s\t%s\n' "$dst" "$rel" >> "$manifest"
     fi
     mkdir -p -- "$(dirname "$dst")"
     installed+=("$dst")
-    if ! cp -- "$REPO_ROOT/$src" "$dst"; then
+    if ! ln -s -- "$REPO_ROOT/$src" "$dst"; then
       rollback
       trap - ERR
       return 1
     fi
-    printf 'COPY\t%s\t%s\n' "$src" "$dst" >> "$manifest"
+    printf 'LINK\t%s\t%s\n' "$src" "$dst" >> "$manifest"
     count=$((count + 1))
     if [[ ${DEPLOY_FAIL_AFTER:-0} -eq $count ]]; then rollback; trap - ERR; return 1; fi
   done
