@@ -14,34 +14,22 @@ echo -e "${GREEN}=== Essential Development Environment Setup ===${NC}"
 echo -e "${BLUE}Installing core development tools and programming languages...${NC}"
 echo
 
-# Detect package manager
-if command -v apt &> /dev/null; then
-    PKG_MANAGER="apt"
-    UPDATE_CMD="sudo apt update"
-    INSTALL_CMD="sudo apt install -y"
-elif command -v dnf &> /dev/null; then
-    PKG_MANAGER="dnf"
-    UPDATE_CMD="sudo dnf update -y"
-    INSTALL_CMD="sudo dnf install -y"
-else
-    echo "❌ Unsupported package manager. This script supports apt (Ubuntu/Debian) and dnf (Fedora)."
+# Require the Debian/Ubuntu package manager
+if ! command -v apt &> /dev/null; then
+    echo "❌ apt is required. This script supports Debian and Ubuntu only."
     exit 1
 fi
 
-echo -e "${BLUE}📦 Detected package manager: $PKG_MANAGER${NC}"
+echo -e "${BLUE}📦 Using package manager: apt${NC}"
 echo
 
 # Update package lists
 echo -e "${YELLOW}🔄 Updating package lists...${NC}"
-$UPDATE_CMD
+sudo apt update
 
 # Install essential build tools
 echo -e "\n${YELLOW}🔨 Installing build tools and essentials...${NC}"
-if [ "$PKG_MANAGER" = "apt" ]; then
-    $INSTALL_CMD build-essential curl git wget
-elif [ "$PKG_MANAGER" = "dnf" ]; then
-    $INSTALL_CMD @development-tools curl git wget
-fi
+sudo apt install -y build-essential curl git wget
 
 # Install Python development (interactive)
 echo -e "\n${BLUE}🐍 Python Development Environment${NC}"
@@ -52,11 +40,7 @@ if [[ $REPLY =~ ^[Nn]$ ]]; then
     PYTHON_INSTALLED=false
 else
     echo -e "${YELLOW}Installing Python development environment...${NC}"
-    if [ "$PKG_MANAGER" = "apt" ]; then
-        $INSTALL_CMD python3 python3-pip python3-venv python3-dev
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
-        $INSTALL_CMD python3 python3-pip python3-devel
-    fi
+    sudo apt install -y python3 python3-pip python3-venv python3-dev
     PYTHON_INSTALLED=true
     echo -e "${GREEN}✅ Python installation completed${NC}"
 fi

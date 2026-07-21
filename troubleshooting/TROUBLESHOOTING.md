@@ -44,8 +44,7 @@ bash vim/install.sh
 ### Package Installation Fails
 ```bash
 # Update package lists first
-sudo apt update    # Ubuntu/Debian
-sudo dnf update    # Fedora
+sudo apt update    # Debian/Ubuntu
 
 # Check internet connection
 ping google.com
@@ -72,8 +71,7 @@ fc-list | grep -i fira
 ### Oh My Zsh Installation Fails
 ```bash
 # Install dependencies first
-sudo apt install curl git    # Ubuntu/Debian
-sudo dnf install curl git    # Fedora
+sudo apt install curl git    # Debian/Ubuntu
 
 # Manual Oh My Zsh install
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -92,15 +90,11 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/p
 ### Java Switcher Not Working
 ```bash
 # Install Java first
-sudo apt install openjdk-17-jdk openjdk-21-jdk    # Ubuntu/Debian
-sudo dnf install java-17-openjdk-devel java-21-openjdk-devel    # Fedora
+sudo apt install openjdk-17-jdk openjdk-21-jdk    # Debian/Ubuntu
 
 # Check Java paths match your system
 ls /usr/lib/jvm/
 
-# For Fedora, add to ~/.zshrc.local:
-echo 'export JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk' >> ~/.zshrc.local
-echo 'export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk' >> ~/.zshrc.local
 ```
 
 ## Vim Issues
@@ -111,8 +105,7 @@ echo 'export JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk' >> ~/.zshrc.local
 vim --version | grep clipboard
 
 # Install clipboard support
-sudo apt install vim-gtk3 xclip    # Ubuntu/Debian
-sudo dnf install vim-enhanced xclip    # Fedora
+sudo apt install vim-gtk3 xclip    # Debian/Ubuntu
 ```
 
 ### Config Not Loading
@@ -167,7 +160,7 @@ cd kitty && ./install.sh          # Re-adds kitty aliases
 1. **Check this troubleshooting guide first**
 2. **Run the permission fix script**: `./fix-permissions.sh`
 3. **Try manual installation** using README instructions
-4. **Check system-specific variations** (Ubuntu vs Fedora paths)
+4. **Check Debian/Ubuntu version-specific package availability**
 
 ## Prevention
 

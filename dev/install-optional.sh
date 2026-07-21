@@ -36,19 +36,13 @@ append_to_zshrc_local() {
     echo -e "${GREEN}✅ Shell helpers added to ~/.zshrc.local${NC}"
 }
 
-# Detect package manager
-if command -v apt &> /dev/null; then
-    PKG_MANAGER="apt"
-    INSTALL_CMD="sudo apt install -y"
-elif command -v dnf &> /dev/null; then
-    PKG_MANAGER="dnf"
-    INSTALL_CMD="sudo dnf install -y"
-else
-    echo "❌ Unsupported package manager. This script supports apt (Ubuntu/Debian) and dnf (Fedora)."
+# Require the Debian/Ubuntu package manager
+if ! command -v apt &> /dev/null; then
+    echo "❌ apt is required. This script supports Debian and Ubuntu only."
     exit 1
 fi
 
-echo -e "${CYAN}📦 Using package manager: $PKG_MANAGER${NC}"
+echo -e "${CYAN}📦 Using package manager: apt${NC}"
 echo
 
 # Function to install with error handling
@@ -57,7 +51,7 @@ install_package() {
     local description=$2
     
     echo -e "${YELLOW}📦 Installing $description ($package)...${NC}"
-    if $INSTALL_CMD $package; then
+    if sudo apt install -y "$package"; then
         echo -e "${GREEN}✅ $description installed successfully${NC}"
     else
         echo -e "${RED}⚠️  Failed to install $description - may not be available in repositories${NC}"
@@ -73,13 +67,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Installing database tools...${NC}"
     install_package "sqlite3" "SQLite database"
     
-    if [ "$PKG_MANAGER" = "apt" ]; then
-        install_package "postgresql-client" "PostgreSQL client"
-        install_package "mysql-client" "MySQL client"
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
-        install_package "postgresql" "PostgreSQL client"
-        install_package "mysql" "MySQL client"
-    fi
+    install_package "postgresql-client" "PostgreSQL client"
+    install_package "mysql-client" "MySQL client"
 
     # Add PostgreSQL shell helpers
     append_to_zshrc_local "# --- postgresql-helpers-start ---" "# --- postgresql-helpers-end ---" '# PostgreSQL helpers (added by install-optional.sh)
@@ -117,13 +106,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     install_package "httpie" "HTTPie (modern HTTP client)"
     install_package "jq" "JSON processor"
     
-    if [ "$PKG_MANAGER" = "apt" ]; then
-        install_package "net-tools" "Network utilities"
-        install_package "nmap" "Network mapper"
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
-        install_package "net-tools" "Network utilities"
-        install_package "nmap" "Network mapper"
-    fi
+    install_package "net-tools" "Network utilities"
+    install_package "nmap" "Network mapper"
 else
     echo -e "${YELLOW}⏭️  Skipping network and API tools installation${NC}"
     echo
@@ -159,13 +143,8 @@ read -p "Do you want to install archive utilities (unzip, 7zip)? (y/N): " -n 1 -
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Installing archive utilities...${NC}"
-    if [ "$PKG_MANAGER" = "apt" ]; then
-        install_package "unzip" "Unzip utility"
-        install_package "p7zip-full" "7-Zip archive tool"
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
-        install_package "unzip" "Unzip utility"
-        install_package "p7zip" "7-Zip archive tool"
-    fi
+    install_package "unzip" "Unzip utility"
+    install_package "p7zip-full" "7-Zip archive tool"
 else
     echo -e "${YELLOW}⏭️  Skipping archive utilities installation${NC}"
     echo
@@ -177,15 +156,9 @@ read -p "Do you want to install modern CLI tools (bat, fd-find, ripgrep)? (y/N):
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Installing modern CLI tools...${NC}"
-    if [ "$PKG_MANAGER" = "apt" ]; then
-        install_package "bat" "Modern cat alternative (syntax highlighting)"
-        install_package "fd-find" "Modern find alternative"
-        install_package "ripgrep" "Modern grep alternative"
-    elif [ "$PKG_MANAGER" = "dnf" ]; then
-        install_package "bat" "Modern cat alternative"
-        install_package "fd-find" "Modern find alternative"
-        install_package "ripgrep" "Modern grep alternative"
-    fi
+    install_package "bat" "Modern cat alternative (syntax highlighting)"
+    install_package "fd-find" "Modern find alternative"
+    install_package "ripgrep" "Modern grep alternative"
 else
     echo -e "${YELLOW}⏭️  Skipping modern CLI tools installation${NC}"
     echo
@@ -201,11 +174,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     else
         echo -e "${YELLOW}Docker is not currently installed.${NC}"
         echo -e "${BLUE}To install Docker, follow these instructions:${NC}"
-        if [ "$PKG_MANAGER" = "apt" ]; then
-            echo -e "  ${YELLOW}Official guide:${NC} https://docs.docker.com/engine/install/ubuntu/"
-        elif [ "$PKG_MANAGER" = "dnf" ]; then
-            echo -e "  ${YELLOW}Quick install:${NC} sudo dnf install docker docker-compose && sudo systemctl enable --now docker && sudo usermod -aG docker \$USER"
-        fi
+        echo -e "  ${YELLOW}Official guide:${NC} https://docs.docker.com/engine/install/ubuntu/"
         echo -e "${BLUE}Log out and back in after installing to use docker without sudo.${NC}"
     fi
 

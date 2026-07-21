@@ -11,9 +11,8 @@ Clean, development-focused Vim configuration optimized for keyboard-centric work
 
 ### Manual Installation
 ```bash
-# Install vim with clipboard support
-sudo apt install vim-gtk3 xclip    # Ubuntu/Debian
-sudo dnf install vim-enhanced xclip # Fedora
+# Install vim with clipboard support on Debian/Ubuntu
+sudo apt install vim-gtk3 xclip
 
 # Copy configuration
 cp vimrc ~/.vimrc

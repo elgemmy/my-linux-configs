@@ -32,11 +32,11 @@ Or as part of the master installer:
 
 ### Dependencies
 
-| Tool                      | Debian/Ubuntu        | Arch                 | Fedora               |
-|---------------------------|----------------------|----------------------|----------------------|
-| `update-desktop-database` | `desktop-file-utils` | `desktop-file-utils` | `desktop-file-utils` |
-| `gtk-update-icon-cache`   | `libgtk-3-bin`       | `gtk3`               | `gtk3`               |
-| `tar`                     | `tar`                | `tar`                | `tar`                |
+| Tool                      | Debian/Ubuntu package |
+|---------------------------|-----------------------|
+| `update-desktop-database` | `desktop-file-utils`  |
+| `gtk-update-icon-cache`   | `libgtk-3-bin`        |
+| `tar`                     | `tar`                 |
 
 `node`/`npx` is **optional** — used only to pull an icon out of an Electron `app.asar` when the archive ships no loose icon.
 

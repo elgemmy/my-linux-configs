@@ -6,11 +6,8 @@ This guide covers programming languages and development tools **not included** i
 
 ### System Build Tools (Essential)
 ```bash
-# Ubuntu/Debian-based distributions
+# Debian/Ubuntu
 sudo apt update && sudo apt install -y build-essential curl git wget
-
-# Fedora
-sudo dnf install -y @development-tools curl git wget
 ```
 
 ## Programming Languages
@@ -27,11 +24,8 @@ setJdk21  # Switch to Java 21
 
 ### Python Development
 ```bash
-# Ubuntu/Debian
+# Debian/Ubuntu
 sudo apt install -y python3 python3-pip python3-venv python3-dev
-
-# Fedora
-sudo dnf install -y python3 python3-pip python3-devel
 
 # Essential Python tools (user-level, no sudo)
 # Note: pip requires Python >=3.9 (latest pip 25.2)
@@ -69,8 +63,7 @@ nvm use --lts
 nvm alias default lts/*
 
 # Alternative: System packages (less flexible)
-# Ubuntu: sudo apt install nodejs npm
-# Fedora: sudo dnf install nodejs npm
+# Debian/Ubuntu: sudo apt install nodejs npm
 ```
 
 > **Note:** NVM loading is configured in `~/.zshrc.local` (created by `post-setup/configure.sh`). It is not in the base zshrc.
@@ -94,23 +87,19 @@ nvm alias default lts/*
 ### Database Development
 ```bash
 # SQLite (lightweight)
-sudo apt install sqlite3  # Ubuntu
-sudo dnf install sqlite   # Fedora
+sudo apt install sqlite3
 
 # PostgreSQL client
-sudo apt install postgresql-client  # Ubuntu
-sudo dnf install postgresql         # Fedora
+sudo apt install postgresql-client
 
 # MySQL client  
-sudo apt install mysql-client  # Ubuntu
-sudo dnf install mysql         # Fedora
+sudo apt install mysql-client
 ```
 
 ### Network and API Development
 ```bash
 # Modern HTTP clients
-sudo apt install httpie  # Ubuntu
-sudo dnf install httpie  # Fedora
+sudo apt install httpie
 
 # Alternative: Install via pip
 pip3 install --user httpie
@@ -121,15 +110,8 @@ curl --version
 
 ### Container Development
 ```bash
-# Docker — see official docs for your distro:
+# Docker — follow the Debian or Ubuntu instructions:
 # https://docs.docker.com/engine/install/
-
-# Fedora
-sudo dnf install docker docker-compose
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
-
-# Note: Log out and back in for group changes to take effect
 ```
 
 ## Verification Commands

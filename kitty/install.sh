@@ -12,19 +12,17 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== Kitty Terminal Setup ===${NC}"
 
+if ! command -v apt &> /dev/null; then
+    echo -e "${RED}❌ apt is required. This script supports Debian and Ubuntu only.${NC}" >&2
+    exit 1
+fi
+
 # Install Kitty from the official binary installer. Distro packages can lag and
 # have missed features needed by saved sessions on fresh machines.
 echo -e "\n${BLUE}📦 Installing Kitty terminal...${NC}"
 if ! command -v curl &> /dev/null; then
     echo -e "${YELLOW}Installing curl dependency...${NC}"
-    if command -v apt &> /dev/null; then
-        sudo apt update && sudo apt install -y curl
-    elif command -v dnf &> /dev/null; then
-        sudo dnf install -y curl
-    else
-        echo -e "${RED}curl is required. Please install curl and re-run this script.${NC}"
-        exit 1
-    fi
+    sudo apt update && sudo apt install -y curl
 fi
 
 if [ ! -x "$HOME/.local/kitty.app/bin/kitty" ]; then

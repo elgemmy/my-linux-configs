@@ -29,10 +29,10 @@ Or as part of the master installer:
 
 Both scripts rely on standard tools that ship with any GNOME/KDE desktop. If for some reason they're missing:
 
-| Tool                    | Debian/Ubuntu        | Arch               | Fedora               |
-|-------------------------|----------------------|--------------------|----------------------|
-| `update-desktop-database` | `desktop-file-utils` | `desktop-file-utils` | `desktop-file-utils` |
-| `gtk-update-icon-cache`   | `libgtk-3-bin`       | `gtk3`             | `gtk3`               |
+| Tool                      | Debian/Ubuntu package |
+|---------------------------|-----------------------|
+| `update-desktop-database` | `desktop-file-utils`  |
+| `gtk-update-icon-cache`   | `libgtk-3-bin`        |
 
 ---
 
@@ -108,7 +108,7 @@ Both scripts append `--no-sandbox` to the `Exec` line. Electron apps (most AppIm
 
 ### Icon Resolution
 
-Icons are installed with an absolute path (`Icon=/home/.../.../name.png`) rather than a theme name. This bypasses the icon theme cache lookup entirely — more reliable across distros and desktop environments, and consistent with how other locally-installed apps (Zed, Kitty) work on this system.
+Icons are installed with an absolute path (`Icon=/home/.../.../name.png`) rather than a theme name. This bypasses the icon theme cache lookup entirely — more reliable across desktop environments, and consistent with how other locally-installed apps (Zed, Kitty) work on this system.
 
 ### The `appimage-install` name suggestion
 

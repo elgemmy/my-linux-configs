@@ -12,20 +12,15 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== ZSH Shell Setup ===${NC}"
 
-# Detect package manager and install zsh
-echo -e "${BLUE}📦 Detecting package manager and installing ZSH...${NC}"
-if command -v apt &> /dev/null; then
-    PKG_MANAGER="apt"
-    echo -e "${YELLOW}Installing ZSH (Ubuntu/Debian)...${NC}"
-    sudo apt update && sudo apt install -y zsh curl git
-elif command -v dnf &> /dev/null; then
-    PKG_MANAGER="dnf"
-    echo -e "${YELLOW}Installing ZSH (Fedora)...${NC}"
-    sudo dnf install -y zsh curl git
-else
-    echo -e "${RED}Package manager not supported. Please install zsh manually.${NC}"
+if ! command -v apt &> /dev/null; then
+    echo -e "${RED}❌ apt is required. This script supports Debian and Ubuntu only.${NC}" >&2
     exit 1
 fi
+
+# Detect package manager and install zsh
+echo -e "${BLUE}📦 Detecting package manager and installing ZSH...${NC}"
+echo -e "${YELLOW}Installing ZSH (Debian/Ubuntu)...${NC}"
+sudo apt update && sudo apt install -y zsh curl git
 echo -e "${GREEN}✅ ZSH installation completed${NC}"
 
 # Install Oh My Zsh
@@ -61,11 +56,7 @@ echo -e "\n${BLUE}🔧 Installing modern CLI tools and dependencies...${NC}"
 
 # Install system packages first
 echo -e "${YELLOW}Installing tig and fzf...${NC}"
-if [ "$PKG_MANAGER" = "apt" ]; then
-    sudo apt install -y tig fzf
-elif [ "$PKG_MANAGER" = "dnf" ]; then
-    sudo dnf install -y tig fzf
-fi
+sudo apt install -y tig fzf
 echo -e "${GREEN}✅ System packages installed${NC}"
 
 # Check for Rust installation (should be installed via dev/install-essentials.sh)

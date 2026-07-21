@@ -77,8 +77,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     
     # Note about package manager installations
     echo -e "${BLUE}💡 Package manager tools (bat, fd, rg, eza) should be removed via:${NC}"
-    echo -e "   ${YELLOW}Ubuntu/Debian: sudo apt remove bat fd-find ripgrep${NC}"
-    echo -e "   ${YELLOW}Fedora: sudo dnf remove bat fd-find ripgrep${NC}"
+    echo -e "   ${YELLOW}Debian/Ubuntu: sudo apt remove bat fd-find ripgrep${NC}"
 else
     echo -e "${BLUE}💡 Installed programs kept (starship, modern CLI tools, etc.)${NC}"
 fi

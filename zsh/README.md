@@ -12,9 +12,8 @@ Comprehensive ZSH setup with Oh My Zsh, development tools, and vim integration.
 
 ### Manual Installation
 ```bash
-# Install ZSH
-sudo apt install zsh curl git  # Ubuntu/Debian
-sudo dnf install zsh curl git  # Fedora
+# Install ZSH on Debian/Ubuntu
+sudo apt install zsh curl git
 
 # Install Oh My Zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
