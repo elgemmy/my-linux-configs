@@ -36,6 +36,7 @@ if HOME="$tmp/empty" XDG_STATE_HOME="$tmp/empty-state" "$ROOT/doctor.sh" --profi
 grep -Fq 'rustup/archive/$RUSTUP_VERSION/x86_64-unknown-linux-gnu/rustup-init' "$ROOT/modules/rust.sh"
 grep -Fqx 'TryExec=sh' "$ROOT/kitty/desktop/kdev.desktop"
 grep -Fqx 'Exec=sh -lc "exec $HOME/.local/bin/kdev"' "$ROOT/kitty/desktop/kdev.desktop"
+! grep -Eq 'alias[[:space:]]+kdev=' "$ROOT/dotfiles/zsh/modules/main.zsh"
 if command -v desktop-file-validate >/dev/null; then
   desktop-file-validate "$ROOT/kitty/desktop/kdev.desktop"
 else

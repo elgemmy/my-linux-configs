@@ -146,10 +146,11 @@ alias dwn='cd ~/Downloads'
 alias repos='cd ~/Projects/repos'
 
 # Kitty
-if command -v kitty >/dev/null 2>&1; then
-  alias icat="kitty +kitten icat"
-  alias kdev="kitty --detach --session ${XDG_CONFIG_HOME:-$HOME/.config}/kitty/sessions/daily.kitty-session"
+if command -v kitten >/dev/null 2>&1; then
+  alias icat='kitten icat'
 fi
+# kdev is an installed diagnostic wrapper, not an alias. This keeps terminal
+# launches and desktop-menu launches on the same observable code path.
 
 # Bitwarden CLI convenience helper
 bw-unlock() {
