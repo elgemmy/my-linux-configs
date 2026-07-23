@@ -13,6 +13,7 @@ action=${1:-}
 runtime_parent="$XDG_DATA_HOME/linux-config/neovim"
 runtime="$runtime_parent/$NEOVIM_VERSION"
 nvim_bin="$runtime/bin/nvim"
+tree_sitter_bin="$HOME/.local/bin/tree-sitter"
 config_dir="$XDG_CONFIG_HOME/nvim"
 config_url=https://github.com/elgemmy/nvim-config.git
 
@@ -30,9 +31,35 @@ has_expected_config_remote() {
   esac
 }
 
+update_config_checkout() {
+  if [[ -n $(git -C "$config_dir" status --porcelain --untracked-files=normal) ]]; then
+    echo "WARN: Neovim config has local changes; leaving its checkout unchanged." >&2
+    return 0
+  fi
+  git -C "$config_dir" fetch --quiet origin "$NVIM_CONFIG_REF"
+  git -C "$config_dir" checkout --quiet -B "$NVIM_CONFIG_REF" FETCH_HEAD
+}
+
+install_tree_sitter() {
+  local installed_version tmp
+  installed_version="$($tree_sitter_bin --version 2>/dev/null | awk 'NR == 1 { print $2 }' || true)"
+  [[ $installed_version == "$TREE_SITTER_VERSION" ]] && return 0
+
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' EXIT
+  download_checked \
+    "https://github.com/tree-sitter/tree-sitter/releases/download/v$TREE_SITTER_VERSION/tree-sitter-cli-linux-x64.zip" \
+    "$TREE_SITTER_SHA256" \
+    "$tmp/tree-sitter.zip"
+  unzip -q "$tmp/tree-sitter.zip" -d "$tmp/tree-sitter"
+  [[ -f $tmp/tree-sitter/tree-sitter ]]
+  install -m 0755 "$tmp/tree-sitter/tree-sitter" "$tree_sitter_bin"
+}
+
 case "$action" in
   plan)
-    printf '  neovim: official %s binary; config at %s\n' "$NEOVIM_VERSION" "$config_dir"
+    printf '  neovim: official %s binary; Tree-sitter CLI %s; config at %s\n' \
+      "$NEOVIM_VERSION" "$TREE_SITTER_VERSION" "$config_dir"
     ;;
   apply)
     if [[ ! -x $nvim_bin ]]; then
@@ -53,21 +80,28 @@ case "$action" in
     fi
     managed_link "$runtime" "$runtime_parent/current"
     managed_link "$nvim_bin" "$HOME/.local/bin/nvim"
+    install_tree_sitter
 
     if [[ ! -e $config_dir ]]; then
       mkdir -p "$(dirname -- "$config_dir")"
-      git clone --quiet --branch main --single-branch "$config_url" "$config_dir"
+      git clone --quiet --branch "$NVIM_CONFIG_REF" --single-branch "$config_url" "$config_dir"
     elif ! has_expected_config_remote; then
       echo "Refusing to replace existing Neovim config: $config_dir" >&2
       exit 1
+    else
+      update_config_checkout
     fi
 
-    "$nvim_bin" --headless '+Lazy! sync' +qa
+    if ! "$nvim_bin" --headless '+Lazy! sync' +qa; then
+      echo 'WARN: Neovim plugin bootstrap failed; setup will continue so other desktop tools remain usable.' >&2
+      echo '      Re-run setup after checking the Neovim output above.' >&2
+    fi
     ;;
   check)
     [[ -x $nvim_bin ]]
     [[ $("$nvim_bin" --version | awk 'NR == 1 { sub(/^v/, "", $2); print $2 }') == "$NEOVIM_VERSION" ]]
     [[ $(readlink -f -- "$HOME/.local/bin/nvim") == "$nvim_bin" ]]
+    [[ $($tree_sitter_bin --version | awk 'NR == 1 { print $2 }') == "$TREE_SITTER_VERSION" ]]
     has_expected_config_remote
     [[ -f $config_dir/init.lua ]]
     ;;
