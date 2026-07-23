@@ -15,7 +15,7 @@ The supported path is a straightforward Bash bootstrap for **Ubuntu (primary)** 
 
 * `minimal`: `core shell git vim`
 * `developer`: `core shell git vim python node rust`
-* `desktop`: `core shell git vim neovim python node rust fonts kitty editors`
+* `desktop`: `core shell git vim python node rust neovim fonts kitty editors`
 
 Go and Java are intentional extras, never profile dependencies:
 

@@ -3,7 +3,7 @@ set -Eeuo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 find "$ROOT" -path "$ROOT/.git" -prune -o -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
 if command -v shellcheck >/dev/null; then shellcheck -e SC2034,SC2317 "$ROOT/setup.sh" "$ROOT/doctor.sh" "$ROOT/lib/"*.sh; else echo 'SKIP shellcheck unavailable'; fi
-for p in minimal developer desktop; do grep -qxF "$(case $p in minimal) echo 'core shell git vim';; developer) echo 'core shell git vim python node rust';; desktop) echo 'core shell git vim neovim python node rust fonts kitty editors';; esac)" "$ROOT/profiles/$p"; done
+for p in minimal developer desktop; do grep -qxF "$(case $p in minimal) echo 'core shell git vim';; developer) echo 'core shell git vim python node rust';; desktop) echo 'core shell git vim python node rust neovim fonts kitty editors';; esac)" "$ROOT/profiles/$p"; done
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 before="$(find "$tmp" -printf '%P\n')"; HOME="$tmp" XDG_STATE_HOME="$tmp/state" "$ROOT/setup.sh" --profile minimal --plan >/dev/null; after="$(find "$tmp" -printf '%P\n')"; [[ $before == "$after" ]]
 export HOME="$tmp/home" XDG_CONFIG_HOME="$tmp/config" XDG_DATA_HOME="$tmp/data" XDG_STATE_HOME="$tmp/state"; mkdir -p "$HOME"; source "$ROOT/lib/common.sh"; source "$ROOT/lib/deploy.sh"
