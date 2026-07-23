@@ -13,6 +13,16 @@ if [[ ! -r /etc/os-release ]]; then echo 'FAIL cannot identify operating system'
 if [[ ${ID:-} != ubuntu && ${ID:-} != debian ]]; then echo "FAIL unsupported OS: ${ID:-unknown}"; exit 2; fi
 echo "OK operating system ${ID} ${VERSION_ID:-unknown}"
 case "$(uname -m)" in x86_64|amd64) echo 'OK architecture amd64';; *) echo "FAIL unsupported architecture: $(uname -m)"; failures=$((failures+1));; esac
+if [[ " ${MODULES[*]} " == *' shell '* ]]; then
+  expected_shell="$(command -v zsh 2>/dev/null || true)"
+  account_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
+  if [[ -n $expected_shell && $account_shell == "$expected_shell" ]]; then
+    echo "OK login shell $account_shell"
+  else
+    echo "FAIL login shell is ${account_shell:-unknown}; expected ${expected_shell:-zsh}"
+    failures=$((failures+1))
+  fi
+fi
 packages=(); for m in "${MODULES[@]}"; do while IFS= read -r p; do [[ -z $p || $p == \#* ]] || packages+=("$p"); done < "$ROOT/packages/$m"; done
 for p in "${packages[@]}"; do if dpkg-query -W -f='${db:Status-Abbrev}' "$p" 2>/dev/null | grep -q '^ii '; then echo "OK package $p"; else echo "FAIL missing package $p"; failures=$((failures+1)); fi; done
 for m in "${MODULES[@]}"; do

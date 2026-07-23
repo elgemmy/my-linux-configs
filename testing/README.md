@@ -1,107 +1,57 @@
-# Testing Scripts
+# Reproducible installer testing
 
-Scripts for testing the installation process and maintaining clean development environment.
+The primary integration test runs the real setup as a non-root user in disposable
+Debian and Ubuntu containers. For developer and desktop profiles it first
+injects a failure immediately after the NVM checkout and confirms the next run
+repairs it. It then performs a successful installation, repeats that installation
+to catch non-idempotent behavior, runs `doctor.sh`, and starts the account's
+configured login shell. Developer and desktop profiles verify NVM/Node/npm/npx;
+the desktop profile validates the KDev desktop entry and diagnostic launcher.
 
-## 📋 Available Scripts
+## Run the matrix
 
-### `backup-current-config.sh`
-Creates timestamped backup of your current configuration files.
+Install Docker or Podman, then run:
+
 ```bash
-./backup-current-config.sh
-```
-**Backs up:**
-- ZSH configuration (`.zshrc`, `.zshrc.local`, `.zshrc.work`)
-- Oh My Zsh installation
-- Vim configuration (`.vimrc`)
-- Kitty terminal configuration
-- Starship prompt configuration
-- Current shell setting
-
-### `test-fresh-install.sh`
-Interactive script providing multiple testing methods.
-```bash
-./test-fresh-install.sh
-```
-**Options:**
-- **Quick Clean Test**: Backup → Clean → Test (recommended)
-- **New User Test**: Create test user for isolated testing
-- **Docker Test**: Test in Ubuntu container
-
-### `restore-config.sh`
-Restores configuration from a specific backup directory.
-```bash
-./restore-config.sh ~/.config-backup-20241208-143025
+./tests/container-smoke.sh
+./tests/container-smoke.sh --profile minimal --distro debian-stable
+./tests/container-smoke.sh --profile desktop --distro debian-stable
+CONTAINER_ENGINE=podman ./tests/container-smoke.sh
 ```
 
-### `clean-all.sh`
-Safely removes testing backup directories while preserving your current configuration.
-```bash
-./clean-all.sh
-```
-**Removes:**
-- All testing backup directories (`~/.config-backup-*`)
-- Optionally: installed programs (starship, modern CLI tools)
+Defaults:
 
-**Preserves:**
-- Your current configuration files (`.zshrc`, `.vimrc`, etc.)
-- Oh My Zsh installation
-- Current shell setting
+- distributions: `debian:stable-slim` and `ubuntu:24.04`
+- profile: `developer`
+- repository: mounted read-only at `/workspace`
+- test home: a fresh `/home/tester` destroyed after every run
 
-## 🧪 Recommended Testing Workflow
+Use `DISTROS="debian-12 ubuntu-24.04"` to select a matrix. Images are removed at
+the end unless `KEEP_TEST_IMAGE=1` is set.
 
-1. **Backup current setup:**
-   ```bash
-   ./backup-current-config.sh
-   ```
+The harness deliberately downloads packages and pinned upstream tools, so it is
+an integration test rather than an offline unit test. `tests/run.sh` remains the
+fast, host-safe test suite and should be run before the container matrix.
 
-2. **Run quick clean test:**
-   ```bash
-   ./test-fresh-install.sh
-   # Choose 'y' for quick clean simulation
-   ```
+## What containers do not prove
 
-3. **Test the installation:**
-   ```bash
-   cd ..
-   ./install.sh
-   ```
+Containers exercise apt, sudo, file deployment, Zsh startup, Vim, NVM/Node,
+Kitty package availability, health checks, and rerun safety. They do not run a
+Cinnamon display manager or a real graphical login session. Consequently they
+cannot prove:
 
-4. **View results:**
-   ```bash
-   exec zsh
-   # Test features: coffee, bat, eza, starship prompt, etc.
-   ```
+- Cinnamon default-terminal preferences
+- desktop launcher/menu refresh behavior
+- a shell change taking effect after an actual logout/login
+- rendering, fonts, clipboard integration, or Kitty GPU behavior
 
-5. **Restore original setup:**
-   ```bash
-   cd testing
-   ./restore-config.sh ~/.config-backup-YYYYMMDD-HHMMSS
-   ```
+Those checks belong in disposable Cinnamon and GNOME virtual machines. Follow
+`testing/vm/README.md` for the snapshot-based manual acceptance layer. Keep it
+smaller than the container matrix; the installer core must not require a
+graphical session.
 
-## 🐳 Alternative: Docker Testing
+## Legacy host-mutating helpers
 
-For completely isolated testing:
-```bash
-docker run -it --rm ubuntu:22.04 bash
-
-# Inside container:
-apt update && apt install -y git
-git clone https://github.com/AhmedGamal2212/my-linux-configs
-cd my-linux-configs
-./install.sh
-```
-
-## 🧹 Cleaning Up
-
-After testing, return to completely clean state:
-```bash
-./clean-all.sh
-```
-
-This removes all testing artifacts and restores system to pre-testing state.
-
-After testing, run `post-setup/configure.sh` to create `.zshrc.local` and `.zshrc.work` templates.
-
----
-
-*Created with ☕ by Ahmed Gamal (Gemmy)*
+The older `backup-current-config.sh`, `test-fresh-install.sh`,
+`restore-config.sh`, and `clean-all.sh` scripts are retained for migration only.
+They mutate the current host and are not the recommended validation path.

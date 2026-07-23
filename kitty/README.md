@@ -87,11 +87,21 @@ The tracked session lives at `sessions/daily.kitty-session`. The installer copie
 ~/.config/kitty/sessions/daily.kitty-session
 ```
 
-It also installs `~/.local/share/applications/kdev.desktop`, which appears in the app launcher as `kdev` and launches the same command as the `kdev` shell alias:
+It also installs `~/.local/bin/kdev` and
+`~/.local/share/applications/kdev.desktop`. The application launcher and shell
+command use the same diagnostic wrapper:
 
 ```bash
-kitty --detach --session ~/.config/kitty/sessions/daily.kitty-session
+kdev --check
+kdev
 ```
+
+The tracked daily session is intentionally machine-independent. For a
+workstation-specific layout, create the untracked file
+`~/.config/kitty/sessions/kdev.local.kitty-session`; the launcher prefers it
+automatically. Failures are recorded in
+`~/.local/state/linux-config/kdev.log` instead of disappearing behind
+`--detach`.
 
 ## Requirements
 

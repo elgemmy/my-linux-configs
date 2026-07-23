@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+default_session="$config_home/kitty/sessions/daily.kitty-session"
+local_session="$config_home/kitty/sessions/kdev.local.kitty-session"
+if [[ -n ${KDEV_SESSION:-} ]]; then
+  session=$KDEV_SESSION
+elif [[ -r $local_session ]]; then
+  session=$local_session
+else
+  session=$default_session
+fi
+log_dir="$state_home/linux-config"
+log_file="$log_dir/kdev.log"
+
+mkdir -p "$log_dir"
+exec >>"$log_file" 2>&1
+printf '\n[%s] Starting KDev session\n' "$(date --iso-8601=seconds)"
+
+kitty_bin="$(command -v kitty 2>/dev/null || true)"
+if [[ -z $kitty_bin ]]; then
+  echo 'ERROR: kitty is not available on PATH.'
+  command -v notify-send >/dev/null 2>&1 &&
+    notify-send 'KDev failed to start' "Kitty was not found. See $log_file"
+  exit 1
+fi
+if [[ ! -r $session ]]; then
+  echo "ERROR: session is not readable: $session"
+  command -v notify-send >/dev/null 2>&1 &&
+    notify-send 'KDev failed to start' "Session file is missing. See $log_file"
+  exit 1
+fi
+
+if [[ ${1:-} == --check ]]; then
+  printf 'OK kitty: %s\nOK session: %s\nOK log: %s\n' "$kitty_bin" "$session" "$log_file"
+  exit 0
+fi
+
+echo "Kitty: $kitty_bin"
+echo "Session: $session"
+exec "$kitty_bin" --class kdev --session "$session"

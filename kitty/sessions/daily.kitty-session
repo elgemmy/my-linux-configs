@@ -1,28 +1,17 @@
 new_tab Terminal
 layout fat
-cd ../../..
+cd ~
 launch
 
 new_tab Codex
 layout fat
-cd ../../..
+cd ~
 launch
 
 new_tab Agents
 layout splits
-cd ../../..
+cd ~
 launch
 launch --location=vsplit
-
-new_tab Odoo Server
-layout splits
-cd ~/odoo-ws/odoo
-launch zsh -lc 'source ~/odoo-ws/.odoo-venv/bin/activate; exec zsh -i'
-launch --location=vsplit --cwd=~/odoo-ws/enterprise zsh -lc 'source ~/odoo-ws/.odoo-venv/bin/activate; exec zsh -i'
-
-new_tab Neovim
-layout grid
-cd ../../..
-launch zsh -lc 'nvim'
 
 focus_tab 0

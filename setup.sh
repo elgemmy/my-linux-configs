@@ -52,9 +52,15 @@ if ((${#missing[@]})); then
 else
   echo 'All apt packages already installed; skipping apt.'
 fi
-for module in "${MODULES[@]}"; do
-  [[ -x $ROOT/modules/$module.sh ]] && "$ROOT/modules/$module.sh" apply
-done
+
+# Deploy the usable baseline before optional network-backed modules. If a later
+# download fails, the next login still gets the managed Zsh/Vim configuration
+# and a rerun can resume from the already completed work.
+deployment_mappings "${MODULES[@]}" | deploy_apply
+if [[ " ${MODULES[*]} " == *' git '* ]]; then
+  git config --global core.excludesFile "$XDG_CONFIG_HOME/git/ignore"
+fi
+
 mkdir -p "$HOME/.local/bin"
 ln_compat() {
   local target=$1 name=$2 link
@@ -65,8 +71,22 @@ ln_compat() {
   ln -sfnT "$(command -v "$target")" "$link"
 }
 ln_compat batcat bat; ln_compat fdfind fd
-deployment_mappings "${MODULES[@]}" | deploy_apply
-if [[ " ${MODULES[*]} " == *' git '* ]]; then git config --global core.excludesFile "$XDG_CONFIG_HOME/git/ignore"; fi
+
+if [[ " ${MODULES[*]} " == *' shell '* ]]; then
+  zsh_path="$(command -v zsh)"
+  current_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
+  if [[ $current_shell != "$zsh_path" ]]; then
+    echo "Setting login shell to $zsh_path"
+    sudo chsh -s "$zsh_path" "$(id -un)"
+  else
+    echo "Login shell already set to $zsh_path"
+  fi
+fi
+
+for module in "${MODULES[@]}"; do
+  [[ -x $ROOT/modules/$module.sh ]] && "$ROOT/modules/$module.sh" apply
+done
+
 if ! "$ROOT/doctor.sh" --profile "$profile"; then
   echo "Setup finished, but required checks failed. Review the doctor output above." >&2
   exit 1

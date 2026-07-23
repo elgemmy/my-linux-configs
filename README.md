@@ -40,11 +40,22 @@ Git setup owns only the XDG global ignore file. It never changes identity, crede
 xargs -n1 code --install-extension < editors/vscode/extensions.txt
 ```
 
-The Zsh config is a small loader plus a managed feature module. Existing aliases and productivity functions are preserved, while optional Kitty, Bitwarden, Java, NVM, Starship, eza, bat, fd, and rg behavior activates only when available. It does not force `TERM`, `LANG`, or `LC_ALL`, and preserves `~/.zshrc.local` and `~/.zshrc.work`.
+The Zsh config is a small loader plus a managed feature module. Existing aliases
+and productivity functions are preserved, while optional Kitty, Bitwarden,
+Java, NVM, Starship, eza, bat, fd, and rg behavior activates only when
+available. It does not force `TERM`, `LANG`, or `LC_ALL`, and preserves
+`~/.zshrc.local` and `~/.zshrc.work`. Profiles containing `shell` set Zsh as the
+account login shell. Log out and back in after the first successful or partially
+successful run to start a real Zsh login session.
 
 ## Desktop and trusted-workflow utilities
 
-Desktop setup installs Kitty via apt and deploys its config/session/launcher plus per-file editor settings. It deliberately does **not** change login shell, default terminal, or autostart. Review and intentionally run `extras/desktop-preferences.sh` for those changes. Editor extension installation is also manual.
+Desktop setup installs Kitty via apt and deploys its config/session/launcher plus
+per-file editor settings. KDev launcher failures are written to
+`~/.local/state/linux-config/kdev.log`; run `kdev --check` for a non-graphical
+diagnostic. Desktop setup does **not** change the Cinnamon/GNOME default terminal
+or autostart. Review and intentionally run `extras/desktop-preferences.sh` for
+those changes. Editor extension installation is also manual.
 
 `appimages/` and `tarapps/` retain their existing setup commands and all `tar-install`, `tar-update`, and `tar-uninstall` abilities. They are excluded from every profile because they are **intentional trusted-workflow utilities**: they execute/extract user-supplied application payloads and may manage desktop files or `/opt`. Review their dedicated READMEs before use.
 
@@ -52,4 +63,10 @@ Legacy component scripts, broad permission repair, destructive backup tests, aut
 
 ## Validation
 
-Run `tests/run.sh` for Bash syntax, optional ShellCheck, exact profile validation, plan no-write, symlink conflict/idempotency/rollback, and doctor failure semantics. `tests/container-smoke.sh` documents the Ubuntu/Debian container smoke entry point. Tests do not perform destructive host installation.
+Run `tests/run.sh` for Bash syntax, optional ShellCheck, exact profile validation,
+plan no-write, symlink conflict/idempotency/rollback, and doctor failure
+semantics. Run `tests/container-smoke.sh` for fresh-install and rerun testing as
+a non-root user across disposable Debian and Ubuntu containers. See
+`testing/README.md` for the matrix, engine selection, and the Cinnamon VM
+acceptance-test boundary. Neither test path performs a destructive host
+installation.

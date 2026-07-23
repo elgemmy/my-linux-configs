@@ -9,7 +9,12 @@ deployment_mappings() {
       shell) printf '%s\t%s\n' dotfiles/zsh/zshrc "$HOME/.zshrc"; printf '%s\t%s\n' dotfiles/zsh/modules/main.zsh "$XDG_CONFIG_HOME/zsh/modules/main.zsh" ;;
       git) printf '%s\t%s\n' git/gitignore_global "$XDG_CONFIG_HOME/git/ignore" ;;
       vim) printf '%s\t%s\n' vim/vimrc "$HOME/.vimrc" ;;
-      kitty) printf '%s\t%s\n' kitty/kitty.conf "$XDG_CONFIG_HOME/kitty/kitty.conf"; printf '%s\t%s\n' kitty/current-theme.conf "$XDG_CONFIG_HOME/kitty/current-theme.conf"; printf '%s\t%s\n' kitty/sessions/daily.kitty-session "$XDG_CONFIG_HOME/kitty/sessions/daily.kitty-session"; printf '%s\t%s\n' kitty/desktop/kdev.desktop "$XDG_DATA_HOME/applications/kdev.desktop" ;;
+      kitty)
+        printf '%s\t%s\n' kitty/kitty.conf "$XDG_CONFIG_HOME/kitty/kitty.conf"
+        printf '%s\t%s\n' kitty/current-theme.conf "$XDG_CONFIG_HOME/kitty/current-theme.conf"
+        printf '%s\t%s\n' kitty/sessions/daily.kitty-session "$XDG_CONFIG_HOME/kitty/sessions/daily.kitty-session"
+        printf '%s\t%s\n' kitty/bin/kdev "$HOME/.local/bin/kdev"
+        printf '%s\t%s\n' kitty/desktop/kdev.desktop "$XDG_DATA_HOME/applications/kdev.desktop" ;;
       editors)
         printf '%s\t%s\n' editors/vscode/settings.json "$XDG_CONFIG_HOME/Code/User/settings.json"
         printf '%s\t%s\n' editors/vscode/keybindings.json "$XDG_CONFIG_HOME/Code/User/keybindings.json"

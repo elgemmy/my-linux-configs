@@ -25,9 +25,14 @@ case "$action" in
     mkdir -p "$nvm_root"
     clone_commit https://github.com/nvm-sh/nvm.git "$NVM_COMMIT" "$nvm_version_dir"
     managed_link "$nvm_version_dir" "$nvm_root/current"
+    if [[ ${TEST_FAIL_NODE_AFTER_CLONE:-0} == 1 ]]; then
+      echo 'Injected Node-module failure after NVM clone.' >&2
+      exit 86
+    fi
     load_nvm
     nvm install "$NODE_VERSION"
     nvm alias default "$NODE_VERSION"
+    nvm use --silent default
     [[ $(node --version) == "v$NODE_VERSION" ]]
     ;;
   check)

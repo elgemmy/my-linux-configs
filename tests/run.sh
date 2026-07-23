@@ -34,10 +34,18 @@ if HOME="$tmp/empty" XDG_STATE_HOME="$tmp/empty-state" "$ROOT/doctor.sh" --profi
 # Assert that the URL remains version-parameterized.
 # shellcheck disable=SC2016
 grep -Fq 'rustup/archive/$RUSTUP_VERSION/x86_64-unknown-linux-gnu/rustup-init' "$ROOT/modules/rust.sh"
-KITTY_BIN="$HOME/.local/bin/kitty"
-sed -e "s|^TryExec=.*$|TryExec=$KITTY_BIN|" \
-  -e "s|^Exec=.*$|Exec=$KITTY_BIN --class kdev --detach --session $HOME/.config/kitty/sessions/daily.kitty-session|" \
-  "$ROOT/kitty/desktop/kdev.desktop" > "$tmp/kdev.desktop"
-grep -Fqx "TryExec=$KITTY_BIN" "$tmp/kdev.desktop"
-grep -Fqx "Exec=$KITTY_BIN --class kdev --detach --session $HOME/.config/kitty/sessions/daily.kitty-session" "$tmp/kdev.desktop"
+grep -Fqx 'TryExec=kdev' "$ROOT/kitty/desktop/kdev.desktop"
+grep -Fqx 'Exec=kdev' "$ROOT/kitty/desktop/kdev.desktop"
+if command -v desktop-file-validate >/dev/null; then
+  desktop-file-validate "$ROOT/kitty/desktop/kdev.desktop"
+else
+  echo 'SKIP desktop-file-validate unavailable'
+fi
+# KDev must deploy as a real executable and provide a headless diagnostic.
+deployment_mappings kitty | deploy_apply >/dev/null
+kitty() { :; }
+export -f kitty
+"$HOME/.local/bin/kdev" --check
+unset -f kitty
+grep -Fq 'OK session:' "$STATE_DIR/kdev.log"
 echo 'PASS focused tests'
