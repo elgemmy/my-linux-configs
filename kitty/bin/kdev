@@ -57,4 +57,14 @@ if [[ ! -r $session ]]; then
   exit 1
 fi
 
-exec "$kitty_bin" --class kdev --session "$session" >> "$log_file" 2>&1
+if "$kitty_bin" --class kdev --session "$session" >> "$log_file" 2>&1; then
+  exit 0
+else
+  rc=$?
+fi
+
+message="Kitty exited with status $rc"
+echo "ERROR: $message" >> "$log_file"
+command -v notify-send >/dev/null 2>&1 &&
+  notify-send 'KDev failed to start' "$message. See $log_file"
+exit "$rc"

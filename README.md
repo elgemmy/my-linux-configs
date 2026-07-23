@@ -1,11 +1,36 @@
-# Ubuntu/Debian workstation bootstrap
+# Ubuntu/Debian development environment
 
-The supported path is a straightforward Bash bootstrap for **Ubuntu (primary)** and Debian on amd64/x86_64. Run it from any directory; it refuses root. `setup.sh` mutates the machine, while `doctor.sh` is strictly read-only (no sudo, writes, or network).
+The supported path installs a useful development baseline on **Debian or
+Ubuntu amd64/x86_64**: Git, Zsh, modern CLI utilities, Vim, Python, Node, Rust,
+the official Kitty and Neovim binaries, Tree-sitter, and the tracked
+configuration.
+
+## Fresh machine
+
+The bootstrap keeps the repository in a stable location because managed config
+files link back to it. On the current testing branch:
+
+```bash
+sudo apt-get update && sudo apt-get install -y curl
+curl -fsSL https://raw.githubusercontent.com/elgemmy/my-linux-configs/testing-deb-vm/bootstrap.sh | bash
+```
+
+With no arguments, `bootstrap.sh` installs the full `desktop` profile
+non-interactively. It installs Git if needed, clones
+`testing-deb-vm` into `~/.local/share/my-linux-configs`, and runs setup. To
+select another profile:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/elgemmy/my-linux-configs/testing-deb-vm/bootstrap.sh |
+  bash -s -- --profile developer --non-interactive
+```
+
+If you already have the repository:
 
 ```bash
 ./setup.sh --profile developer --plan       # local plan; no writes/sudo/downloads/logs
 ./setup.sh --profile developer
-./setup.sh --profile minimal --non-interactive
+./setup.sh --profile desktop --non-interactive
 ./doctor.sh --profile developer
 ```
 
@@ -15,7 +40,13 @@ The supported path is a straightforward Bash bootstrap for **Ubuntu (primary)** 
 
 * `minimal`: `core shell git vim`
 * `developer`: `core shell git vim python node rust`
-* `desktop`: `core shell git vim python node rust neovim fonts kitty editors`
+* `desktop`: `core git shell vim fonts kitty python node rust neovim editors`
+
+The desktop order is intentional: the terminal is installed early, language
+runtimes follow, and Neovim is bootstrapped after them so Mason-backed tools can
+use Node/Python/Rust. A failed user-tool module is reported immediately but does
+not prevent independent modules from being attempted. Setup exits unsuccessfully
+after printing a per-module summary and running the complete health check.
 
 Go and Java are intentional extras, never profile dependencies:
 
@@ -24,13 +55,13 @@ Go and Java are intentional extras, never profile dependencies:
 ./extras/install.sh go java     # explicit
 ```
 
-Go uses the distribution `golang-go`; Java installs exactly the distribution `default-jdk` and reports a `JAVA_HOME` dynamically derived from the selected `java`. Apt packages are intentionally unpinned. Node, Rust, Neovim, Kitty, Starship, Oh My Zsh, and its custom plugins use the revisions, release versions, or checksums recorded in `versions.conf`; upstream release publishers remain an explicit trust boundary.
+Go uses the distribution `golang-go`; Java installs exactly the distribution `default-jdk` and reports a `JAVA_HOME` dynamically derived from the selected `java`. Apt packages are intentionally unpinned. Node, Rust, Neovim, Kitty, Tree-sitter, Starship, Oh My Zsh, and its custom plugins use the revisions, release versions, or checksums recorded in `versions.conf`; upstream release publishers remain an explicit trust boundary.
 
 ## Package and configuration policy
 
 All profile package requirements are collected first. Installed packages are queried without sudo. If anything is missing, setup performs one `apt-get update`, verifies every candidate, then one fatal `apt-get install` transaction. If complete, apt is not called. Python is distro Python plus `venv`, pip and pipx—never `pip --user` or `--break-system-packages`. Common CLI tools come from apt; `batcat`/`fdfind` compatibility names are placed in `~/.local/bin` without Cargo builds.
 
-Configuration deployment uses explicit **per-file symlinks** from the home directory into this repository. Keep the clone in a stable location: moving or deleting it breaks managed configuration until setup is rerun from the new path. Correct links are no-ops. Every conflicting file, directory, or link in one run is moved into one timestamped `$XDG_STATE_HOME/linux-config/backups/` tree, preserving its absolute-path-relative layout; `manifest.tsv` records backup/link operations. A deployment error rolls back links changed in that phase. This is transactional only for config deployment: apt changes and user changes after a successful prior run are outside recovery. Shared editor directories are never wholesale linked.
+Configuration deployment uses explicit **per-file symlinks** from the home directory into this repository. Keep the clone in a stable location: moving or deleting it breaks managed configuration until setup is rerun from the new path. `bootstrap.sh` uses `~/.local/share/my-linux-configs` for that reason. Correct links are no-ops. Every conflicting file, directory, or link in one run is moved into one timestamped `$XDG_STATE_HOME/linux-config/backups/` tree, preserving its absolute-path-relative layout; `manifest.tsv` records backup/link operations. A deployment error rolls back links changed in that phase. This is transactional only for config deployment: apt changes and user changes after a successful prior run are outside recovery. Shared editor directories are never wholesale linked.
 
 To recover a preserved conflict, first review the manifest and current target, remove the setup-managed replacement, then run `tools/restore-config-backup <backup-directory>`. The recovery tool refuses to overwrite an existing target.
 
@@ -62,6 +93,11 @@ or autostart. Review and intentionally run `extras/desktop-preferences.sh` for
 those changes. Editor extension installation is also manual.
 
 `appimages/` and `tarapps/` retain their existing setup commands and all `tar-install`, `tar-update`, and `tar-uninstall` abilities. They are excluded from every profile because they are **intentional trusted-workflow utilities**: they execute/extract user-supplied application payloads and may manage desktop files or `/opt`. Review their dedicated READMEs before use.
+
+The installer uses colored stage headers, explicit success/failure markers, and
+a final summary. Colors are disabled when output is redirected or `NO_COLOR` is
+set. Required module runners are validated before any mutation; a missing or
+non-executable runner can no longer be skipped silently.
 
 Legacy component scripts, broad permission repair, destructive backup tests, authentication helpers, post-setup mutation, and the old `install.sh` implementation remain for migration/history but are not used by normal setup. `install.sh` now warns and delegates to `setup.sh`.
 

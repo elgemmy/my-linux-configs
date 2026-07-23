@@ -16,6 +16,14 @@ nvim_bin="$runtime/bin/nvim"
 tree_sitter_bin="$HOME/.local/bin/tree-sitter"
 config_dir="$XDG_CONFIG_HOME/nvim"
 config_url=https://github.com/elgemmy/nvim-config.git
+config_was_clean=false
+bootstrap_rc=0
+lua_parser="$XDG_DATA_HOME/nvim/site/parser/lua.so"
+
+installed_neovim_version() {
+  NVIM_LOG_FILE=/dev/null "$nvim_bin" --version 2>/dev/null |
+    awk 'NR == 1 { sub(/^v/, "", $2); print $2 }'
+}
 
 has_expected_config_remote() {
   local origin
@@ -77,7 +85,7 @@ case "$action" in
         "https://github.com/neovim/neovim/releases/download/v$NEOVIM_VERSION/nvim-linux-x86_64.tar.gz" \
         "$NEOVIM_SHA256" \
         "$tmp/neovim.tar.gz"
-      tar -xzf "$tmp/neovim.tar.gz" -C "$tmp"
+      tar --no-same-owner -xzf "$tmp/neovim.tar.gz" -C "$tmp"
       [[ -x $tmp/nvim-linux-x86_64/bin/nvim ]]
       mv "$tmp/nvim-linux-x86_64" "$runtime"
     fi
@@ -95,18 +103,43 @@ case "$action" in
       update_config_checkout
     fi
 
-    if ! "$nvim_bin" --headless '+Lazy! sync' +qa; then
-      echo 'WARN: Neovim plugin bootstrap failed; setup will continue so other desktop tools remain usable.' >&2
-      echo '      Re-run setup after checking the Neovim output above.' >&2
+    if [[ -z $(git -C "$config_dir" status --porcelain --untracked-files=normal) ]]; then
+      config_was_clean=true
+    fi
+    mkdir -p "$XDG_STATE_HOME/nvim"
+    NVIM_LOG_FILE="$XDG_STATE_HOME/nvim/log" \
+      "$nvim_bin" --headless '+Lazy! restore' +qa || bootstrap_rc=$?
+    if ((bootstrap_rc != 0)); then
+      echo 'ERROR: Neovim plugin bootstrap failed.' >&2
+    fi
+    # Lazy may rewrite the lockfile while automatically installing missing
+    # plugins during startup. Preserve the committed lock after a clean,
+    # setup-managed bootstrap so the config checkout remains reproducible.
+    if $config_was_clean &&
+       git -C "$config_dir" cat-file -e HEAD:lazy-lock.json 2>/dev/null &&
+       ! git -C "$config_dir" diff --quiet -- lazy-lock.json; then
+      lock_tmp="$(mktemp)"
+      git -C "$config_dir" show HEAD:lazy-lock.json > "$lock_tmp"
+      install -m 0644 "$lock_tmp" "$config_dir/lazy-lock.json"
+      rm -f -- "$lock_tmp"
+    fi
+    if [[ ! -s $lua_parser ]]; then
+      echo "ERROR: Neovim Tree-sitter parser was not installed: $lua_parser" >&2
+      bootstrap_rc=1
+    fi
+    if ((bootstrap_rc != 0)); then
+      echo '       Other desktop modules will still be attempted by setup.' >&2
+      exit "$bootstrap_rc"
     fi
     ;;
   check)
     [[ -x $nvim_bin ]]
-    [[ $("$nvim_bin" --version | awk 'NR == 1 { sub(/^v/, "", $2); print $2 }') == "$NEOVIM_VERSION" ]]
+    [[ $(installed_neovim_version) == "$NEOVIM_VERSION" ]]
     [[ $(readlink -f -- "$HOME/.local/bin/nvim") == "$nvim_bin" ]]
     [[ $($tree_sitter_bin --version | awk 'NR == 1 { print $2 }') == "$TREE_SITTER_VERSION" ]]
     has_expected_config_remote
     [[ -f $config_dir/init.lua ]]
+    [[ -s $lua_parser ]]
     ;;
   *)
     echo "Usage: $0 plan|apply|check" >&2

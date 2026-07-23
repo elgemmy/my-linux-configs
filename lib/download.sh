@@ -3,7 +3,10 @@ set -Eeuo pipefail
 
 download_checked() {
   local url=$1 expected=$2 destination=$3 actual
-  curl --fail --location --silent --show-error "$url" --output "$destination"
+  curl --fail --location --silent --show-error \
+    --retry 4 --retry-delay 2 --retry-all-errors \
+    --connect-timeout 20 --speed-limit 1024 --speed-time 30 --max-time 600 \
+    "$url" --output "$destination"
   actual="$(sha256sum "$destination" | awk '{ print $1 }')"
   [[ $actual == "$expected" ]] || {
     printf 'Checksum mismatch for %s\nExpected: %s\nActual:   %s\n' "$url" "$expected" "$actual" >&2

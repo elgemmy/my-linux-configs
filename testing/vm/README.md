@@ -27,18 +27,22 @@ For each VM:
 3. Shut down the VM.
 4. Name a snapshot `clean-debian-cinnamon` or `clean-debian-gnome`.
 
-Before every acceptance run, restore the clean snapshot. Do not use the VM as a
-long-lived workstation: its value is that each run begins from identical state.
+Before every acceptance run, restore the clean snapshot. Do not pre-clone either
+configuration repository. The point is to prove the same zero-state path used
+on a new personal machine.
 
 ## Run an acceptance test
 
-Inside the restored VM:
+Inside the restored VM, install the single download prerequisite and use the
+fresh-machine entrypoint:
 
 ```bash
-git clone --branch testing-deb-vm https://github.com/elgemmy/my-linux-configs.git
-cd my-linux-configs
+sudo apt-get update
+sudo apt-get install -y curl
+curl -fsSL https://raw.githubusercontent.com/elgemmy/my-linux-configs/testing-deb-vm/bootstrap.sh | bash
+
+cd ~/.local/share/my-linux-configs
 ./tests/run.sh
-./setup.sh --profile desktop --non-interactive
 ./setup.sh --profile desktop --non-interactive
 ./doctor.sh --profile desktop
 ```

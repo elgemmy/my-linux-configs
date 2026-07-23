@@ -37,22 +37,29 @@ case "$action" in
   apply)
     if [[ ! -x $kitty_bin ]] ||
        [[ $("$kitty_bin" --version | awk 'NR == 1 { print $2 }') != "$KITTY_VERSION" ]]; then
-      tmp="$(mktemp -d)"
+      [[ ! -e $kitty_root ]] || {
+        echo "Refusing to replace incomplete or unexpected Kitty runtime: $kitty_root" >&2
+        exit 1
+      }
+      mkdir -p "$HOME/.local"
+      tmp="$(mktemp -d "$HOME/.local/.kitty-install.XXXXXX")"
       trap 'rm -rf "$tmp"' EXIT
-      curl --fail --location --silent --show-error \
-        https://sw.kovidgoyal.net/kitty/installer.sh \
-        --output "$tmp/installer.sh"
-      sh "$tmp/installer.sh" \
-        "installer=version-$KITTY_VERSION" \
-        "dest=$kitty_root" \
-        launch=n
+      download_checked \
+        "https://github.com/kovidgoyal/kitty/releases/download/v$KITTY_VERSION/kitty-$KITTY_VERSION-x86_64.txz" \
+        "$KITTY_SHA256" \
+        "$tmp/kitty.txz"
+      mkdir -p "$tmp/payload"
+      tar --no-same-owner -xJf "$tmp/kitty.txz" -C "$tmp/payload"
+      [[ -x $tmp/payload/bin/kitty && -x $tmp/payload/bin/kitten ]]
+      mv "$tmp/payload" "$kitty_root"
     fi
     managed_link "$kitty_bin" "$HOME/.local/bin/kitty"
     managed_link "$kitten_bin" "$HOME/.local/bin/kitten"
     install_desktop_entry kitty.desktop
     install_desktop_entry kitty-open.desktop
-    command -v update-desktop-database >/dev/null 2>&1 &&
+    if command -v update-desktop-database >/dev/null 2>&1; then
       update-desktop-database "$XDG_DATA_HOME/applications" >/dev/null
+    fi
     ;;
   check)
     [[ -x $kitty_bin && -x $kitten_bin ]]
@@ -61,6 +68,8 @@ case "$action" in
     [[ $(readlink -f -- "$HOME/.local/bin/kitten") == "$kitten_bin" ]]
     desktop-file-validate "$XDG_DATA_HOME/applications/kitty.desktop"
     desktop-file-validate "$XDG_DATA_HOME/applications/kitty-open.desktop"
+    desktop-file-validate "$XDG_DATA_HOME/applications/kdev.desktop"
+    "$HOME/.local/bin/kdev" --check
     ;;
   *)
     echo "Usage: $0 plan|apply|check" >&2

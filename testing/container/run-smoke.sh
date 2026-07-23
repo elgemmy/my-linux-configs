@@ -20,6 +20,15 @@ case " $profile " in
     [[ -L $HOME/.zshrc && -L $HOME/.vimrc ]]
     [[ $(getent passwd "$(id -un)" | cut -d: -f7) == "$(command -v zsh)" ]]
     [[ -L ${XDG_DATA_HOME:-$HOME/.local/share}/linux-config/nvm/current ]]
+    if [[ $profile == desktop ]]; then
+      # A language-runtime failure must not prevent the baseline terminal and
+      # editor from being attempted and installed.
+      [[ -x $HOME/.local/kitty.app/bin/kitty ]]
+      [[ -x $HOME/.local/bin/nvim ]]
+      [[ -x $HOME/.local/bin/tree-sitter ]]
+      [[ -x $HOME/.local/bin/kdev ]]
+      [[ -d $HOME/.config/nvim/.git ]]
+    fi
     ;;
 esac
 
