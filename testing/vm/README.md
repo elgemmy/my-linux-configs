@@ -35,7 +35,7 @@ long-lived workstation: its value is that each run begins from identical state.
 Inside the restored VM:
 
 ```bash
-git clone https://github.com/elgemmy/my-linux-configs.git
+git clone --branch testing-deb-vm https://github.com/elgemmy/my-linux-configs.git
 cd my-linux-configs
 ./tests/run.sh
 ./setup.sh --profile desktop --non-interactive
@@ -53,7 +53,11 @@ useful.
 - A newly opened terminal starts Zsh without manually running `zsh`.
 - `nvm`, `node`, `npm`, and `npx` work in that newly opened terminal.
 - `node --version` matches `NODE_VERSION` in `versions.conf`.
+- `nvim --version` matches `NEOVIM_VERSION` and opens with the cloned config.
+- `git -C ~/.config/nvim remote get-url origin` points to `elgemmy/nvim-config`.
 - `vim` starts and clipboard copy/paste works with the desktop.
+- `kitty --version` matches `KITTY_VERSION` in `versions.conf`.
+- Kitty and Kitty Open appear through the upstream desktop entries.
 - Kitty appears in the application menu and opens normally.
 - KDev appears in the application menu and opens its tracked session.
 - `kdev --check` succeeds in a terminal.

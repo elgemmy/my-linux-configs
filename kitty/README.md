@@ -4,16 +4,19 @@ High-performance terminal emulator configuration with vim-style navigation.
 
 ## Quick Setup
 
-### Automatic Installation
+### Workstation bootstrap
+From the repository root:
+
 ```bash
-./install.sh
+./setup.sh --profile desktop
 ```
 
-### Manual Installation
-```bash
-# Install kitty on Debian/Ubuntu
-sudo apt install kitty
+This uses Kitty's official binary installer, keeps the application under
+`~/.local/kitty.app`, creates `kitty` and `kitten` links in
+`~/.local/bin`, and installs both upstream desktop entries.
 
+### Manual configuration
+```bash
 # Copy configuration
 mkdir -p ~/.config/kitty
 cp kitty.conf ~/.config/kitty/kitty.conf

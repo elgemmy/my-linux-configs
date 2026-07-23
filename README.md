@@ -15,7 +15,7 @@ The supported path is a straightforward Bash bootstrap for **Ubuntu (primary)** 
 
 * `minimal`: `core shell git vim`
 * `developer`: `core shell git vim python node rust`
-* `desktop`: `core shell git vim python node rust fonts kitty editors`
+* `desktop`: `core shell git vim neovim python node rust fonts kitty editors`
 
 Go and Java are intentional extras, never profile dependencies:
 
@@ -24,7 +24,7 @@ Go and Java are intentional extras, never profile dependencies:
 ./extras/install.sh go java     # explicit
 ```
 
-Go uses the distribution `golang-go`; Java installs exactly the distribution `default-jdk` and reports a `JAVA_HOME` dynamically derived from the selected `java`. Apt packages are intentionally unpinned. Node, Rust, Starship, Oh My Zsh, and its custom plugins use the revisions or checksums recorded in `versions.conf`; upstream release publishers remain an explicit trust boundary.
+Go uses the distribution `golang-go`; Java installs exactly the distribution `default-jdk` and reports a `JAVA_HOME` dynamically derived from the selected `java`. Apt packages are intentionally unpinned. Node, Rust, Neovim, Kitty, Starship, Oh My Zsh, and its custom plugins use the revisions, release versions, or checksums recorded in `versions.conf`; upstream release publishers remain an explicit trust boundary.
 
 ## Package and configuration policy
 
@@ -50,8 +50,12 @@ successful run to start a real Zsh login session.
 
 ## Desktop and trusted-workflow utilities
 
-Desktop setup installs Kitty via apt and deploys its config/session/launcher plus
-per-file editor settings. KDev launcher failures are written to
+Desktop setup installs the pinned official Kitty binary in `~/.local/kitty.app`,
+creates the upstream `kitty` and `kitten` PATH links, installs both upstream
+desktop entries, and deploys its config/session/launcher. It also installs the
+pinned official Neovim binary and clones `elgemmy/nvim-config` directly into
+`~/.config/nvim` (or `$XDG_CONFIG_HOME/nvim`). Existing Neovim configuration is
+never overwritten. KDev launcher failures are written to
 `~/.local/state/linux-config/kdev.log`; run `kdev --check` for a non-graphical
 diagnostic. Desktop setup does **not** change the Cinnamon/GNOME default terminal
 or autostart. Review and intentionally run `extras/desktop-preferences.sh` for

@@ -1,0 +1,2 @@
+# Neovim uses the pinned official binary; its build/runtime prerequisites are
+# already supplied by the desktop profile.

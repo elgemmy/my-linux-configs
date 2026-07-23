@@ -3,7 +3,7 @@ set -Eeuo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 find "$ROOT" -path "$ROOT/.git" -prune -o -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
 if command -v shellcheck >/dev/null; then shellcheck -e SC2034,SC2317 "$ROOT/setup.sh" "$ROOT/doctor.sh" "$ROOT/lib/"*.sh; else echo 'SKIP shellcheck unavailable'; fi
-for p in minimal developer desktop; do grep -qxF "$(case $p in minimal) echo 'core shell git vim';; developer) echo 'core shell git vim python node rust';; desktop) echo 'core shell git vim python node rust fonts kitty editors';; esac)" "$ROOT/profiles/$p"; done
+for p in minimal developer desktop; do grep -qxF "$(case $p in minimal) echo 'core shell git vim';; developer) echo 'core shell git vim python node rust';; desktop) echo 'core shell git vim neovim python node rust fonts kitty editors';; esac)" "$ROOT/profiles/$p"; done
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 before="$(find "$tmp" -printf '%P\n')"; HOME="$tmp" XDG_STATE_HOME="$tmp/state" "$ROOT/setup.sh" --profile minimal --plan >/dev/null; after="$(find "$tmp" -printf '%P\n')"; [[ $before == "$after" ]]
 export HOME="$tmp/home" XDG_CONFIG_HOME="$tmp/config" XDG_DATA_HOME="$tmp/data" XDG_STATE_HOME="$tmp/state"; mkdir -p "$HOME"; source "$ROOT/lib/common.sh"; source "$ROOT/lib/deploy.sh"
@@ -34,8 +34,8 @@ if HOME="$tmp/empty" XDG_STATE_HOME="$tmp/empty-state" "$ROOT/doctor.sh" --profi
 # Assert that the URL remains version-parameterized.
 # shellcheck disable=SC2016
 grep -Fq 'rustup/archive/$RUSTUP_VERSION/x86_64-unknown-linux-gnu/rustup-init' "$ROOT/modules/rust.sh"
-grep -Fqx 'TryExec=kdev' "$ROOT/kitty/desktop/kdev.desktop"
-grep -Fqx 'Exec=kdev' "$ROOT/kitty/desktop/kdev.desktop"
+grep -Fqx 'TryExec=sh' "$ROOT/kitty/desktop/kdev.desktop"
+grep -Fqx 'Exec=sh -lc "exec $HOME/.local/bin/kdev"' "$ROOT/kitty/desktop/kdev.desktop"
 if command -v desktop-file-validate >/dev/null; then
   desktop-file-validate "$ROOT/kitty/desktop/kdev.desktop"
 else
@@ -43,9 +43,9 @@ else
 fi
 # KDev must deploy as a real executable and provide a headless diagnostic.
 deployment_mappings kitty | deploy_apply >/dev/null
-kitty() { :; }
-export -f kitty
-"$HOME/.local/bin/kdev" --check
-unset -f kitty
-grep -Fq 'OK session:' "$STATE_DIR/kdev.log"
+mkdir -p "$HOME/.local/kitty.app/bin"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$HOME/.local/kitty.app/bin/kitty"
+chmod +x "$HOME/.local/kitty.app/bin/kitty"
+"$HOME/.local/bin/kdev" --check > "$tmp/kdev-check"
+grep -Fq 'OK session:' "$tmp/kdev-check"
 echo 'PASS focused tests'

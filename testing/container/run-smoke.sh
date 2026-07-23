@@ -47,10 +47,16 @@ case " $profile " in
 esac
 
 if [[ $profile == desktop ]]; then
-  command -v kitty >/dev/null
+  "$HOME/.local/kitty.app/bin/kitty" --version
+  [[ -L $HOME/.local/bin/kitty && -L $HOME/.local/bin/kitten ]]
   [[ -L $HOME/.config/kitty/kitty.conf ]]
+  desktop-file-validate "$HOME/.local/share/applications/kitty.desktop"
+  desktop-file-validate "$HOME/.local/share/applications/kitty-open.desktop"
   desktop-file-validate "$HOME/.local/share/applications/kdev.desktop"
   "$HOME/.local/bin/kdev" --check
+  "$HOME/.local/bin/nvim" --version
+  [[ -d $HOME/.config/nvim/.git && -f $HOME/.config/nvim/init.lua ]]
+  "$HOME/.local/bin/nvim" --headless +qa
 fi
 
 echo "PASS fresh install and rerun for profile '$profile'"

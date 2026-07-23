@@ -14,30 +14,47 @@ else
 fi
 log_dir="$state_home/linux-config"
 log_file="$log_dir/kdev.log"
+kitty_bin="$HOME/.local/kitty.app/bin/kitty"
+
+if [[ ${1:-} == --check ]]; then
+  failures=0
+  if [[ -x $kitty_bin ]]; then
+    printf 'OK kitty: %s\n' "$kitty_bin"
+  else
+    printf 'FAIL kitty is not executable: %s\n' "$kitty_bin" >&2
+    failures=$((failures + 1))
+  fi
+  if [[ -r $session ]]; then
+    printf 'OK session: %s\n' "$session"
+  else
+    printf 'FAIL session is not readable: %s\n' "$session" >&2
+    failures=$((failures + 1))
+  fi
+  printf 'INFO launch log: %s\n' "$log_file"
+  ((failures == 0))
+  exit
+fi
 
 mkdir -p "$log_dir"
-exec >>"$log_file" 2>&1
-printf '\n[%s] Starting KDev session\n' "$(date --iso-8601=seconds)"
+{
+  printf '\n[%s] Starting KDev session\n' "$(date --iso-8601=seconds)"
+  echo "Kitty: $kitty_bin"
+  echo "Session: $session"
+} >> "$log_file"
 
-kitty_bin="$(command -v kitty 2>/dev/null || true)"
-if [[ -z $kitty_bin ]]; then
-  echo 'ERROR: kitty is not available on PATH.'
+if [[ ! -x $kitty_bin ]]; then
+  message="Kitty is not executable: $kitty_bin"
+  echo "ERROR: $message" >> "$log_file"
   command -v notify-send >/dev/null 2>&1 &&
-    notify-send 'KDev failed to start' "Kitty was not found. See $log_file"
+    notify-send 'KDev failed to start' "$message. See $log_file"
   exit 1
 fi
 if [[ ! -r $session ]]; then
-  echo "ERROR: session is not readable: $session"
+  message="Session is not readable: $session"
+  echo "ERROR: $message" >> "$log_file"
   command -v notify-send >/dev/null 2>&1 &&
-    notify-send 'KDev failed to start' "Session file is missing. See $log_file"
+    notify-send 'KDev failed to start' "$message. See $log_file"
   exit 1
 fi
 
-if [[ ${1:-} == --check ]]; then
-  printf 'OK kitty: %s\nOK session: %s\nOK log: %s\n' "$kitty_bin" "$session" "$log_file"
-  exit 0
-fi
-
-echo "Kitty: $kitty_bin"
-echo "Session: $session"
-exec "$kitty_bin" --class kdev --session "$session"
+exec "$kitty_bin" --class kdev --session "$session" >> "$log_file" 2>&1
