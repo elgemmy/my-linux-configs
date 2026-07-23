@@ -41,19 +41,22 @@ update_config_checkout() {
 }
 
 install_tree_sitter() {
-  local installed_version tmp
+  local installed_version
   installed_version="$($tree_sitter_bin --version 2>/dev/null | awk 'NR == 1 { print $2 }' || true)"
   [[ $installed_version == "$TREE_SITTER_VERSION" ]] && return 0
 
-  tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
-  download_checked \
-    "https://github.com/tree-sitter/tree-sitter/releases/download/v$TREE_SITTER_VERSION/tree-sitter-cli-linux-x64.zip" \
-    "$TREE_SITTER_SHA256" \
-    "$tmp/tree-sitter.zip"
-  unzip -q "$tmp/tree-sitter.zip" -d "$tmp/tree-sitter"
-  [[ -f $tmp/tree-sitter/tree-sitter ]]
-  install -m 0755 "$tmp/tree-sitter/tree-sitter" "$tree_sitter_bin"
+  (
+    local tree_sitter_tmp
+    tree_sitter_tmp="$(mktemp -d)"
+    trap 'rm -rf "$tree_sitter_tmp"' EXIT
+    download_checked \
+      "https://github.com/tree-sitter/tree-sitter/releases/download/v$TREE_SITTER_VERSION/tree-sitter-cli-linux-x64.zip" \
+      "$TREE_SITTER_SHA256" \
+      "$tree_sitter_tmp/tree-sitter.zip"
+    unzip -q "$tree_sitter_tmp/tree-sitter.zip" -d "$tree_sitter_tmp/extracted"
+    [[ -f $tree_sitter_tmp/extracted/tree-sitter ]]
+    install -m 0755 "$tree_sitter_tmp/extracted/tree-sitter" "$tree_sitter_bin"
+  )
 }
 
 case "$action" in
