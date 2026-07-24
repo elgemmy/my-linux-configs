@@ -57,20 +57,42 @@ grep -Fq '[[ -s $lua_parser ]]' "$ROOT/modules/neovim.sh"
 grep -Fq '"$HOME/.local/bin:$PATH"' "$ROOT/lib/common.sh"
 grep -Fq 'kitty-$KITTY_VERSION-x86_64.txz' "$ROOT/modules/kitty.sh"
 grep -Fq 'KITTY_SHA256' "$ROOT/modules/kitty.sh"
-grep -Fq '"$HOME/.local/bin/kdev" --check' "$ROOT/modules/kitty.sh"
-grep -Fqx 'TryExec=sh' "$ROOT/kitty/desktop/kdev.desktop"
-grep -Fqx 'Exec=sh -lc "exec $HOME/.local/bin/kdev"' "$ROOT/kitty/desktop/kdev.desktop"
+grep -Fq '"$kdev_bin" --check' "$ROOT/modules/kitty.sh"
+grep -Fqx 'TryExec=__KDEV_BIN__' "$ROOT/kitty/desktop/kdev.desktop.in"
+grep -Fqx 'Exec=__KDEV_BIN__' "$ROOT/kitty/desktop/kdev.desktop.in"
+grep -Fqx 'Icon=__KITTY_ICON__' "$ROOT/kitty/desktop/kdev.desktop.in"
+grep -Fqx 'X-Linux-Config-Managed=true' "$ROOT/kitty/desktop/kdev.desktop.in"
+! deployment_mappings kitty | grep -Fq 'kdev.desktop'
 ! grep -Eq 'alias[[:space:]]+kdev=' "$ROOT/dotfiles/zsh/modules/main.zsh"
-if command -v desktop-file-validate >/dev/null; then
-  desktop-file-validate "$ROOT/kitty/desktop/kdev.desktop"
-else
-  echo 'SKIP desktop-file-validate unavailable'
-fi
 # KDev must deploy as a real executable and provide a headless diagnostic.
 deployment_mappings kitty | deploy_apply >/dev/null
 mkdir -p "$HOME/.local/kitty.app/bin"
-printf '#!/usr/bin/env bash\nexit 0\n' > "$HOME/.local/kitty.app/bin/kitty"
+# shellcheck disable=SC1091
+source "$ROOT/versions.conf"
+printf '#!/usr/bin/env bash\nprintf "kitty %s\\n"\n' "$KITTY_VERSION" \
+  > "$HOME/.local/kitty.app/bin/kitty"
 chmod +x "$HOME/.local/kitty.app/bin/kitty"
 "$HOME/.local/bin/kdev" --check > "$tmp/kdev-check"
 grep -Fq 'OK session:' "$tmp/kdev-check"
+# Render the machine-specific desktop entry twice, including migration from the
+# invalid symlink deployed by earlier releases.
+mkdir -p "$XDG_DATA_HOME/applications" "$HOME/.local/kitty.app/share/applications" \
+  "$HOME/.local/kitty.app/share/icons/hicolor/256x256/apps"
+printf '[Desktop Entry]\nType=Application\nName=Kitty\nExec=kitty\nIcon=kitty\n' \
+  > "$HOME/.local/kitty.app/share/applications/kitty.desktop"
+printf '[Desktop Entry]\nType=Application\nName=Kitty URL\nExec=kitty %%U\nIcon=kitty\n' \
+  > "$HOME/.local/kitty.app/share/applications/kitty-open.desktop"
+ln -s "$ROOT/kitty/desktop/kdev.desktop" "$XDG_DATA_HOME/applications/kdev.desktop"
+if ! command -v desktop-file-validate >/dev/null; then
+  mkdir -p "$tmp/test-bin"
+  printf '#!/usr/bin/env bash\nexit 0\n' > "$tmp/test-bin/desktop-file-validate"
+  chmod +x "$tmp/test-bin/desktop-file-validate"
+  export PATH="$tmp/test-bin:$PATH"
+fi
+"$ROOT/modules/kitty.sh" apply
+"$ROOT/modules/kitty.sh" apply
+[[ ! -L $XDG_DATA_HOME/applications/kdev.desktop ]]
+grep -Fqx "TryExec=$HOME/.local/bin/kdev" "$XDG_DATA_HOME/applications/kdev.desktop"
+grep -Fqx "Exec=$HOME/.local/bin/kdev" "$XDG_DATA_HOME/applications/kdev.desktop"
+desktop-file-validate "$XDG_DATA_HOME/applications/kdev.desktop"
 echo 'PASS focused tests'

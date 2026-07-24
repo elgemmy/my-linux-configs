@@ -13,8 +13,7 @@ deployment_mappings() {
         printf '%s\t%s\n' kitty/kitty.conf "$XDG_CONFIG_HOME/kitty/kitty.conf"
         printf '%s\t%s\n' kitty/current-theme.conf "$XDG_CONFIG_HOME/kitty/current-theme.conf"
         printf '%s\t%s\n' kitty/sessions/daily.kitty-session "$XDG_CONFIG_HOME/kitty/sessions/daily.kitty-session"
-        printf '%s\t%s\n' kitty/bin/kdev "$HOME/.local/bin/kdev"
-        printf '%s\t%s\n' kitty/desktop/kdev.desktop "$XDG_DATA_HOME/applications/kdev.desktop" ;;
+        printf '%s\t%s\n' kitty/bin/kdev "$HOME/.local/bin/kdev" ;;
       editors)
         printf '%s\t%s\n' editors/vscode/settings.json "$XDG_CONFIG_HOME/Code/User/settings.json"
         printf '%s\t%s\n' editors/vscode/keybindings.json "$XDG_CONFIG_HOME/Code/User/keybindings.json"

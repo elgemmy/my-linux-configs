@@ -26,7 +26,9 @@ cp sessions/daily.kitty-session ~/.config/kitty/sessions/daily.kitty-session
 # Optional desktop launcher for the daily session
 mkdir -p ~/.local/share/applications
 KITTY_BIN="$(command -v kitty || printf kitty)"
-sed -e "s|__HOME__|$HOME|g" -e "s|__KITTY__|$KITTY_BIN|g" desktop/kdev.desktop > ~/.local/share/applications/kdev.desktop
+sed -e "s|__KDEV_BIN__|$HOME/.local/bin/kdev|g" \
+    -e "s|__KITTY_ICON__|$HOME/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" \
+    desktop/kdev.desktop.in > ~/.local/share/applications/kdev.desktop
 
 # Pick a theme
 kitten themes
