@@ -23,8 +23,13 @@ TMP="/tmp/appimage-install-$$"
 die()  { echo "error: $*" >&2; rm -rf "$TMP"; exit 1; }
 info() { echo "  $*"; }
 
+has_fuse2() {
+    ldconfig -p 2>/dev/null | /usr/bin/grep -q "libfuse\.so\.2"
+}
+
+
 desktop_field() {
-    /usr/bin/grep -m1 "^${1}=" "$TMP/squashfs-root/"*.desktop 2>/dev/null \
+    /usr/bin/grep -m1 "^${1}=" "$DESKTOP_SRC" 2>/dev/null \
         | cut -d= -f2-
 }
 
@@ -79,6 +84,7 @@ mkdir -p "$TMP" && cd "$TMP"
 "$TARGET" --appimage-extract > /dev/null 2>&1 \
     || die "Extraction failed — is this a valid AppImage?"
 
+DESKTOP_SRC=$(find "$TMP/squashfs-root" -maxdepth 1 -name '*.desktop' -print -quit)
 APP_NAME=$(desktop_field Name)
 APP_COMMENT=$(desktop_field Comment)
 APP_WMCLASS=$(desktop_field StartupWMClass)
@@ -87,6 +93,17 @@ APP_CATS=$(desktop_field Categories)
 APP_VER=$(desktop_field X-AppImage-Version)
 
 [ -z "$APP_NAME" ] && APP_NAME="$NAME"
+
+EXTRA_ARGS="--no-sandbox"
+if [ -f "$TMP/squashfs-root/LICENSE.electron.txt" ] && [ -n "$DESKTOP_SRC" ]; then
+    VENDOR_DESKTOP_ID=$(basename "$DESKTOP_SRC" .desktop)
+    if [[ ! "$VENDOR_DESKTOP_ID" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+        # Electron can turn scoped package names into invalid Wayland app IDs
+        # (for example, @scope/app). XWayland matches StartupWMClass reliably.
+        EXTRA_ARGS="$EXTRA_ARGS --ozone-platform=x11"
+        info "Window:  XWayland compatibility (unsafe vendor desktop ID: $VENDOR_DESKTOP_ID)"
+    fi
+fi
 
 ICON_SRC=$(best_icon)
 if [ -n "$ICON_SRC" ]; then
@@ -106,7 +123,11 @@ fi
     echo "[Desktop Entry]"
     echo "Name=$APP_NAME"
     [ -n "$APP_COMMENT" ] && echo "Comment=$APP_COMMENT"
-    echo "Exec=$TARGET --no-sandbox %U"
+    if has_fuse2; then
+        echo "Exec=$TARGET $EXTRA_ARGS %U"
+    else
+        echo "Exec=env APPIMAGE_EXTRACT_AND_RUN=1 $TARGET $EXTRA_ARGS %U"
+    fi
     echo "Terminal=false"
     echo "Type=Application"
     [ -n "$ICON_DEST" ]   && echo "Icon=$ICON_DEST"
@@ -116,6 +137,11 @@ fi
     [ -n "$APP_CATS" ]    && echo "Categories=$APP_CATS"
 } > "$DESKTOP_DIR/$NAME.desktop"
 info "Desktop: $DESKTOP_DIR/$NAME.desktop"
+
+if ! has_fuse2; then
+    echo "warning: libfuse.so.2 is not installed; launcher will use AppImage extract-and-run fallback"
+    echo "         For normal AppImage startup on Ubuntu 24.04, install: sudo apt install libfuse2t64"
+fi
 
 rm -rf "$TMP"
 update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true

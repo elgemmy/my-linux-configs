@@ -53,6 +53,11 @@ The script will:
 
 The app appears in the launcher immediately.
 
+On systems without FUSE 2 compatibility, the generated launcher uses
+`APPIMAGE_EXTRACT_AND_RUN=1`. Electron AppImages with unsafe vendor desktop IDs
+(for example, scoped IDs containing `@`) are launched through XWayland so GNOME
+can match their `StartupWMClass` and display the correct running-app icon.
+
 ### Removing an installed AppImage
 
 ```bash
@@ -97,7 +102,7 @@ AppImages need a stable path that desktop entries can point to. `~/Downloads/` g
 The XDG Desktop Entry spec is how Linux launchers (GNOME, KDE, etc.) know about apps. Each `.desktop` file in `~/.local/share/applications/` defines:
 
 - `Name` — label shown in the launcher
-- `Exec` — what to run (points to `~/Applications/<name>.AppImage --no-sandbox %U`)
+- `Exec` — what to run (points to the installed AppImage with the required compatibility flags)
 - `Icon` — absolute path to the PNG (bypasses icon theme lookup, always works)
 - `StartupWMClass` — used by the dock to group windows under the right launcher icon
 - `MimeType` — registers URI scheme handlers (e.g. `obsidian://`, `capacities://`)
